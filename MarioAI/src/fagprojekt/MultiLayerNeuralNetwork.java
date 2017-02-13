@@ -14,7 +14,7 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	private double[][][] connections;
 	private double[][] neuronLayers; // 0 = input , end = output, rest = hidden
 	private double learningRate = 0.35;
-	private double mutationChange = 1/2;
+	private double mutationChange = 1 / 2;
 	private double limit = 0.3;
 	int numberOfInputs;
 
@@ -22,8 +22,8 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 		this.numberOfInputs = numberOfInputs;
 		int hiddenNeurons = (numberOfInputs + numberOfOutputs) / 2;
 		neuronLayers = new double[1 + hiddenLayers][];
-		for(int i = 0 ; i < hiddenLayers; i++){
-			neuronLayers[i] = new double[hiddenNeurons];			
+		for (int i = 0; i < hiddenLayers; i++) {
+			neuronLayers[i] = new double[hiddenNeurons];
 		}
 		neuronLayers[hiddenLayers] = new double[numberOfOutputs];
 
@@ -122,7 +122,7 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	public void calculateAllSteps(double[] inputs) {
 		reset();
 		calculateOneStep(inputs, neuronLayers[0], connections[0]);
-		 bounder(neuronLayers[0]);
+		bounder(neuronLayers[0]);
 		for (int i = 0; i < hiddenLayers; i++) {
 			calculateOneStep(neuronLayers[i], neuronLayers[i + 1], connections[i + 1]);
 			bounder(neuronLayers[i + 1]);
@@ -140,8 +140,10 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 
 	public void bounder(double[] array) {
 		for (int i = 0; i < array.length; i++) {
-			//array[i] = array[i] > 0 ? 1 : 0;
-			array[i] = Math.tanh(array[i]);
+			// array[i] = array[i] > 0 ? 1 : 0;
+			//array[i] = Math.tanh(array[i]);
+			array[i] = array[i] > limit ? Math.tanh(array[i]) : 0;
+
 		}
 	}
 

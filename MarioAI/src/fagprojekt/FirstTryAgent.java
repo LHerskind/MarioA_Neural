@@ -7,9 +7,9 @@ import ch.idsia.evolution.Evolvable;
 public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 
 	// Virkede det
-	
+
 	private MultiLayerNeuralNetwork MLNN;
-	private int numberOfInputs = 3;
+	private int numberOfInputs = 6;
 	private int numberOfOutputs = Environment.numberOfKeys;
 
 	public FirstTryAgent() {
@@ -29,34 +29,41 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 		// byte[][] enemies = observation.getEnemiesObservation(/*0*/);
 		double[] inputs = new double[numberOfInputs];
 
-		int which = 0;
-		
-		for (int i = 0; i < 4; i+=2) {
-				inputs[which++] = (sample(i, i, scene) != 0 || sample(i+1, i, scene) != 0 || sample(i, i+1, scene) != 0 || sample(i+1, i+1, scene) != 0) ? 1 : 0;
-//				System.out.print(inputs[which - 1] + " ");
-//			System.out.println();
-		}
-//		System.out.println();
+		inputs[0] = (sample(2, 1, scene) != 0 && (sample(1, 1, scene) != 0 || sample(3, 1, scene) != 0)) ? 1 : 0;
+
+		inputs[1] = sample(2, 1, scene) != 0 ? 1 : 0; // 1 Foran
+		inputs[2] = (sample(1, 1, scene) != 0) ? 1 : 0; // 1 Frem 1 Op
+
+		inputs[3] = sample(2, 2, scene) != 0 ? 1 : 0; // 2 Foran
+
+		inputs[4] = sample(3, 0, scene) == 0 ? 1 : 0; // Under ham
+
+		inputs[5] = sample(3, -1, scene) == -1 ? 1 : 0; // Bag ham
 
 		inputs[inputs.length - 1] = isMarioAbleToShoot ? 1 : 0;
+
+		/*
+		 * 
+		 * 0 0 0 0 0 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+		 */
 
 		return MLNN.getOutput(inputs);
 	}
 
 	private int sample(int y, int x, byte[][] scene) {
 		int realX = x + marioEgoRow;
-		int realY = y + marioEgoCol - 1;
+		int realY = y + marioEgoCol - 2;
 		int point = scene[realY][realX];
 		if (point == 101) { // Mario
-			return 0;
+			return 7;
 		} else if (point >= 26) {
 			return -1;
-		} else if(point < 0) {
+		} else if (point < 0) {
 			return 1;
 		} else if (point == 25) {
 			return 0;
 		} else if (point <= 5 && point > 0) {
-			return point;
+			return 0;
 		} else {
 			return 0;
 		}

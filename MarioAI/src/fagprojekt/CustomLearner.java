@@ -15,8 +15,8 @@ public class CustomLearner implements LearningAgent {
 	private Task task;
 
 	private ES es;
-	int populationSize = 1000;
-	int generations = 20;
+	int populationSize = 100;
+	int generations = 15;
 
 	long evaluationQuota; // common number of trials
 	long currentEvaluation; // number of exhausted trials

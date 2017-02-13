@@ -166,6 +166,8 @@ private static int oldEval(MarioAIOptions marioAIOptions, LearningAgent learning
 
 public static void main(String[] args)
 {
+	float finalScore = 0;
+	
     // set up parameters
     MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 //    LearningAgent learningAgent = new SRNESLearningAgent(); // Learning track competition entry goes here
@@ -179,16 +181,15 @@ public static void main(String[] args)
 
 //        Level 0
 //    marioAIOptions.setArgs("-lf on -lg on");
-    float finalScore = LearningTrack.evaluateSubmission(marioAIOptions, learningAgent);
+    finalScore = LearningTrack.evaluateSubmission(marioAIOptions, learningAgent);
 
-    /*    
+    /*   
 //        Level 1
     marioAIOptions = new MarioAIOptions(args);
     marioAIOptions.setAgent(learningAgent);
     marioAIOptions.setArgs("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
     marioAIOptions.setVisualization(false);
     finalScore += LearningTrack.evaluateSubmission(marioAIOptions, learningAgent);
-
 //        Level 2
     marioAIOptions = new MarioAIOptions(args);
     marioAIOptions.setArgs("-lde on -i on -ld 30 -ls 133434");
