@@ -13,8 +13,9 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	int hiddenLayers = 1;
 	private double[][][] connections;
 	private double[][] neuronLayers; // 0 = input , end = output, rest = hidden
-	private double learningRate = 0.1;
+	private double learningRate = 0.35;
 	private double mutationChange = 1/2;
+	private double limit = 0.3;
 	int numberOfInputs;
 
 	public MultiLayerNeuralNetwork(int numberOfInputs, int numberOfOutputs) {
@@ -113,7 +114,7 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 
 		boolean[] output = new boolean[9];
 		for (int i = 0; i < neuronLayers[hiddenLayers].length; i++) {
-			output[i] = (neuronLayers[hiddenLayers][i] > 0);
+			output[i] = (neuronLayers[hiddenLayers][i] > limit);
 		}
 		return output;
 	}

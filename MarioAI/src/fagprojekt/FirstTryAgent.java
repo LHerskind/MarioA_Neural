@@ -6,8 +6,10 @@ import ch.idsia.evolution.Evolvable;
 
 public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 
+	// Virkede det
+	
 	private MultiLayerNeuralNetwork MLNN;
-	private int numberOfInputs = 4;
+	private int numberOfInputs = 3;
 	private int numberOfOutputs = Environment.numberOfKeys;
 
 	public FirstTryAgent() {
@@ -27,32 +29,34 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 		// byte[][] enemies = observation.getEnemiesObservation(/*0*/);
 		double[] inputs = new double[numberOfInputs];
 
-		/*
-		 * int which = 0; for (int i = 0; i < 5; i++) { for (int j = 0; j < 5;
-		 * j++) { inputs[which++] = sample(i, j, scene);
-		 * System.out.print(inputs[which-1] + " "); } System.out.println(); }
-		 * System.out.println();
-		 */
-		inputs[inputs.length - 4] = (sample(3, 2, scene) == 1 && sample(2, 2, scene) == 1 || sample(1, 2, scene) == 1 && sample(2, 2, scene) == 1) ? 1 : 0;
-		inputs[inputs.length - 3] = (sample(3, 2, scene) == 1 || sample(3, 3, scene) == 1) ? 1 : 0;
-		inputs[inputs.length - 2] = isMarioAbleToJump ? 1 : 0;
+		int which = 0;
+		
+		for (int i = 0; i < 4; i+=2) {
+				inputs[which++] = (sample(i, i, scene) != 0 || sample(i+1, i, scene) != 0 || sample(i, i+1, scene) != 0 || sample(i+1, i+1, scene) != 0) ? 1 : 0;
+//				System.out.print(inputs[which - 1] + " ");
+//			System.out.println();
+		}
+//		System.out.println();
+
 		inputs[inputs.length - 1] = isMarioAbleToShoot ? 1 : 0;
 
 		return MLNN.getOutput(inputs);
 	}
 
-	private int sample(int x, int y, byte[][] scene) {
-		int realX = x + marioEgoRow - 3;
+	private int sample(int y, int x, byte[][] scene) {
+		int realX = x + marioEgoRow;
 		int realY = y + marioEgoCol - 1;
-		int point = scene[realX][realY];
+		int point = scene[realY][realX];
 		if (point == 101) { // Mario
 			return 0;
-		} else if (point >= 26 || point < 1) {
+		} else if (point >= 26) {
+			return -1;
+		} else if(point < 0) {
 			return 1;
 		} else if (point == 25) {
 			return 0;
-		} else if (point == 5) {
-			return 2;
+		} else if (point <= 5 && point > 0) {
+			return point;
 		} else {
 			return 0;
 		}
