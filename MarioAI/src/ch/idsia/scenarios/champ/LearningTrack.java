@@ -184,13 +184,16 @@ public static void main(String[] args)
     finalScore = LearningTrack.evaluateSubmission(marioAIOptions, learningAgent);
 
     /*   
+
 //        Level 1
     marioAIOptions = new MarioAIOptions(args);
     marioAIOptions.setAgent(learningAgent);
     marioAIOptions.setArgs("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
     marioAIOptions.setVisualization(false);
     finalScore += LearningTrack.evaluateSubmission(marioAIOptions, learningAgent);
-//        Level 2
+
+
+    //        Level 2
     marioAIOptions = new MarioAIOptions(args);
     marioAIOptions.setArgs("-lde on -i on -ld 30 -ls 133434");
     marioAIOptions.setVisualization(false);

@@ -29,16 +29,16 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 		// byte[][] enemies = observation.getEnemiesObservation(/*0*/);
 		double[] inputs = new double[numberOfInputs];
 
-		inputs[0] = (sample(2, 1, scene) != 0 && (sample(1, 1, scene) != 0 || sample(3, 1, scene) != 0)) ? 1 : 0;
+//		inputs[0] = (sample(2, 1, scene) != 0 && (sample(1, 1, scene) != 0 || sample(3, 1, scene) != 0)) ? 1 : 0;
 
-		inputs[1] = sample(2, 1, scene) != 0 ? 1 : 0; // 1 Foran
-		inputs[2] = (sample(1, 1, scene) != 0) ? 1 : 0; // 1 Frem 1 Op
+		inputs[0] = sample(2, 1, scene) != 0 ? 1 : 0; // 1 Foran
+		inputs[1] = (sample(1, 1, scene) != 0) ? 1 : 0; // 1 Frem 1 Op
 
-		inputs[3] = sample(2, 2, scene) != 0 ? 1 : 0; // 2 Foran
+		inputs[2] = sample(2, 2, scene) != 0 ? 1 : 0; // 2 Foran
 
-		inputs[4] = sample(3, 0, scene) == 0 ? 1 : 0; // Under ham
+		inputs[3] = sample(3, 0, scene) == 0 ? 1 : 0; // Under ham
 
-		inputs[5] = sample(3, -1, scene) == -1 ? 1 : 0; // Bag ham
+		inputs[4] = sample(3, -1, scene) == -1 ? 1 : 0; // Bag ham
 
 		inputs[inputs.length - 1] = isMarioAbleToShoot ? 1 : 0;
 
