@@ -14,7 +14,7 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	private double[][][] connections;
 	private double[][] neuronLayers; // 0 = input , end = output, rest = hidden
 	private double learningRate = 0.35;
-	private double mutationChange = 3 / 4;
+	private double mutationChange = 1 / 2;
 	private double limit = 0.3;
 	private boolean twoSides = false; // True = +/-, false = +
 	int numberOfInputs;
