@@ -29,22 +29,20 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 		// byte[][] enemies = observation.getEnemiesObservation(/*0*/);
 		double[] inputs = new double[numberOfInputs];
 
-//		inputs[0] = (sample(2, 1, scene) != 0 && (sample(1, 1, scene) != 0 || sample(3, 1, scene) != 0)) ? 1 : 0;
-
 		inputs[0] = sample(2, 1, scene) != 0 ? 1 : 0; // 1 Foran
 		inputs[1] = (sample(1, 1, scene) != 0) ? 1 : 0; // 1 Frem 1 Op
-
 		inputs[2] = sample(2, 2, scene) != 0 ? 1 : 0; // 2 Foran
-
 		inputs[3] = sample(3, 0, scene) == 0 ? 1 : 0; // Under ham
-
-		inputs[4] = sample(3, -1, scene) == -1 ? 1 : 0; // Bag ham
+		inputs[4] = sample(2, -1, scene) == -1 ? 1 : 0; // Bag ham
 
 		inputs[inputs.length - 1] = isMarioAbleToShoot ? 1 : 0;
 
 		/*
-		 * 
-		 * 0 0 0 0 0 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+		 * 0 0 0 0 0 
+		 * 0 0 0 0 0 
+		 * M 0 0 0 0 
+		 * 0 0 0 0 0 
+		 * 0 0 0 0 0
 		 */
 
 		return MLNN.getOutput(inputs);
@@ -57,13 +55,13 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 		if (point == 101) { // Mario
 			return 7;
 		} else if (point >= 26) {
-			return -1;
-		} else if (point < 0) {
 			return 1;
+		} else if (point < 0) {
+			return 2;
 		} else if (point == 25) {
 			return 0;
 		} else if (point <= 5 && point > 0) {
-			return 0;
+			return 3;
 		} else {
 			return 0;
 		}

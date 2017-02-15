@@ -16,6 +16,7 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	private double learningRate = 0.35;
 	private double mutationChange = 1 / 2;
 	private double limit = 0.3;
+	private boolean twoSides = false; // True = +/-, false = +
 	int numberOfInputs;
 
 	public MultiLayerNeuralNetwork(int numberOfInputs, int numberOfOutputs) {
@@ -89,9 +90,14 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 		}
 	}
 
+	/**
+	 *  (2* getRandom() - 1) = -1;1 , getRandom() = 0;1
+	 * @param array
+	 */
 	public void mutate(double[] array) {
 		for (int i = 0; i < array.length; i++) {
-			double mutateDegree = getRandom() > mutationChange ? getRandom() * learningRate : 0;
+			double randMut = twoSides ? (2*getRandom() - 1) : getRandom();
+			double mutateDegree = getRandom() > mutationChange ? (randMut) * learningRate : 0;
 			array[i] += mutateDegree;
 		}
 	}
@@ -141,8 +147,8 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	public void bounder(double[] array) {
 		for (int i = 0; i < array.length; i++) {
 			// array[i] = array[i] > 0 ? 1 : 0;
-			//array[i] = Math.tanh(array[i]);
-			array[i] = array[i] > limit ? Math.tanh(array[i]) : 0;
+			// array[i] = Math.tanh(array[i]);
+			array[i] = array[i] > limit ? array[i] : 0;
 
 		}
 	}
