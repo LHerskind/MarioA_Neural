@@ -1,5 +1,5 @@
 /*
-s * Copyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
+ * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

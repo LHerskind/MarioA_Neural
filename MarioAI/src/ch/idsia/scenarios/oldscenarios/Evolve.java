@@ -39,7 +39,7 @@ import ch.idsia.evolution.Evolvable;
 import ch.idsia.evolution.ea.ES;
 import ch.idsia.tools.MarioAIOptions;
 import ch.idsia.utils.wox.serial.Easy;
-import fagprojekt.HardES;
+import fagprojekt_GANN.HardES;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

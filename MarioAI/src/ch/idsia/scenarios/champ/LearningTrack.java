@@ -36,7 +36,7 @@ import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.benchmark.tasks.LearningTask;
 import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.MarioAIOptions;
-import fagprojekt.CustomLearner;
+import fagprojekt_GANN.CustomLearner;
 import jdk.nashorn.internal.runtime.options.Options;
 
 /**

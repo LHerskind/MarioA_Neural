@@ -80,13 +80,13 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
-		for (int i = 0; i < mergedObservation.length; i++) {
-			for (int j = 0; j < mergedObservation[0].length; j++) {
-				System.out.print(mergedObservation[i][j] + " ");
+		for (int i = 0; i < enemies.length; i++) {
+			for (int j = 0; j < enemies[0].length; j++) {
+//				System.out.print(enemies[i][j] + " ");
 			}
-			System.out.println();
+//			System.out.println();
 		}
-		System.out.println();
+//		System.out.println();
 		return Action;
 	}
 
@@ -149,22 +149,28 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	private void toggleKey(int keyCode, boolean isPressed) {
 		switch (keyCode) {
 		case KeyEvent.VK_LEFT:
+			System.out.println(Mario.KEY_LEFT);
 			Action[Mario.KEY_LEFT] = isPressed;
 			break;
 		case KeyEvent.VK_RIGHT:
+			System.out.println(Mario.KEY_RIGHT);
 			Action[Mario.KEY_RIGHT] = isPressed;
 			break;
 		case KeyEvent.VK_DOWN:
+			System.out.println(Mario.KEY_DOWN);
 			Action[Mario.KEY_DOWN] = isPressed;
 			break;
 		case KeyEvent.VK_UP:
+			System.out.println(Mario.KEY_UP);
 			Action[Mario.KEY_UP] = isPressed;
 			break;
 
 		case KeyEvent.VK_S:
+			System.out.println(Mario.KEY_JUMP);
 			Action[Mario.KEY_JUMP] = isPressed;
 			break;
 		case KeyEvent.VK_A:
+			System.out.println(Mario.KEY_SPEED);
 			Action[Mario.KEY_SPEED] = isPressed;
 			break;
 		}

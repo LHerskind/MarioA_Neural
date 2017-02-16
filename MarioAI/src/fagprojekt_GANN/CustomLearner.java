@@ -1,4 +1,4 @@
-package fagprojekt;
+package fagprojekt_GANN;
 
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.LearningAgent;
@@ -16,7 +16,7 @@ public class CustomLearner implements LearningAgent {
 
 	private ES es;
 	int populationSize = 500;
-	int generations = 10;
+	int generations = 30;
 
 	long evaluationQuota; // common number of trials
 	long currentEvaluation; // number of exhausted trials

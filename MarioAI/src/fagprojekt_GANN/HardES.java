@@ -1,4 +1,4 @@
-package fagprojekt;
+package fagprojekt_GANN;
 
 import java.util.Random;
 
@@ -25,7 +25,8 @@ public class HardES extends ES {
 		 */
 
 		for (int i = elite; i < population.length; i++) {
-			population[i] = generateChildren(i % elite, (i + 1) % elite);
+//			population[i] = generateChildren(random.nextInt(elite), random.nextInt(elite));
+			population[i] = population[i% elite].copy();
 			population[i].mutate();
 			evaluate(i);
 		}
