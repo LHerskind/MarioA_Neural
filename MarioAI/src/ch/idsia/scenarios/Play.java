@@ -1,5 +1,5 @@
 /*
- * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
+s * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,7 @@ public final class Play
 public static void main(String[] args)
 {
     final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
+    marioAIOptions.setFPS(24);
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     marioAIOptions.setVisualization(true);
 //        basicTask.reset(marioAIOptions);

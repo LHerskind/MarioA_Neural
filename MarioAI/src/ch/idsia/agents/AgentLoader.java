@@ -3,6 +3,7 @@ package ch.idsia.agents;
 import ch.idsia.agents.controllers.human.HumanKeyboardAgent;
 import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.wox.serial.Easy;
+import fagprojekt_PathFinder.PFAgent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +36,9 @@ public Agent loadAgent(String name, boolean isPunj)
         if (name.endsWith(".py"))
             agent = new AmiCoAgent(name);
         else
+        	name = PFAgent.class.getName();
             agent = (Agent) Class.forName(name).newInstance();
+//            agent = new PFAgent();
     } catch (ClassNotFoundException e)
     {
         System.out.println("[~ Mario AI ~] :" + name + " is not a class name; trying to load a wox definition with that name.");
