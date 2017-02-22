@@ -64,6 +64,8 @@ public static void main(String[] args)
     marioAIOptions.setFPS(24);
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     marioAIOptions.setVisualization(true);
+    marioAIOptions.setEnemies("off");
+    marioAIOptions.setLevelRandSeed(2);
 //        basicTask.reset(marioAIOptions);
     final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 //        basicTask.runSingleEpisode();
