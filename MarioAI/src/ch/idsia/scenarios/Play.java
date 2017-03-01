@@ -1,5 +1,5 @@
 /*
-s * Copyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
+s * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,8 @@ s * Copyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
  */
 
 package ch.idsia.scenarios;
+
+import java.util.Random;
 
 import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.benchmark.tasks.MarioCustomSystemOfValues;
@@ -61,8 +63,14 @@ public final class Play
 public static void main(String[] args)
 {
     final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
+    marioAIOptions.setFPS(24);
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     marioAIOptions.setVisualization(true);
+//    marioAIOptions.setLevelDifficulty(1);
+    marioAIOptions.setEnemies("off");
+    int seed = new Random().nextInt(400);
+    System.out.println(seed);
+    marioAIOptions.setLevelRandSeed(253);
 //        basicTask.reset(marioAIOptions);
     final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 //        basicTask.runSingleEpisode();

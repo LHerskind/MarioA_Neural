@@ -1,4 +1,4 @@
-package fagprojekt;
+package fagprojekt_GANN;
 
 import java.util.Random;
 
@@ -13,9 +13,9 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	int hiddenLayers = 1;
 	private double[][][] connections;
 	private double[][] neuronLayers; // 0 = input , end = output, rest = hidden
-	private double learningRate = 0.35;
-	private double mutationChange = 1 / 2;
-	private double limit = 0.3;
+	private double learningRate = 0.7;
+	private double mutationChange = 3 / 4; // 1 > x > 0
+	private double limit = 0.8;
 	private boolean twoSides = false; // True = +/-, false = +
 	int numberOfInputs;
 
@@ -56,7 +56,11 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	public MultiLayerNeuralNetwork copy() {
 		return new MultiLayerNeuralNetwork(copy(connections));
 	}
-
+	
+	public double[][][] getConnections(){
+		return connections;
+	}
+		
 	public double[][][] copy(double[][][] original) {
 		double[][][] copy = new double[original.length][][];
 		for (int i = 0; i < original.length; i++) {
@@ -91,12 +95,13 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 	}
 
 	/**
-	 *  (2* getRandom() - 1) = -1;1 , getRandom() = 0;1
+	 * (2* getRandom() - 1) = -1;1 , getRandom() = 0;1
+	 * 
 	 * @param array
 	 */
 	public void mutate(double[] array) {
 		for (int i = 0; i < array.length; i++) {
-			double randMut = twoSides ? (2*getRandom() - 1) : getRandom();
+			double randMut = twoSides ? (2 * getRandom() - 1) : getRandom();
 			double mutateDegree = getRandom() > mutationChange ? (randMut) * learningRate : 0;
 			array[i] += mutateDegree;
 		}
@@ -118,7 +123,7 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 		}
 		calculateAllSteps(inputs);
 
-		boolean[] output = new boolean[9];
+		boolean[] output = new boolean[9]; // Husk, der er 9 knapper, vi bruger dog kun 6
 		for (int i = 0; i < neuronLayers[hiddenLayers].length; i++) {
 			output[i] = (neuronLayers[hiddenLayers][i] > limit);
 		}
@@ -144,12 +149,15 @@ public class MultiLayerNeuralNetwork implements Evolvable {
 		}
 	}
 
+	private double sigmoid(double x) {
+		return 1 / (1 + Math.exp(-x));
+	}
+
 	public void bounder(double[] array) {
 		for (int i = 0; i < array.length; i++) {
-			// array[i] = array[i] > 0 ? 1 : 0;
+			array[i] = sigmoid(array[i]);
 			// array[i] = Math.tanh(array[i]);
-			array[i] = array[i] > limit ? array[i] : 0;
-
+			// array[i] = array[i] > limit ? Math.tanh(array[i]) : 0;
 		}
 	}
 

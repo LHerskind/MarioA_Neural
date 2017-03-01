@@ -1,4 +1,4 @@
-package fagprojekt;
+package fagprojekt_GANN;
 
 import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.environments.Environment;
@@ -9,8 +9,8 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 	// Virkede det
 
 	private MultiLayerNeuralNetwork MLNN;
-	private int numberOfInputs = 6;
-	private int numberOfOutputs = Environment.numberOfKeys;
+	private int numberOfInputs = 10;
+	private int numberOfOutputs = 6; // Environment.numberOfKeys;
 
 	public FirstTryAgent() {
 		super("FirstTryAgent");
@@ -22,49 +22,50 @@ public class FirstTryAgent extends BasicMarioAIAgent implements Evolvable {
 		this.MLNN = MLNN;
 	}
 
+	public MultiLayerNeuralNetwork getMLNN() {
+		return MLNN;
+	}
+
 	@Override
 	public boolean[] getAction() {
 
 		byte[][] scene = mergedObservation;
 		// byte[][] enemies = observation.getEnemiesObservation(/*0*/);
 		double[] inputs = new double[numberOfInputs];
+	
+		int number = 0;
+		for (int i = 1; i < 4; i++) {
+			for (int j = 0; j < 3; j++) {
+				inputs[number++] = sample(i, j, mergedObservation);
+//				inputs[number++] = sample(i, j, levelScene);
+			}
+		}
+		inputs[inputs.length - 1] = isMarioOnGround ? 1 : 0;
 
-		inputs[0] = sample(2, 1, scene) != 0 ? 1 : 0; // 1 Foran
-		inputs[1] = (sample(1, 1, scene) != 0) ? 1 : 0; // 1 Frem 1 Op
-		inputs[2] = sample(2, 2, scene) != 0 ? 1 : 0; // 2 Foran
-		inputs[3] = sample(3, 0, scene) == 0 ? 1 : 0; // Under ham
-		inputs[4] = sample(2, -1, scene) == -1 ? 1 : 0; // Bag ham
-
-		inputs[inputs.length - 1] = isMarioAbleToShoot ? 1 : 0;
-
-		/*
-		 * 0 0 0 0 0 
-		 * 0 0 0 0 0 
-		 * M 0 0 0 0 
-		 * 0 0 0 0 0 
-		 * 0 0 0 0 0
-		 */
+		// 0 0 0 0 0
+		// 0 0 0 0 0
+		// M 0 0 0 0
+		// 0 0 0 0 0
+		// 0 0 0 0 0
 
 		return MLNN.getOutput(inputs);
 	}
 
-	private int sample(int y, int x, byte[][] scene) {
+	private double sample(int y, int x, byte[][] scene) {
 		int realX = x + marioEgoRow;
 		int realY = y + marioEgoCol - 2;
 		int point = scene[realY][realX];
-		if (point == 101) { // Mario
-			return 7;
-		} else if (point >= 26) {
+		
+		if (point < 0 || point > 25) {
 			return 1;
-		} else if (point < 0) {
-			return 2;
-		} else if (point == 25) {
-			return 0;
-		} else if (point <= 5 && point > 0) {
-			return 3;
 		} else {
 			return 0;
 		}
+		/*
+		 * if (point == 101) { // Mario return 7; } else if (point >= 26) { //
+		 * Fjender return 0.5; } else if (point < 0) { // Væg return 1; } else {
+		 * return 0; }
+		 */
 	}
 
 	@Override

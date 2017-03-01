@@ -160,7 +160,6 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 		case KeyEvent.VK_UP:
 			Action[Mario.KEY_UP] = isPressed;
 			break;
-
 		case KeyEvent.VK_S:
 			Action[Mario.KEY_JUMP] = isPressed;
 			break;

@@ -319,8 +319,9 @@ public byte[][] getMergedObservationZZ(int ZLevelScene, int ZLevelEnemies)
         }
     }
     
-    int[] mario = marioEgoPos;
-    mergedZZ[marioEgoPos[1]][marioEgoPos[0]] = 101;
+    // TODO: Add Mario to the byte[][]
+//    int[] mario = marioEgoPos;
+//    mergedZZ[marioEgoPos[1]][marioEgoPos[0]] = 101;
 
     return mergedZZ;
 }
