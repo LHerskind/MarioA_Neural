@@ -15,7 +15,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private static String name = "PFAgent";
 
-	private int steps = 8;
+	private int steps = 5;
 
 	public PFAgent(String s) {
 		super(s);
@@ -49,7 +49,7 @@ public class PFAgent extends BasicMarioAIAgent {
 			}
 		}
 
-		// action[Mario.KEY_SPEED] = true;
+		 action[Mario.KEY_SPEED] = true;
 
 		// print();
 

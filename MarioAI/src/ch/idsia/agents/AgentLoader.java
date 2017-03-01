@@ -31,7 +31,7 @@ public final class AgentLoader {
 			if (name.endsWith(".py"))
 				agent = new AmiCoAgent(name);
 			else
-				name = PFAgent.class.getName();
+//				name = PFAgent.class.getName();
 			agent = (Agent) Class.forName(name).newInstance();
 		} catch (ClassNotFoundException e) {
 			System.out.println("[~ Mario AI ~] :" + name

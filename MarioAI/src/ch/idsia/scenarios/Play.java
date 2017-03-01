@@ -70,7 +70,7 @@ public static void main(String[] args)
     marioAIOptions.setEnemies("off");
     int seed = new Random().nextInt(400);
     System.out.println(seed);
-    marioAIOptions.setLevelRandSeed(seed);
+    marioAIOptions.setLevelRandSeed(253);
 //        basicTask.reset(marioAIOptions);
     final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 //        basicTask.runSingleEpisode();
