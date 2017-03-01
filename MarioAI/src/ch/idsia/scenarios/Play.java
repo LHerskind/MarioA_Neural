@@ -27,6 +27,8 @@ s * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
 
 package ch.idsia.scenarios;
 
+import java.util.Random;
+
 import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.benchmark.tasks.MarioCustomSystemOfValues;
 import ch.idsia.tools.MarioAIOptions; /**
@@ -64,8 +66,11 @@ public static void main(String[] args)
     marioAIOptions.setFPS(24);
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     marioAIOptions.setVisualization(true);
+//    marioAIOptions.setLevelDifficulty(1);
     marioAIOptions.setEnemies("off");
-    marioAIOptions.setLevelRandSeed(2);
+    int seed = new Random().nextInt(400);
+    System.out.println(seed);
+    marioAIOptions.setLevelRandSeed(seed);
 //        basicTask.reset(marioAIOptions);
     final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 //        basicTask.runSingleEpisode();

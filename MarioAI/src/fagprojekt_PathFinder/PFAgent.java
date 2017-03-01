@@ -1,6 +1,8 @@
 package fagprojekt_PathFinder;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 
 import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
@@ -13,7 +15,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private static String name = "PFAgent";
 
-	private int steps = 2;
+	private int steps = 8;
 
 	public PFAgent(String s) {
 		super(s);
@@ -32,13 +34,13 @@ public class PFAgent extends BasicMarioAIAgent {
 		calculateMove();
 
 		if (bestMove != null) {
-			if (bestMove.getX() > 9) {
+			if (bestMove.getState().getX() > 9) {
 				action[Mario.KEY_RIGHT] = true;
-			} else if (bestMove.getX() < 9) {
+			} else if (bestMove.getState().getX() < 9) {
 				action[Mario.KEY_LEFT] = true;
 			}
 
-			if (bestMove.getY() < 9) {
+			if (bestMove.getState().getY() < 9) {
 				action[Mario.KEY_JUMP] = true;
 			}
 
@@ -46,8 +48,8 @@ public class PFAgent extends BasicMarioAIAgent {
 				action[Mario.KEY_JUMP] = false;
 			}
 		}
-		
-		action[Mario.KEY_SPEED] = true;
+
+		// action[Mario.KEY_SPEED] = true;
 
 		// print();
 
@@ -57,39 +59,83 @@ public class PFAgent extends BasicMarioAIAgent {
 	private void print() {
 		for (int i = 0; i < 19; i++) {
 			for (int j = 0; j < 19; j++) {
-				System.out.print(mergedObservation[i][j]);
+				if (i == 9 && j == 9) {
+					System.out.print("M \t");
+				} else {
+					System.out.print(mergedObservation[i][j] + "\t");
+				}
 			}
 			System.out.println();
 		}
 		System.out.println();
 	}
 
-	ArrayList<Move> moves_one = new ArrayList<>();
-	ArrayList<Move> moves_two = new ArrayList<>();
+	ArrayList<Move> frontier = new ArrayList<>();
+	HashMap<Integer, State> explored = new HashMap<>();
+
+	private void addState(State state, Move parent) {
+		if (possibleMove(state.getX(), state.getY())) {
+			if (!explored.containsKey(state)) {
+				Move nextMove = getMove(state, parent);
+				if (nextMove.getPoints() > 0) {
+					explored.put(state.hashCode(), state);
+					frontier.add(nextMove);
+				}
+			}
+		}
+	}
+
+	private Move getMove(State state, Move parent) {
+		double points = 0;
+		if (parent != null) {
+			points += parent.getPoints();
+		}
+
+		points += sov.distance * (state.getX() - 9) * amplifier;
+
+		if (mergedObservation[state.getY()][state.getX()] == 2) {
+			points += sov.coins;
+		}
+		if (marioMode > 0) {
+			if (mergedObservation[state.getY() - 1][state.getX()] == 2) {
+				points += sov.coins;
+			}
+		}
+		return new Move(points, parent, state);
+	}
+
+	private void firstFrontier() {
+		for (int i = -1; i < 2; i++) {
+			addState(new State(10, 9 - i), null);
+		}
+	}
 
 	private void calculateMove() {
-		bestMove = new Move(9, 9, 0, null);
-		calculateBestMove(9, 9, null, moves_one);
+		frontier.clear();
+		explored.clear();
 
-		for (int j = 0; j < steps; j++) {
+		bestMove = getMove(new State(9, 9), null);
+		firstFrontier();
 
-			for (Move move : moves_one) {
-				calculateBestMove(move.getX(), move.getY(), move, moves_two);
+		while (!frontier.isEmpty()) {
+			frontier.sort(new Comparator<Move>() {
+				public int compare(Move o1, Move o2) {
+					return (int) (o2.getPoints() - o1.getPoints());
+				}
+			});
+
+			Move next = frontier.remove(0);
+			
+			if (next.getDepth() >= steps) {
+				bestMove = next;
+				break;
 			}
-			moves_one.clear();
 
-			for (Move move : moves_two) {
-				calculateBestMove(move.getX(), move.getY(), move, moves_one);
+			for (int i = -1; i < 2; i++) {
+				State nextState = new State(next.getState().getX() + 1, next.getState().getY() - i);
+				addState(nextState, next);
 			}
-			moves_two.clear();
 		}
-
-		for (Move move : moves_one) {
-			if (move.getPoints() > bestMove.getPoints()) {
-				bestMove = move;
-			}
-		}
-		moves_one.clear();
 
 		getBestMove();
 
@@ -99,39 +145,13 @@ public class PFAgent extends BasicMarioAIAgent {
 		while (bestMove.getParent() != null) {
 			bestMove = bestMove.getParent();
 		}
-	}
 
-	private void calculateBestMove(int currentX, int currentY, Move parent, ArrayList<Move> moves_list) {
-		Move move;
-		for (int i = 1; i < 2; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (possibleMove(currentX + i, currentY - j)) {
-					if ((move = getMove(currentX + i, currentY - j, parent)).getPoints() > 0) {
-						moves_list.add(move);
-					}
-				}
+		if (possibleMove(10, 9 - 4)) {
+			Move move;
+			if ((move = getMove(new State(10, 5), null)).getPoints() > bestMove.getPoints()) {
+				bestMove = move;
 			}
 		}
-	}
-
-	private Move getMove(int x, int y, Move parent) {
-		double points = 0;
-		if (parent != null) {
-			points += parent.getPoints();
-		}
-
-		points += sov.distance * (x - 9) * amplifier;
-
-		if (mergedObservation[y][x] == 2) {
-			points += sov.coins;
-		}
-		if (marioMode > 0) {
-			if (mergedObservation[y - 1][x] == 2) {
-				points += sov.coins;
-			}
-		}
-
-		return new Move(x, y, points, parent);
 	}
 
 	private boolean possibleMove(int x, int y) {
@@ -146,7 +166,7 @@ public class PFAgent extends BasicMarioAIAgent {
 			if (x < 1 || y < 1 || x > 18 || y > 18) {
 				return false;
 			}
-			
+
 			if (mergedObservation[y - 1][x] < 0 && mergedObservation[y - 1][x] != -62) {
 				return false;
 			}

@@ -2,28 +2,32 @@ package fagprojekt_PathFinder;
 
 public class Move {
 
-	private int x;
-	private int y;
 	private double points;
 	private Move parent;
+	private State state;
+	private int depth;
 
-	public Move(int x, int y, double points, Move parent) {
-		this.x = x;
-		this.y = y;
+	public Move(double points, Move parent, State state) {
 		this.points = points;
 		this.parent = parent;
+		this.state = state;
+		if(parent == null){
+			depth = 0;
+		} else {
+			depth = parent.getDepth() + 1;
+		}
+	}
+	
+	public int getDepth(){
+		return depth;
 	}
 
 	public double getPoints() {
 		return points;
 	}
 
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
+	public State getState(){
+		return state;
 	}
 
 	public Move getParent() {
