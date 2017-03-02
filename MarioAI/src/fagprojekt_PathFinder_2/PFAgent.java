@@ -32,13 +32,13 @@ public class PFAgent extends BasicMarioAIAgent {
 		calculateMove();
 
 		if (bestMove != null) {
-			if (bestMove.getState().getX() > marioFloatPos[0]) {
+			if (bestMove.getState().getX() > 0) {
 				action[Mario.KEY_RIGHT] = true;
-			} else if (bestMove.getState().getX() < marioFloatPos[0]) {
+			} else if (bestMove.getState().getX() < 0) {
 				action[Mario.KEY_LEFT] = true;
 			}
 
-			if (bestMove.getState().getY() < marioFloatPos[1]) {
+			if (bestMove.getState().getY() < 0) {
 				action[Mario.KEY_JUMP] = true;
 			}
 
@@ -73,94 +73,85 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void addState(Move parent, boolean[] action) {
 		Move possibleNext = customEngine.getMove(parent, action);
-
 		if (possibleNext != null) {
-			// if (!explored.containsKey(possibleNext.getState().hashCode())) {
-			System.out.println(parent.getState().getX() + " " + possibleNext.getState().getX());
-			// explored.put(possibleNext.getState().hashCode(),
-			// possibleNext.getState());
-			frontier.add(possibleNext);
-			// }
+			if (!explored.containsKey(possibleNext.getState().hashCode())) {
+				explored.put(possibleNext.getState().hashCode(), possibleNext.getState());
+				frontier.add(possibleNext);
+			}
 		}
-	}
-
-	private void toFrontier(Move parent) {
-		boolean[] actions = new boolean[9];
-
-		actions[Mario.KEY_LEFT] = true;
-		actions[Mario.KEY_RIGHT] = false;
-		actions[Mario.KEY_JUMP] = false;
-		addState(parent, actions);
-
-		actions[Mario.KEY_LEFT] = false;
-		actions[Mario.KEY_RIGHT] = true;
-		actions[Mario.KEY_JUMP] = false;
-		addState(parent, actions);
-
-		actions[Mario.KEY_LEFT] = false;
-		actions[Mario.KEY_RIGHT] = false;
-		actions[Mario.KEY_JUMP] = true;
-		addState(parent, actions);
-
-		actions[Mario.KEY_LEFT] = false;
-		actions[Mario.KEY_RIGHT] = true;
-		actions[Mario.KEY_JUMP] = true;
-		addState(parent, actions);
-
-		actions[Mario.KEY_LEFT] = true;
-		actions[Mario.KEY_RIGHT] = false;
-		actions[Mario.KEY_JUMP] = true;
-		addState(parent, actions);
 	}
 
 	CustomEngine customEngine;
 
 	private void calculateMove() {
 		frontier.clear();
+		explored.clear();
 
 		customEngine = new CustomEngine(mergedObservation);
 
-		State firstState = new State(9 * 16, 9 * 16, 0, 0);
+		State firstState = new State(0, 0, 0, 0);
 
-		bestMove = new Move(0, null, firstState);
+		Move firstBestMove = new Move(0, null, firstState);
 
-		toFrontier(bestMove);
-		System.out.println("Size = " + frontier.size());
+		toFrontier(firstBestMove);
 
 		while (!frontier.isEmpty()) {
 			frontier.sort(new Comparator<Move>() {
 				public int compare(Move o1, Move o2) {
-					return (int) (o2.getPoints() - o1.getPoints());
+					if (o1.getPoints() > o2.getPoints()) {
+						return 1;
+					} else {
+						return -1;
+					}
 				}
 			});
 
 			Move next = frontier.remove(0);
-			System.out.println(next.getState().getX() + " : " + marioFloatPos[0]);
 
-			if (next.getState().getX() >= marioFloatPos[0] + 16 * 6) {
+			if (next.getPoints() >= 16 * 4) {
+				System.out.println("SUCCES");
 				bestMove = next;
 				break;
 			}
-
 			toFrontier(next);
 		}
-		System.out.println("Size = " + frontier.size());
-
 		getBestMove();
-		System.out.println();
+	}
+
+	private void toFrontier(Move parent) {
+		boolean[] actions = new boolean[9];
+
+		actions[Mario.KEY_LEFT] = false;
+		actions[Mario.KEY_RIGHT] = true;
+		actions[Mario.KEY_JUMP] = false;
+		addState(parent, actions);
+
+		actions[Mario.KEY_LEFT] = false;
+		actions[Mario.KEY_RIGHT] = true;
+		actions[Mario.KEY_JUMP] = true;
+		addState(parent, actions);
+/*
+		actions[Mario.KEY_LEFT] = false;
+		actions[Mario.KEY_RIGHT] = false;
+		actions[Mario.KEY_JUMP] = true;
+		addState(parent, actions);*/
+
+		/*
+		 * actions[Mario.KEY_LEFT] = true; actions[Mario.KEY_RIGHT] = false;
+		 * actions[Mario.KEY_JUMP] = false; addState(parent, actions);
+		 * 
+		 * 
+		 * 
+		 * actions[Mario.KEY_LEFT] = true; actions[Mario.KEY_RIGHT] = false;
+		 * actions[Mario.KEY_JUMP] = true; addState(parent, actions);
+		 */
+
 	}
 
 	private void getBestMove() {
-		System.out.println("BEST1 = " + bestMove.getState().getX() + " : " + bestMove.getState().getY());
-/*		while (bestMove.getParent() != null) {
-			if (bestMove.getParent().getParent() != null) {
-				System.out.println("change");
-				bestMove = bestMove.getParent();
-			} else {
-				break;
-			}
+		while (bestMove.getParent().getParent() != null) {
+			bestMove = bestMove.getParent();
 		}
-		System.out.println("BEST2 = " + bestMove.getState().getX() + " : " + bestMove.getState().getY());*/
 	}
 
 }

@@ -12,8 +12,6 @@ public class CustomEngine {
 	boolean onGround = false;
 	boolean ableToJump = false;
 
-	private State nextState = new State();
-
 	private byte[][] merged;
 
 	public CustomEngine(byte[][] merged) {
@@ -21,51 +19,41 @@ public class CustomEngine {
 	}
 
 	public Move getMove(Move move, boolean[] action) {
-		double points = 0;
-		if (move != null) {
-			points += move.getPoints();
-		}
-
 		State nState = tic(move.getState(), action);
-		if (nState == null) {
-			return null;
+		if (nState != null) {
+			return new Move(nState.getX(), move, nState);
 		}
-		points += (nState.getX() - move.getState().getX());
-
-		return new Move(points, move, nState);
+		return null;
 	}
 
+	private State nextState;
+
 	public State tic(State last, boolean[] action) {
-		int xCood = (int) last.getX() / 16;
-		int yCood = (int) last.getY() / 16;
+		nextState = new State();
+		int xCood = (int) last.getX() / 16 + 9;
+		int yCood = (int) last.getY() / 16 + 9;
 
-		if (xCood <= 0 || xCood >= 18 || yCood <= 0 || yCood >= 18) {
-			System.out.println(xCood + " : " + yCood);
-			System.out.println("LORT");
-			return null;
-		}
-
-		if (merged[yCood + 1][xCood] < 0) {
-			onGround = true;
-			ableToJump = true;
+		if (yCood >= 0) {
+			if (merged[yCood + 1][xCood] < 0) {
+				onGround = true;
+				ableToJump = true;
+			}
 		}
 
 		moveX(last, action);
 		moveY(last, action);
 
-		xCood = (int) (nextState.getX() - last.getX()) / 16;
-		yCood = (int) (nextState.getY()) / 16;
-//		System.out.println(nextState.getX() + " = " + xCood + " : " + nextState.getY() + " = " + yCood);
+		xCood = (int) (nextState.getX()) / 16 + 9;
+		yCood = (int) (nextState.getY()) / 16 + 9;
 
 		if (!possible(xCood, yCood)) {
 			return null;
 		}
-
 		return nextState;
 	}
 
 	private void moveX(State last, boolean[] action) {
-		float vx = last.getX();
+		float vx = last.getVX();
 		if (action[Mario.KEY_LEFT]) {
 			vx -= ax;
 		}
@@ -82,6 +70,8 @@ public class CustomEngine {
 		float vy = last.getVY();
 		if (onGround) {
 			vy = 0;
+		} else {
+			vy += gravity;
 		}
 
 		if (ableToJump) {
@@ -89,21 +79,17 @@ public class CustomEngine {
 		} else {
 			nextState.setJump(last.getJump());
 		}
-
 		if (action[Mario.KEY_JUMP]) {
 			if (ableToJump) {
 				if (nextState.getJump() < 7) {
 					nextState.setJump(nextState.getJump() + 1);
-					vy += ay;
+					vy += ay * nextState.getJump();
 				} else {
 					ableToJump = false;
 				}
 			}
 		}
-
-		if (!onGround) {
-			vy += gravity;
-		}
+		vy *= INERTIA;
 
 		float y = last.getY() + vy;
 		nextState.setVY(vy);
@@ -111,7 +97,7 @@ public class CustomEngine {
 	}
 
 	private boolean possible(int x, int y) {
-		if (x >= 0 && x <= 18 && y >= 0 && y <= 18) {
+		if (x >= 0 && x <= 18 && y >= 0 && y < 18) {
 			return (merged[y][x] >= 0);
 		}
 		return false;

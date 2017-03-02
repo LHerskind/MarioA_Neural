@@ -60,10 +60,10 @@ public class State {
 		return jump;
 	}
 
-/*	@Override
+	@Override
 	public int hashCode() {
-		String hash = ((int) Math.abs(x)) + "" + ((int) Math.abs(y)) + "" + ((int) Math.abs(vx)) + "" + ((int) Math.abs((vy)));
+		String hash = (int) Math.abs(x/4) + "" + (int) Math.abs(y/4);
 		return Integer.parseInt(hash);
 	}
-*/
+
 }
