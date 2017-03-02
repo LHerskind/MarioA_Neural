@@ -15,8 +15,6 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private static String name = "PFAgent";
 
-	private int steps = 5;
-
 	public PFAgent(String s) {
 		super(s);
 	}
@@ -49,7 +47,7 @@ public class PFAgent extends BasicMarioAIAgent {
 			}
 		}
 
-		 action[Mario.KEY_SPEED] = true;
+		action[Mario.KEY_SPEED] = true;
 
 		// print();
 
@@ -75,12 +73,10 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void addState(State state, Move parent) {
 		if (possibleMove(state.getX(), state.getY())) {
-			if (!explored.containsKey(state)) {
+			if (!explored.containsKey(state.hashCode())) {
 				Move nextMove = getMove(state, parent);
-				if (nextMove.getPoints() > 0) {
-					explored.put(state.hashCode(), state);
-					frontier.add(nextMove);
-				}
+				explored.put(state.hashCode(), state);
+				frontier.add(nextMove);
 			}
 		}
 	}
@@ -105,8 +101,10 @@ public class PFAgent extends BasicMarioAIAgent {
 	}
 
 	private void firstFrontier() {
-		for (int i = -1; i < 2; i++) {
-			addState(new State(10, 9 - i), null);
+		for (int j = -1; j < 2; j++) {
+			for (int i = -1; i < 2; i++) {
+				addState(new State(9 - j, 9 - i), null);
+			}
 		}
 	}
 
@@ -125,32 +123,26 @@ public class PFAgent extends BasicMarioAIAgent {
 			});
 
 			Move next = frontier.remove(0);
-			
-			if (next.getDepth() >= steps) {
+
+			if (next.getState().getX() >= 18) {
 				bestMove = next;
 				break;
 			}
 
-			for (int i = -1; i < 2; i++) {
-				State nextState = new State(next.getState().getX() + 1, next.getState().getY() - i);
-				addState(nextState, next);
+			for (int j = -1; j < 2; j++) {
+				for (int i = -1; i < 2; i++) {
+					State nextState = new State(next.getState().getX() - j, next.getState().getY() - i);
+					addState(nextState, next);
+				}
 			}
 		}
 
 		getBestMove();
-
 	}
 
 	private void getBestMove() {
 		while (bestMove.getParent() != null) {
 			bestMove = bestMove.getParent();
-		}
-
-		if (possibleMove(10, 9 - 4)) {
-			Move move;
-			if ((move = getMove(new State(10, 5), null)).getPoints() > bestMove.getPoints()) {
-				bestMove = move;
-			}
 		}
 	}
 
@@ -171,7 +163,6 @@ public class PFAgent extends BasicMarioAIAgent {
 				return false;
 			}
 		}
-
 		return true;
 	}
 

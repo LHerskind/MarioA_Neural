@@ -31,54 +31,59 @@ import java.util.Random;
 
 import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.benchmark.tasks.MarioCustomSystemOfValues;
-import ch.idsia.tools.MarioAIOptions; /**
- * Created by IntelliJ IDEA.
- * User: julian
- * Date: May 5, 2009
- * Time: 12:46:43 PM
- */
+import ch.idsia.tools.MarioAIOptions;
+
+/**
+* Created by IntelliJ IDEA.
+* User: julian
+* Date: May 5, 2009
+* Time: 12:46:43 PM
+*/
 
 /**
  * The <code>Play</code> class shows how simple is to run a MarioAI Benchmark.
- * It shows how to set up some parameters, create a task,
- * use the CmdLineParameters class to set up options from command line if any.
- * Defaults are used otherwise.
+ * It shows how to set up some parameters, create a task, use the
+ * CmdLineParameters class to set up options from command line if any. Defaults
+ * are used otherwise.
  *
  * @author Julian Togelius, Sergey Karakovskiy
  * @version 1.0, May 5, 2009
  */
 
-public final class Play
-{
-/**
- * <p>An entry point of the class.</p>
- *
- * @param args input parameters fors customization of the benchmark.
- * @see ch.idsia.scenarios.oldscenarios.MainRun
- * @see ch.idsia.tools.MarioAIOptions
- * @see ch.idsia.benchmark.mario.simulation.SimulationOptions
- * @since MarioAI-0.1
- */
+public final class Play {
+	/**
+	 * <p>
+	 * An entry point of the class.
+	 * </p>
+	 *
+	 * @param args
+	 *            input parameters fors customization of the benchmark.
+	 * @see ch.idsia.scenarios.oldscenarios.MainRun
+	 * @see ch.idsia.tools.MarioAIOptions
+	 * @see ch.idsia.benchmark.mario.simulation.SimulationOptions
+	 * @since MarioAI-0.1
+	 */
 
-public static void main(String[] args)
-{
-    final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-    marioAIOptions.setFPS(24);
-    final BasicTask basicTask = new BasicTask(marioAIOptions);
-    marioAIOptions.setVisualization(true);
-//    marioAIOptions.setLevelDifficulty(1);
-    marioAIOptions.setEnemies("off");
-    int seed = new Random().nextInt(400);
-    System.out.println(seed);
-    marioAIOptions.setLevelRandSeed(253);
-//        basicTask.reset(marioAIOptions);
-    final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
-//        basicTask.runSingleEpisode();
-    // run 1 episode with same options, each time giving output of Evaluation info.
-    // verbose = false
-    basicTask.doEpisodes(1, false, 1);
-    System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
-    System.out.println("\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
-    System.exit(0);
-}
+	public static void main(String[] args) {
+		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
+		marioAIOptions.setFPS(24);
+		final BasicTask basicTask = new BasicTask(marioAIOptions);
+		marioAIOptions.setVisualization(true);
+//		marioAIOptions.setLevelDifficulty(1);
+//		marioAIOptions.setArgs("-lf on -lg on");
+		marioAIOptions.setEnemies("off");
+		int seed = new Random().nextInt(400);
+		System.out.println(seed);
+		marioAIOptions.setLevelRandSeed(seed);
+		// basicTask.reset(marioAIOptions);
+		final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
+		// basicTask.runSingleEpisode();
+		// run 1 episode with same options, each time giving output of
+		// Evaluation info.
+		// verbose = false
+		basicTask.doEpisodes(1, false, 1);
+		System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
+		System.out.println("\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
+		System.exit(0);
+	}
 }

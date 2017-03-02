@@ -80,13 +80,6 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
-		for (int i = 0; i < mergedObservation.length; i++) {
-			for (int j = 0; j < mergedObservation[0].length; j++) {
-				System.out.print(mergedObservation[i][j] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println();
 		return Action;
 	}
 
