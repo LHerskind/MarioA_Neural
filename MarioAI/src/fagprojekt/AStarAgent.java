@@ -26,6 +26,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		super("AStarAgent");
 	    reset();
 	}
+	
+	//----State-----
 	public class State {
 		public int xGrid;
 		public int yGrid;
@@ -116,6 +118,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		State SmoveW() { return levelScene[yGrid][xGrid-1] == 0  ? new State(this, createAction(true,false,false, true)) : null; }
 		State still() { return new State(this, createAction(false,false,false,false)); }
 	}
+	
+	//----State---- END
+	
+	
+	
 	private boolean[] createAction(boolean left, boolean right, boolean jump, boolean speed) {
 		boolean[] action = new boolean[6];
 		action[Mario.KEY_JUMP] = jump;

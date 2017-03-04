@@ -152,6 +152,9 @@ public class CustomEngine {
 	        state.ya += 3;
 	    }
 	}
+	
+//	---Predict Futre--- END
+	
 	private boolean move(State state, float xa, float ya) {
 		
 		while (xa > 8)
