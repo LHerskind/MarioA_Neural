@@ -10,6 +10,11 @@ import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 
 public class AStarAgent extends BasicMarioAIAgent implements Agent{
+	// General dimensions
+	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
+	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
+	public final int cellSize = LevelScene.cellSize;
+	
 	private final int maxRight = 18;
 	private final int maxJumpFrames = 16;
 	private CustomEngine ce;
@@ -53,14 +58,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		public State(int xGrid, int yGrid) {
 			this.xGrid = xGrid;
 			this.yGrid = yGrid;
+			// 0,0 in pixels is always top left of screen
+			x = xGrid * cellSize;
+			y = yGrid * cellSize;
 			
+			initValues();
 			penalty = 0;
 			heuristic = maxRight - xGrid;
 			parent = null;
 			action = null;
 			tempJumpFrame = jumpFrame;
 			
-			initValues();
 			
 		}
 		public void initValues() {
@@ -68,31 +76,39 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			onGround = isMarioOnGround;
 			mayJump = isMarioAbleToJump;
 			penalty = 0;
-			x = marioFloatPos[0];
-			y = marioFloatPos[1];
+			// WHAT TO DO WITH xa, ya, jumpTime?!?!
 		}
 		public State(State parent, boolean[] action) {
 			//if(cost!=0)System.out.println(cost);
-			heuristic = maxRight-xGrid;
+			this.xGrid = parent.xGrid;
+			this.yGrid = parent.yGrid;
 			this.parent = parent;
 			this.action = action;
+			
+			this.onGround = parent.onGround;
+			this.mayJump = parent.mayJump;
+			this.x = parent.x;
+			this.y = parent.y;
+			this.jumpTime = parent.jumpTime;
 			penalty = penalty();
 			//if(isMarioOnGround && action[Mario.KEY_JUMP]) action[Mario.KEY_JUMP]=false;
 			//System.out.println(priority());
 			if(action != null && action[Mario.KEY_JUMP]) tempJumpFrame = parent.tempJumpFrame+1;
 			// Sets all relevant values for the state
-			ce.predictFuture(this, mergedObservation);
+			ce.predictFuture(this);
+			heuristic = (int) (screenWidth-x-25);
 		}
+		
 		public int penalty() {
 			//System.out.print(x + "  " + y + "  ");
 			//System.out.println();
-			if(onScreen() && enemies[yGrid][xGrid] != 0) {
+			if(isLegalMove() && enemies[yGrid][xGrid] != 0) {
 				//System.out.println(x + "  " + y + "  " + "Enemy here");
 				return 1000;
 			}
 			else return 0;
 		}
-		public boolean onScreen() {
+		public boolean isLegalMove() {
 			return xGrid > 0 && yGrid > 0 && xGrid < 18 && yGrid < 18;
 		}
 		public int priority() {
@@ -108,12 +124,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		
 		State moveE() {return levelScene[yGrid][xGrid+1] == 0 && levelScene[yGrid+1][xGrid+1]!=0 ? new State(this, createAction(false,true,false,false)) : null; }  
 		State SmoveE() {return levelScene[yGrid][xGrid+1] == 0 ? new State(this, createAction(false,true,false,true)) : null; }    
-		State moveNE() {return tempJumpFrame < maxJumpFrames/2 ? new State(this, createAction(false,true,true,false)): null;}
+		State moveNE() {return tempJumpFrame < maxJumpFrames/2 ?  new State(this, createAction(false,true,true,false)) : null;}
 		State SmoveNE() {return tempJumpFrame < maxJumpFrames/2 ? new State(this, createAction(false,true,true,true)): null;}
-		State moveN() { return tempJumpFrame < maxJumpFrames/2 ? new State(this, createAction(false,false,true,false)): null;}
-		State SmoveN() { return tempJumpFrame < maxJumpFrames/2 ? new State(this, createAction(false,false,true,true)): null;}
-		State moveNW() {return tempJumpFrame < maxJumpFrames/2 ? new State(this, createAction(true,false,true,false)): null;}  
-		State SmoveNW() {return tempJumpFrame < maxJumpFrames/2 ? new State(this, createAction(true,false,true,true)): null;}  
+		State moveN() { return new State(this, createAction(false,false,true,false));}
+		State SmoveN() { return new State(this, createAction(false,false,true,true));}
+		State moveNW() {return new State(this, createAction(true,false,true,false));}  
+		State SmoveNW() {return new State(this, createAction(true,false,true,true));}  
 		State moveW() { return levelScene[yGrid][xGrid-1] == 0 ? new State(this, createAction(true,false,false,false)) : null; }
 		State SmoveW() { return levelScene[yGrid][xGrid-1] == 0  ? new State(this, createAction(true,false,false, true)) : null; }
 		State still() { return new State(this, createAction(false,false,false,false)); }
@@ -154,13 +170,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 
         while (!openSet.isEmpty()) {
             // Get the lowest priority state.
-        	//System.out.println(openSet.size());
-        	//System.out.println(closed.size());
+        	//System.out.println("OPEN: " + openSet.size());
+        	//System.out.println("CLOSED: " + closed.size());
             State state = openSet.poll();  
            // System.out.println(state.y);
             
             // If it's the goal, we're done.
             if (state.isGoal()) {
+            	
             	// GET THE ACTION ARRAY HERE!
             	/*
             	System.out.println("rootaction: ");
@@ -183,7 +200,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             	return getRootAction(state);
             }
             
-            if(System.currentTimeMillis() - startTime > 20) {
+            if(System.currentTimeMillis() - startTime > 30) {
             	System.out.println("stuck in while loop");
             	return new boolean[]{false,false,false,false,false,false};
             }
@@ -194,8 +211,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 
             // Add successors to the queue.
            
-            addSuccessor(state.moveE());
             addSuccessor(state.moveNE());
+            addSuccessor(state.moveE());
             addSuccessor(state.SmoveE());
             addSuccessor(state.SmoveNE());
             addSuccessor(state.SmoveN());
