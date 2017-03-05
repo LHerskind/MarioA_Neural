@@ -5,8 +5,8 @@ import ch.idsia.benchmark.mario.engine.sprites.Mario;
 public class CustomEngine {
 
 	static float INERTIA = 0.89f;
-	static float ax = 2;
-	static float ay = -2;
+	static float ax = 1f;
+	static float ay = -2f;
 	static float gravity = 1;
 
 	boolean onGround = false;
@@ -14,7 +14,11 @@ public class CustomEngine {
 
 	private byte[][] merged;
 
-	public CustomEngine(byte[][] merged) {
+	public CustomEngine() {
+
+	}
+
+	public void setMerged(byte[][] merged) {
 		this.merged = merged;
 	}
 
@@ -29,7 +33,10 @@ public class CustomEngine {
 	private State nextState;
 
 	public State tic(State last, boolean[] action) {
+		onGround = false;
+		ableToJump = false;
 		nextState = new State();
+		nextState.setAction(action);
 		int xCood = (int) last.getX() / 16 + 9;
 		int yCood = (int) last.getY() / 16 + 9;
 
@@ -43,8 +50,8 @@ public class CustomEngine {
 		moveX(last, action);
 		moveY(last, action);
 
-		xCood = (int) (nextState.getX()) / 16 + 9;
-		yCood = (int) (nextState.getY()) / 16 + 9;
+		xCood = (int) Math.ceil(nextState.getX() / 16) + 9;
+		yCood = (int) Math.ceil(nextState.getY() / 16) + 9;
 
 		if (!possible(xCood, yCood)) {
 			return null;
@@ -54,11 +61,12 @@ public class CustomEngine {
 
 	private void moveX(State last, boolean[] action) {
 		float vx = last.getVX();
+		float ax_1 = action[Mario.KEY_SPEED] ? 2 * ax : ax;
 		if (action[Mario.KEY_LEFT]) {
-			vx -= ax;
+			vx -= ax_1;
 		}
 		if (action[Mario.KEY_RIGHT]) {
-			vx += ax;
+			vx += ax_1;
 		}
 		vx *= INERTIA;
 		nextState.setVX(vx);
@@ -70,23 +78,16 @@ public class CustomEngine {
 		float vy = last.getVY();
 		if (onGround) {
 			vy = 0;
-		} else {
-			vy += gravity;
-		}
-
-		if (ableToJump) {
 			nextState.setJump(0);
 		} else {
+			vy += gravity;
 			nextState.setJump(last.getJump());
 		}
+
 		if (action[Mario.KEY_JUMP]) {
-			if (ableToJump) {
-				if (nextState.getJump() < 7) {
-					nextState.setJump(nextState.getJump() + 1);
-					vy += ay * nextState.getJump();
-				} else {
-					ableToJump = false;
-				}
+			if (nextState.getJump() < 7) {
+				nextState.setJump(nextState.getJump() + 1);
+				vy += ay * nextState.getJump();
 			}
 		}
 		vy *= INERTIA;

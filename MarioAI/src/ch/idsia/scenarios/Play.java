@@ -57,7 +57,7 @@ public final class Play {
 	 * </p>
 	 *
 	 * @param args
-	 *            input parameters fors customization of the benchmark.
+	 *            input parameters for customization of the benchmark.
 	 * @see ch.idsia.scenarios.oldscenarios.MainRun
 	 * @see ch.idsia.tools.MarioAIOptions
 	 * @see ch.idsia.benchmark.mario.simulation.SimulationOptions
@@ -66,11 +66,11 @@ public final class Play {
 
 	public static void main(String[] args) {
 		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-		marioAIOptions.setFPS(12);
+		marioAIOptions.setFPS(24);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
 //		marioAIOptions.setLevelDifficulty(1);
-		//marioAIOptions.setArgs("-lf on -lg on");
+//		marioAIOptions.setArgs("-lf on -lg on");
 		marioAIOptions.setEnemies("off");
 		int seed = new Random().nextInt(400);
 		System.out.println(seed);

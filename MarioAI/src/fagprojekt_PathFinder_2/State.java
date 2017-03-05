@@ -7,16 +7,19 @@ public class State {
 	private float vx;
 	private float vy;
 	private int jump;
+	
+	private boolean[] action;
 
 	public State() {
 		jump = 0;
 	}
 
-	public State(float x, float y, float vx, float vy) {
+	public State(float x, float y, float vx, float vy, boolean[] action ) {
 		this.x = x;
 		this.y = y;
 		this.vx = vx;
 		this.vy = vy;
+		this.action = action;
 		jump = 0;
 	}
 
@@ -59,10 +62,38 @@ public class State {
 	public int getJump() {
 		return jump;
 	}
+	
+	public void setAction(boolean[] action){
+		this.action = action;
+	}
+	
+	public boolean[] getAction(){
+		return action;
+	}
 
 	@Override
 	public int hashCode() {
-		String hash = (int) Math.abs(x/4) + "" + (int) Math.abs(y/4);
+		String hash = "";
+		if (x < 0) {
+			hash += "0";
+			x *= (-1);
+		}
+		hash += (int) x;
+		if (y < 0) {
+			hash += "0";
+			y *= (-1);
+		}
+		hash += (int) y;
+//		if (vx < 0) {
+//			hash += "0";
+//			vx *= (-1);
+//		}
+//		hash += (int) vx;
+//		if (vy < 0) {
+//			hash += "0";
+//			vy *= (-1);
+//		}
+//		hash += (int) vy;
 		return Integer.parseInt(hash);
 	}
 
