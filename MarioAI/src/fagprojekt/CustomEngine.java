@@ -3,9 +3,7 @@ package fagprojekt;
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
-import ch.idsia.benchmark.mario.engine.sprites.Fireball;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
-import ch.idsia.benchmark.mario.engine.sprites.Sparkle;
 import fagprojekt.AStarAgent.State;
 
 public class CustomEngine {
@@ -32,12 +30,23 @@ public class CustomEngine {
 	public final int realMaxRight = screenWidth/2;
 	// Map
 	public byte[][] mergedObservation;
+	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
+	// TEMPORARY
+	public static final int BIT_BLOCK_UPPER = 1 << 0;
+	public static final int BIT_BLOCK_ALL = 1 << 1;
+	public static final int BIT_BLOCK_LOWER = 1 << 2;
+	public static final int BIT_SPECIAL = 1 << 3;
+	public static final int BIT_BUMPABLE = 1 << 4;
+	public static final int BIT_BREAKABLE = 1 << 5;
+	public static final int BIT_PICKUPABLE = 1 << 6;
+	public static final int BIT_ANIMATED = 1 << 7;
 	
 	public void updateMap(byte[][] mergedObservation) {
 		this.mergedObservation = mergedObservation;
 	}
 	public void predictFuture(State state)
 	{
+		
 	    //state.wasonGround = state.onGround; // What is this used for?
 	    float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
 	    /*// FOR DUCKING
@@ -49,6 +58,7 @@ public class CustomEngine {
 	    
 	    if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding))
 	    {
+	    	
 	        if (state.jumpTime < 0)
 	        {
 	            state.xa = xJumpSpeed;
@@ -56,10 +66,12 @@ public class CustomEngine {
 	            state.jumpTime++;
 	        } else if (state.onGround && state.mayJump)
 	        {
+	        	
 	            xJumpSpeed = 0;
 	            yJumpSpeed = -1.9f;
 	            state.jumpTime = 7;
 	            state.ya = state.jumpTime * yJumpSpeed;
+	            //System.out.println(state.ya);
 	            state.onGround = false;
 	            state.sliding = false;
 	     
@@ -147,9 +159,6 @@ public class CustomEngine {
 	        state.ya += 3;
 	    }
 	}
-	
-//	---Predict Futre--- END
-	
 	private boolean move(State state, float xa, float ya) {
 		while (xa > 8)
 	    {
@@ -170,9 +179,11 @@ public class CustomEngine {
 	    {
 	        if (!move(state, 0, -8)) return false;
 	        ya += 8;
+	        
 	    }
 
 	    boolean collide = false;
+	    /*
 	    if (ya > 0)
 	    {
 	        if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, 0)) collide = true;
@@ -187,17 +198,23 @@ public class CustomEngine {
 	        else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
 	        else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
 	    }
+	    */
 	    if (xa > 0)
 	    {
 	    	
-	        state.sliding = true;
-	        if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
+	        //state.sliding = true;
+	        if (isBlocking(state, state.x, state.y, xa, ya)) collide = true;
+	        /*
+	    	if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
 	        else state.sliding = false;
 	        if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya)) collide = true;
 	        else state.sliding = false;
 	        if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, ya)) collide = true;
 	        else state.sliding = false;
+	        */
+	        
 	    }
+	    /*
 	    if (xa < 0)
 	    {
 	        state.sliding = true;
@@ -208,9 +225,10 @@ public class CustomEngine {
 	        if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, ya)) collide = true;
 	        else state.sliding = false;
 	    }
-
+		*/
 	    if (collide)
 	    {
+	    	
 	        if (xa < 0)
 	        {
 	            state.x = (int) ((state.x - marioWidth) / 16) * 16 + marioWidth;
@@ -218,6 +236,8 @@ public class CustomEngine {
 	        }
 	        if (xa > 0)
 	        {
+	        	
+	        	
 	            state.x = (int) ((state.x + marioWidth) / 16 + 1) * 16 - marioWidth - 1;
 	            state.xa = 0;
 	        }
@@ -225,7 +245,8 @@ public class CustomEngine {
 	        {
 	            state.y = (int) ((state.y - marioHeight) / 16) * 16 + marioHeight;
 	            jumpTime = 0;
-	            state.ya = 0;
+	           
+	            //state.ya = 0;
 	        }
 	        if (ya > 0)
 	        {
@@ -235,22 +256,33 @@ public class CustomEngine {
 	        return false;
 	    } else
 	    {
-	        state.x += xa;
-	        state.y += ya;
+	    	//System.out.println("counting up x and y");
+	    	//System.out.println(xa);
+	        state.x += state.xa;
+	       // System.out.println(ya);
+	        state.y += state.ya;
 	        return true;
 	    }
 	}
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya)
 	{
+		
 		//System.out.println("x before: " + _x);
 	    int x = (int) (_x / cellSize);
 	    int y = (int) (_y / cellSize);
+	   // System.out.println("x: " + x + "  " + "y: " + y);
 	    //System.out.println("x after: " + x);
-	    if (x == (int) (state.x / cellSize) && y == (int) (state.y / cellSize)) return false;
+	    //if (x == (int) (state.x / cellSize) && y == (int) (state.y / cellSize)) return false;
 	    //LEVELSCENE?!?!?!?!
 	    //boolean blocking = levelScene.level.isBlocking(x, y, xa, ya); 
 	   
-	    byte block = mergedObservation[x][y];
+	    byte block = mergedObservation[y][x];
+	    //System.out.println(block);
+	    /*
+	    boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+	    blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+	    blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+	    */
 	    /*  // COIN PICKUP - SET THE CORRESPONDING TILE TO 0
 	    if (((Level.TILE_BEHAVIORS[block & 0xff]) & Level.BIT_PICKUPABLE) > 0)
 	    {
@@ -267,7 +299,10 @@ public class CustomEngine {
 	        levelScene.bump(x, y, large);
 	    }
 	     */
-	    //return blocking;
-	    return false;
+//	    if(block != 0) System.out.println(block);
+	    return (block!=0);
+
+	    //if(block != 0) System.out.println(block != 0);
+	    //return (block != 0);
 	}
 }
