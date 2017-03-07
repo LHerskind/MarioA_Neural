@@ -5,12 +5,15 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import ch.idsia.agents.controllers.BasicMarioAIAgent;
+import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.tasks.SystemOfValues;
 
 public class PFAgent extends BasicMarioAIAgent {
 
 	private static String name = "PFAgent";
+	int debugPos = 0;
+	boolean debug = true;
 
 	public PFAgent(String s) {
 		super(s);
@@ -26,34 +29,14 @@ public class PFAgent extends BasicMarioAIAgent {
 	@Override
 	public boolean[] getAction() {
 		boolean[] action = new boolean[9];
-		
-		System.out.println(marioFloatPos[0] + " " + marioFloatPos[1]);
 
 		calculateMove();
 
 		action = bestMove.getState().getAction();
 
-/*
-		if (bestMove != null) {
-			if (bestMove.getState().getX() > 0) {
-				action[Mario.KEY_RIGHT] = true;
-			} else if (bestMove.getState().getX() < 0) {
-				action[Mario.KEY_LEFT] = true;
-			}
-
-			if (bestMove.getState().getY() < 0) {
-				action[Mario.KEY_JUMP] = true;
-			}
-
-			if (!isMarioAbleToJump && isMarioOnGround) {
-				action[Mario.KEY_JUMP] = false;
-			}
-		}
-	*/	
 		if (!isMarioAbleToJump && isMarioOnGround) {
 			action[Mario.KEY_JUMP] = false;
 		}
-
 
 		// action[Mario.KEY_SPEED] = true;
 
@@ -96,7 +79,9 @@ public class PFAgent extends BasicMarioAIAgent {
 		frontier.clear();
 		explored.clear();
 
-		customEngine.setMerged(mergedObservation);
+		System.out.println(marioFloatPos[0]);
+
+		customEngine.setScene(levelScene);
 
 		State firstState = new State(0, 0, 0, 0, null);
 
@@ -163,18 +148,21 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	}
 
-	private void getBestMove() {
+	private void draw(float x, float y) {
+		if (debug) {
+			GlobalOptions.Pos[debugPos][0] = (int) (x + marioFloatPos[0]);
+			GlobalOptions.Pos[debugPos][1] = (int) (y + marioFloatPos[1]);
+			debugPos++;
+		}
+	}
 
+	private void getBestMove() {
+		debugPos = 0;
 		while (bestMove.getParent().getParent() != null) {
-			System.out.println("PATH: " + bestMove.getState().getAction()[Mario.KEY_LEFT] + " "
-					+ bestMove.getState().getAction()[Mario.KEY_JUMP] + " "
-					+ bestMove.getState().getAction()[Mario.KEY_RIGHT] + " " + bestMove.getState().getX() + " "
-					+ bestMove.getState().getY());
+			draw(bestMove.getState().getX(), bestMove.getState().getY());
 			bestMove = bestMove.getParent();
 		}
-		System.out.println("Action: " + bestMove.getState().getAction()[Mario.KEY_LEFT] + " "
-				+ bestMove.getState().getAction()[Mario.KEY_JUMP] + " "
-				+ bestMove.getState().getAction()[Mario.KEY_RIGHT]);
+		draw(bestMove.getState().getX(), bestMove.getState().getY());
 	}
 
 }

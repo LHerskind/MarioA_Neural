@@ -117,6 +117,14 @@ private void updateArea(int x0, int y0, int w, int h)
 public void render(Graphics g, int tick)
 {
     g.drawImage(image, 0, 0, null);
+    
+ // TODO - FOR DEBUGGING ONLY! REMOVE AFTER U ARE DONE
+    g.setColor(Color.RED);
+    for (int i = 0; i < 599; i+=2)
+    {
+            g.drawLine(GlobalOptions.Pos[i][0] - xCam, GlobalOptions.Pos[i][1] - yCam, 
+                GlobalOptions.Pos[i+1][0] - xCam, GlobalOptions.Pos[i+1][1] - yCam);
+    }
 
     for (int x = xCam / 16; x <= (xCam + width) / 16; x++)
         for (int y = yCam / 16; y <= (yCam + height) / 16; y++)

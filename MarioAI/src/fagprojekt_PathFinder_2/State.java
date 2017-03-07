@@ -1,5 +1,7 @@
 package fagprojekt_PathFinder_2;
 
+import ch.idsia.benchmark.mario.engine.sprites.Mario;
+
 public class State {
 
 	private float x;
@@ -78,22 +80,24 @@ public class State {
 			hash += "0";
 			x *= (-1);
 		}
-		hash += (int) x;
+		hash += (int) Math.round(x*100);
 		if (y < 0) {
 			hash += "0";
 			y *= (-1);
 		}
-		hash += (int) y;
-//		if (vx < 0) {
-//			hash += "0";
-//			vx *= (-1);
-//		}
-//		hash += (int) vx;
-//		if (vy < 0) {
-//			hash += "0";
-//			vy *= (-1);
-//		}
-//		hash += (int) vy;
+		hash += (int) Math.round(y*100);
+		
+/*		int j = 0;
+		if(action[Mario.KEY_LEFT]){
+			j +=1;
+		}
+		if(action[Mario.KEY_JUMP]){
+			j += 2;
+		}
+		if(action[Mario.KEY_RIGHT]){
+			j += 4;
+		}
+		hash += j;*/
 		return Integer.parseInt(hash);
 	}
 
