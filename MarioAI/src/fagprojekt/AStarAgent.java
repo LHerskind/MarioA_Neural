@@ -100,7 +100,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.x = parent.x;
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
-			this.g = parent.g + 3;
+			this.g = parent.g + 2;
 		
 			penalty = 0;
 			// Sets all relevant values for the state
@@ -272,11 +272,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		*/
 		
 		ce.updateMap(mergedObservation);
-		ce.toScene(marioFloatPos[0]);
+		//ce.toScene(marioFloatPos[0]);
+		/*
 		if(firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;
 		}
+		*/
 		action = solve();
 		return action;
 		

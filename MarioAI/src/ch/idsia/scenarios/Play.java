@@ -69,7 +69,7 @@ public final class Play {
 		marioAIOptions.setFPS(30);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
-		marioAIOptions.setLevelDifficulty(0);
+		marioAIOptions.setLevelDifficulty(1);
 //		marioAIOptions.setArgs("-lf on -lg on");
 		marioAIOptions.setEnemies("off");
 		int seed = new Random().nextInt(400);
