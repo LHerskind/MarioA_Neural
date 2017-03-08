@@ -1,6 +1,5 @@
 package fagprojekt_PathFinder_3;
 
-import ch.idsia.benchmark.mario.engine.level.Level;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 
 public class CustomEngine {
@@ -8,8 +7,8 @@ public class CustomEngine {
 	static float INERTIA_X = 0.89f;
 	static float INERTIA_Y = 0.85f;
 
-	static float ax = 1f;
-	static float ay = -2f;
+	static float ax = 0.6f;
+	static float ay = -1.9f;
 	static float gravity = 3f;
 
 	private int width = 4;
@@ -43,22 +42,32 @@ public class CustomEngine {
 	private int mapX = 0;
 	private float highestX = 0;
 
-	public void addToScene(byte[] sceneArray) {
-		for (int i = 0; i < 19; i++) {
-			map[i][mapX] = sceneArray[i];
+	public void toScene(float x) {
+		if (x > highestX) {
+			highestX = x;
+			int la = (int) highestX / 16;
+			if (la > mapX - 8) {
+				System.out.println(la +  " HMM " + mapX);
+				mapX++;
+				for (int i = 0; i < 19; i++) {
+					map[i][mapX] = agent.getBlock(i); // scene[i][18];
+				}
+				System.out.println();
+			}
 		}
-		mapX++;
-		System.out.println("ADDED");
 	}
 
 	public void printOnGoing(float x, float y) {
-		System.out.println(mapX);
 		int __x = (int) x / 16;
 		int __y = (int) y / 16;
-		System.out.println(__x + " " + __y);
+		// System.out.println(__x + " " + __y);
 
+		for (int i = 0; i < mapX; i++) {
+			System.out.print(i + mapX - 18 + "\t");
+		}
+		System.out.println();
 		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < mapX + 1; j++) {
+			for (int j = mapX - 18; j < mapX + 1; j++) {
 				if (i == __y && j == __x) {
 					System.out.print("M" + "\t");
 				} else {
@@ -71,16 +80,6 @@ public class CustomEngine {
 	}
 
 	public Move getMove(Move move, boolean[] action) {
-		if (move.getState().getX() > highestX) {
-			highestX = move.getState().getX();
-			if ((int) highestX / 16 >=  mapX -9) {
-				byte[] array = new byte[19];
-				for (int i = 0; i < 19; i++) {
-					array[i] = agent.getBlock (i);  //scene[i][18];
-				}
-				addToScene(array);
-			}
-		}
 
 		// printOnGoing(move.getState().getX(), move.getState().getY());
 
@@ -112,8 +111,9 @@ public class CustomEngine {
 		collideX = false;
 		collideY = false;
 
-		onGround = isBlocking(last.getX(), last.getY() + height/2);
-		System.out.println(onGround + " " + last.getX() / 16 + " " + last.getY() / 16);
+		onGround = isBlocking(last.getX(), last.getY() + height / 2);
+		// System.out.println(onGround + " " + last.getX() / 16 + " " +
+		// last.getY() / 16);
 
 		float vx = getVX(last, action);
 		float vy = getVY(last, action);
@@ -174,7 +174,6 @@ public class CustomEngine {
 		int y = 0;
 
 		if (block(last, xa, ya)) {
-			// System.out.println("Blocked");
 			if (ya > 0) {
 				y = (int) (last.getY() - 1) / 16 + 1;
 				float ny = (y * 16 - 1);
@@ -257,7 +256,7 @@ public class CustomEngine {
 	public boolean isBlocking(float __x, float __y) {
 		int x = (int) __x / 16;
 		int y = (int) __y / 16;
-		if (x >= 0 && x <= 18 && y >= 0 && y < 16) {
+		if (x >= 0 && x <= 600 && y >= 0 && y < 16) {
 			return map[y][x] < 0;
 		}
 		return false;
