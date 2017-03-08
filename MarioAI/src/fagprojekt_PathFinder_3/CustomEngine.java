@@ -23,19 +23,70 @@ public class CustomEngine {
 
 	private int size = 8;
 
-	private byte[][] scene;
+	private byte[][] map = new byte[19][500];
 
-	public CustomEngine() {
+	private PFAgent agent;
+
+	public CustomEngine(PFAgent agent) {
+		this.agent = agent;
 	}
 
 	public void setScene(byte[][] scene) {
-		this.scene = scene;
+		for (int i = 0; i < 19; i++) {
+			for (int j = 0; j < 19; j++) {
+				this.map[i][j] = scene[i][j];
+			}
+		}
+		mapX = 18;
+	}
+
+	private int mapX = 0;
+	private float highestX = 0;
+
+	public void addToScene(byte[] sceneArray) {
+		for (int i = 0; i < 19; i++) {
+			map[i][mapX] = sceneArray[i];
+		}
+		mapX++;
+		System.out.println("ADDED");
+	}
+
+	public void printOnGoing(float x, float y) {
+		System.out.println(mapX);
+		int __x = (int) x / 16;
+		int __y = (int) y / 16;
+		System.out.println(__x + " " + __y);
+
+		for (int i = 0; i < 19; i++) {
+			for (int j = mapX - 18; j < mapX + 1; j++) {
+				if (i == __y && j == __x) {
+					System.out.print("M" + "\t");
+				} else {
+					System.out.print(map[i][j] + "\t");
+				}
+			}
+			System.out.println();
+		}
+		System.out.println();
 	}
 
 	public Move getMove(Move move, boolean[] action) {
+		if (move.getState().getX() > highestX) {
+			highestX = move.getState().getX();
+			if ((int) highestX / 16 > mapX) {
+				byte[] array = new byte[19];
+				for (int i = 0; i < 19; i++) {
+					array[i] = map[i][18];
+				}
+				addToScene(array);
+			}
+		}
+
+		// printOnGoing(move.getState().getX(), move.getState().getY());
+
 		State nState = tic(move.getState(), action);
 		if (nState != null) {
-			return new Move(nState.getX(), move, nState);
+			return new Move(nState.getX() - move.getPoints(), move, nState);
 		}
 		return null;
 	}
@@ -43,14 +94,13 @@ public class CustomEngine {
 	private State nextState;
 
 	public State tic(State last, boolean[] action) {
-		onGround = last.getOnGround();
+		onGround = false;
 		ableToJump = false;
 
 		nextState = new State();
 
 		nextState.setAction(action);
 		nextState.setX(last.getX());
-		nextState.setXTot(last.getXTot());
 		nextState.setY(last.getY());
 
 		move(last, action);
@@ -59,9 +109,11 @@ public class CustomEngine {
 	}
 
 	private void move(State last, boolean[] action) {
-		collideX = collideY = false;
+		collideX = false;
+		collideY = false;
 
-		onGround = block(last, 0, 1);
+		onGround = isBlocking(last.getX(), last.getY() + 1);
+		System.out.println(onGround + " " + last.getX() / 16 + " " + last.getY() / 16);
 
 		float vx = getVX(last, action);
 		float vy = getVY(last, action);
@@ -122,75 +174,91 @@ public class CustomEngine {
 		int y = 0;
 
 		if (block(last, xa, ya)) {
+			// System.out.println("Blocked");
 			if (ya > 0) {
 				y = (int) (last.getY() - 1) / 16 + 1;
 				float ny = (y * 16 - 1);
-				next.setX(next.getX() + xa);
-				next.setXTot(next.getXTot() + xa);
 				next.setY(ny);
 				next.setVY(0);
 				next.setOnGround(true);
 				collideY = true;
 			}
-
-			// if (xa > 0) {
-			// System.out.println("HMM");
-			// x = (int) (last.getY()) / 16 + 1;
-			// float nx = (x * 16 - 1);
-			// next.setXTot(next.getXTot() + nx);
-			// next.setX(nx);
-			// next.setVX(0);
-			// collideX = true;
-			// }
-
+			if (ya < 0) {
+				y = (int) (last.getY() - height) / 16;
+				float ny = (y * 16 + height);
+				next.setY(ny);
+				next.setVY(0);
+				collideY = true;
+			}
+			if (xa > 0) {
+				x = (int) (last.getX() + width) / 16 + 1;
+				float nx = (x * 16 - width - 1);
+				next.setX(nx);
+				next.setVX(0);
+				collideX = true;
+			}
+			if (xa < 0) {
+				x = (int) (x - width) / 16;
+				float nx = (x * 16 + width);
+				next.setX(nx);
+				next.setVX(0);
+				collideX = true;
+			}
 		} else {
 			next.setX(next.getX() + xa);
-			next.setXTot(next.getXTot() + xa);
 			next.setY(next.getY() + ya);
 		}
 	}
 
 	private boolean block(State last, float xa, float ya) {
-		float x = last.getXTot();
+		float x = last.getX();
 		float y = last.getY();
-		if (last.getXTot() > 16 * 9) {
-			x = 9 * 16 + last.getX();
-		}
 
 		if (ya > 0) {
-			if (isBlocking(x + xa - width, y + ya + height / 2, ya)) {
+			if (isBlocking(x + xa - width, y + ya)) {
 				return true;
-			} else if (isBlocking(x + xa + width, y + ya + height / 2, ya)) {
+			} else if (isBlocking(x + xa + width, y + ya)) {
 				return true;
-			} else if (isBlocking(x + xa - width, y + ya, ya)) {
+			} else if (isBlocking(x + xa - width, y + ya + 1)) {
 				return true;
-			} else if (isBlocking(x + xa + width, y + ya, ya)) {
-				return true;
-			} else if (isBlocking(x + xa - width, y + ya + 1, ya)) {
-				return true;
-			} else if (isBlocking(x + xa + width, y + ya + 1, ya)) {
+			} else if (isBlocking(x + xa + width, y + ya + 1)) {
 				return true;
 			}
 		} else if (ya < 0) {
-			// TODO:
+			if (isBlocking(x + xa, y + ya - height)) {
+				return true;
+			} else if (isBlocking(x + xa - width, y + ya - height)) {
+				return true;
+			} else if (isBlocking(x + xa + width, y + ya - height)) {
+				return true;
+			}
 		}
-
 		if (xa > 0) {
-			// if (isBlocking(x + xa + width, y + ya + height / 2)) {
-			// return true;
-			// } else if (isBlocking(x + xa + width, y + ya)) {
-			// return true;
-			// }
+			if (isBlocking(x + xa + width, y + ya - height)) {
+				return true;
+			} else if (isBlocking(x + xa + width, y + ya - height / 2)) {
+				return true;
+			} else if (isBlocking(x + xa + width, y + ya - 4)) {
+				return true;
+			}
+		} else if (xa < 0) {
+			if (isBlocking(x + xa - width, y + ya - height)) {
+				return true;
+			} else if (isBlocking(x + xa - width, y + ya - height / 2)) {
+				return true;
+			} else if (isBlocking(x + xa - width, y + ya)) {
+				return true;
+			}
 		}
 
 		return false;
 	}
 
-	public boolean isBlocking(float __x, float __y, float ya) {
+	public boolean isBlocking(float __x, float __y) {
 		int x = (int) __x / 16;
 		int y = (int) __y / 16;
 		if (x >= 0 && x <= 18 && y >= 0 && y < 16) {
-			return scene[y][x] < 0;
+			return map[y][x] < 0;
 		}
 		return false;
 	}

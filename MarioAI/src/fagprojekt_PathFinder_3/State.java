@@ -2,7 +2,6 @@ package fagprojekt_PathFinder_3;
 
 public class State {
 
-	private float x_tot;
 	private float x;
 	private float y;
 	private float vx;
@@ -23,14 +22,6 @@ public class State {
 		this.vy = vy;
 		this.action = action;
 		jump = 0;
-	}
-
-	public float getXTot() {
-		return x_tot;
-	}
-
-	public void setXTot(float x_tot) {
-		this.x_tot = x_tot;
 	}
 
 	public float getX() {
@@ -88,27 +79,27 @@ public class State {
 	public boolean getOnGround() {
 		return onGround;
 	}
-//
-//	@Override
-//	public int hashCode() {
-//		String hash = "";
-//		if (x < 0) {
-//			hash += "0";
-//			x *= (-1);
-//		}
-//		hash += (int) Math.round(x * 100);
-//		if (y < 0) {
-//			hash += "0";
-//			y *= (-1);
-//		}
-//		hash += (int) Math.round(y * 100);
-//
-//		/*
-//		 * int j = 0; if(action[Mario.KEY_LEFT]){ j +=1; }
-//		 * if(action[Mario.KEY_JUMP]){ j += 2; } if(action[Mario.KEY_RIGHT]){ j
-//		 * += 4; } hash += j;
-//		 */
-//		return Integer.parseInt(hash);
-//	}
+
+	@Override
+	public int hashCode() {
+		String hash = "";
+		if (x < 0) {
+			hash += "0";
+			x *= (-1);
+		}
+		hash += (int) x;
+		if (y < 0) {
+			hash += "0";
+			y *= (-1);
+		}
+		hash += (int) y;
+
+		/*
+		 * int j = 0; if(action[Mario.KEY_LEFT]){ j +=1; }
+		 * if(action[Mario.KEY_JUMP]){ j += 2; } if(action[Mario.KEY_RIGHT]){ j
+		 * += 4; } hash += j;
+		 */
+		return Integer.parseInt(hash);
+	}
 
 }

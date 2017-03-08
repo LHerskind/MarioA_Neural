@@ -102,7 +102,7 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		levelScene = environment.getLevelSceneObservationZ(zLevelScene, 9, (int) marioFloatPos[1] / 16);
+		levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2, (int) marioFloatPos[1] / 16);
 
 		// It also possible to use direct methods from Environment interface.
 		//

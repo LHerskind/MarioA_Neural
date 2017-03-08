@@ -8,7 +8,6 @@ import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.mario.environments.Environment;
-import ch.idsia.benchmark.tasks.SystemOfValues;
 
 public class PFAgent extends BasicMarioAIAgent {
 
@@ -25,7 +24,31 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	public PFAgent() {
 		super(name);
-		customEngine = new CustomEngine();
+		customEngine = new CustomEngine(this);
+	}
+
+	public void integrateObservation(Environment environment) {
+		this.marioFloatPos = environment.getMarioFloatPos();
+		this.enemiesFloatPos = environment.getEnemiesFloatPos();
+		this.marioState = environment.getMarioState();
+
+		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
+		enemies = environment.getEnemiesObservationZ(0);
+		mergedObservation = environment.getMergedObservationZZ(1, 0);
+
+		receptiveFieldWidth = environment.getReceptiveFieldWidth();
+		receptiveFieldHeight = environment.getReceptiveFieldHeight();
+
+		marioStatus = marioState[0];
+		marioMode = marioState[1];
+		isMarioOnGround = marioState[2] == 1;
+		isMarioAbleToJump = marioState[3] == 1;
+		isMarioAbleToShoot = marioState[4] == 1;
+		isMarioCarrying = marioState[5] == 1;
+		getKillsTotal = marioState[6];
+		getKillsByFire = marioState[7];
+		getKillsByStomp = marioState[8];
+		getKillsByShell = marioState[9];
 	}
 
 	@Override
@@ -42,15 +65,15 @@ public class PFAgent extends BasicMarioAIAgent {
 
 		// action[Mario.KEY_SPEED] = true;
 
-		print();
+		// print();
 
 		return action;
 	}
 
-	private void print() {
+	public void print() {
 		int x = 9;
 		if (marioFloatPos[0] < 16 * 9) {
-			x = (int) marioFloatPos[0] / 16;
+			x = (int) marioFloatPos[0] / 16 + 7;
 		}
 		int y = (int) marioFloatPos[1] / 16;
 
@@ -80,18 +103,21 @@ public class PFAgent extends BasicMarioAIAgent {
 		}
 	}
 
+	private boolean first = true;
+
 	private void calculateMove() {
 		frontier.clear();
 		explored.clear();
 
 		System.out.println(marioFloatPos[0] + " " + marioFloatPos[1]);
 
-		customEngine.setScene(levelScene);
+		if (first) {
+			customEngine.setScene(levelScene);
+			first = false;
+		}
+		State firstState = new State(marioFloatPos[0], marioFloatPos[1], 0, 0, null);
 
-		State firstState = new State(0, marioFloatPos[1], 0, 0, null);
-		firstState.setXTot(marioFloatPos[0]);
-
-		Move firstBestMove = new Move(0, null, firstState);
+		Move firstBestMove = new Move(marioFloatPos[0], null, firstState);
 
 		toFrontier(firstBestMove);
 
@@ -108,7 +134,10 @@ public class PFAgent extends BasicMarioAIAgent {
 
 			Move next = frontier.remove(0);
 
-			if (next.getPoints() >= 16 * 8) {
+			if (next.getPoints() >= firstBestMove.getPoints() + 16 * 3) {
+				if (debug) {
+					customEngine.printOnGoing(marioFloatPos[0], marioFloatPos[1]);
+				}
 				bestMove = next;
 				break;
 			}
@@ -122,6 +151,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void toFrontier(Move parent) {
 		boolean[] actions = new boolean[9];
+
 		actions[Mario.KEY_LEFT] = false;
 		actions[Mario.KEY_RIGHT] = true;
 		actions[Mario.KEY_JUMP] = false;
@@ -155,7 +185,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void draw(float x, float y) {
 		if (debug) {
-			GlobalOptions.Pos[debugPos][0] = (int) (x + marioFloatPos[0]);
+			GlobalOptions.Pos[debugPos][0] = (int) (x);
 			GlobalOptions.Pos[debugPos][1] = (int) (y);
 			debugPos++;
 		}
@@ -165,11 +195,9 @@ public class PFAgent extends BasicMarioAIAgent {
 		debugPos = 0;
 		GlobalOptions.Pos = new int[600][2];
 		while (bestMove.getParent().getParent() != null) {
-			System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY() + " " + bestMove.getState().getVY());
 			draw(bestMove.getState().getX(), bestMove.getState().getY());
 			bestMove = bestMove.getParent();
 		}
-		System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY() + " " + bestMove.getState().getVY());
 		draw(bestMove.getState().getX(), bestMove.getState().getY());
 	}
 
