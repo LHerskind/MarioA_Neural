@@ -100,7 +100,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.x = parent.x;
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
-			this.g = parent.g + 3;
+			this.g = parent.g + 2;
 		
 			penalty = 0;
 			// Sets all relevant values for the state
@@ -213,10 +213,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             addSuccessor(state.moveE());
             addSuccessor(state.moveNE());
             /*
-            addSuccessor(state.still());
-            addSuccessor(state.SmoveN());
             addSuccessor(state.SmoveE());
             addSuccessor(state.SmoveNE());
+            addSuccessor(state.still());
+            addSuccessor(state.SmoveN());
             addSuccessor(state.moveN());
             addSuccessor(state.moveW());
             addSuccessor(state.moveNW());
@@ -272,11 +272,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		*/
 		
 		ce.updateMap(mergedObservation);
+		/*
 		ce.toScene(marioFloatPos[0]);
 		if(firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;
 		}
+		*/
 		action = solve();
 		return action;
 		
