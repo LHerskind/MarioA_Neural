@@ -108,7 +108,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 			Move next = frontier.remove(0);
 
-			if (next.getPoints() >= 16 * 4) {
+			if (next.getPoints() >= 16 * 8) {
 				bestMove = next;
 				break;
 			}
@@ -165,11 +165,11 @@ public class PFAgent extends BasicMarioAIAgent {
 		debugPos = 0;
 		GlobalOptions.Pos = new int[600][2];
 		while (bestMove.getParent().getParent() != null) {
-			System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY());
+			System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY() + " " + bestMove.getState().getVY());
 			draw(bestMove.getState().getX(), bestMove.getState().getY());
 			bestMove = bestMove.getParent();
 		}
-		System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY());
+		System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY() + " " + bestMove.getState().getVY());
 		draw(bestMove.getState().getX(), bestMove.getState().getY());
 	}
 

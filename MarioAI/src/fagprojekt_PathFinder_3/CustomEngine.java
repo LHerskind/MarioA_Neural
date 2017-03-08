@@ -1,5 +1,6 @@
 package fagprojekt_PathFinder_3;
 
+import ch.idsia.benchmark.mario.engine.level.Level;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 
 public class CustomEngine {
@@ -16,6 +17,11 @@ public class CustomEngine {
 
 	boolean onGround = false;
 	boolean ableToJump = false;
+
+	private boolean collideY;
+	private boolean collideX;
+
+	private int size = 8;
 
 	private byte[][] scene;
 
@@ -66,53 +72,50 @@ public class CustomEngine {
 		int times = 0;
 
 		if (vx > 0) {
-			times = (int) vx / 8;
+			times = (int) vx / size;
 			for (int i = 0; i < times; i++) {
 				if (!collideX) {
-					move(last, nextState, 8, 0);
+					move(last, nextState, size, 0);
 				}
 			}
 			if (!collideX) {
-				move(last, nextState, vx - times * 8, 0);
+				move(last, nextState, vx - times * size, 0);
 			}
 		} else if (vx < 0) {
-			times = (int) -vx / 8;
+			times = (int) -vx / size;
 			for (int i = 0; i < times; i++) {
 				if (!collideX) {
-					move(last, nextState, -8, 0);
+					move(last, nextState, -size, 0);
 				}
 			}
 			if (!collideX) {
-				move(last, nextState, vx + times * 8, 0);
+				move(last, nextState, vx + times * size, 0);
 			}
 		}
 
 		if (vy > 0) {
-			times = (int) vy / 8;
+			times = (int) vy / size;
 			for (int i = 0; i < times; i++) {
 				if (!collideY) {
-					move(last, nextState, 0, 8);
+					move(last, nextState, 0, size);
 				}
 			}
 			if (!collideY) {
-				move(last, nextState, 0, vy - 8 * times);
+				move(last, nextState, 0, vy - size * times);
 			}
 		} else if (vy < 0) {
-			times = (int) -vy / 8;
+			times = (int) -vy / size;
 			for (int i = 0; i < times; i++) {
 				if (!collideY) {
-					move(last, nextState, 0, -8);
+					move(last, nextState, 0, -size);
 				}
 			}
 			if (!collideY) {
-				move(last, nextState, 0, vy + 8 * times);
+				move(last, nextState, 0, vy + size * times);
 			}
 		}
 
 	}
-
-	private boolean collideY;
-	private boolean collideX;
 
 	private void move(State last, State next, float xa, float ya) {
 		int x = 0;
@@ -120,7 +123,7 @@ public class CustomEngine {
 
 		if (block(last, xa, ya)) {
 			if (ya > 0) {
-				y = (int) (last.getY()) / 16 + 1;
+				y = (int) (last.getY() - 1) / 16 + 1;
 				float ny = (y * 16 - 1);
 				next.setX(next.getX() + xa);
 				next.setXTot(next.getXTot() + xa);
@@ -129,12 +132,17 @@ public class CustomEngine {
 				next.setOnGround(true);
 				collideY = true;
 			}
-			
-			if(xa > 0){
-				
-			}
-			
-			
+
+			// if (xa > 0) {
+			// System.out.println("HMM");
+			// x = (int) (last.getY()) / 16 + 1;
+			// float nx = (x * 16 - 1);
+			// next.setXTot(next.getXTot() + nx);
+			// next.setX(nx);
+			// next.setVX(0);
+			// collideX = true;
+			// }
+
 		} else {
 			next.setX(next.getX() + xa);
 			next.setXTot(next.getXTot() + xa);
@@ -150,9 +158,17 @@ public class CustomEngine {
 		}
 
 		if (ya > 0) {
-			if (isBlocking(x + xa - width, y + ya + height / 2)) {
+			if (isBlocking(x + xa - width, y + ya + height / 2, ya)) {
 				return true;
-			} else if (isBlocking(x + xa + width, y + ya + height / 2)) {
+			} else if (isBlocking(x + xa + width, y + ya + height / 2, ya)) {
+				return true;
+			} else if (isBlocking(x + xa - width, y + ya, ya)) {
+				return true;
+			} else if (isBlocking(x + xa + width, y + ya, ya)) {
+				return true;
+			} else if (isBlocking(x + xa - width, y + ya + 1, ya)) {
+				return true;
+			} else if (isBlocking(x + xa + width, y + ya + 1, ya)) {
 				return true;
 			}
 		} else if (ya < 0) {
@@ -160,21 +176,21 @@ public class CustomEngine {
 		}
 
 		if (xa > 0) {
-			if (isBlocking(x + xa + width, y + ya + height / 2)) {
-				return true;
-			} else if (isBlocking(x + xa + width, y + ya)) {
-				return true;
-			}
+			// if (isBlocking(x + xa + width, y + ya + height / 2)) {
+			// return true;
+			// } else if (isBlocking(x + xa + width, y + ya)) {
+			// return true;
+			// }
 		}
 
 		return false;
 	}
 
-	public boolean isBlocking(float __x, float __y) {
+	public boolean isBlocking(float __x, float __y, float ya) {
 		int x = (int) __x / 16;
 		int y = (int) __y / 16;
 		if (x >= 0 && x <= 18 && y >= 0 && y < 16) {
-			return (scene[y][x] < 0);
+			return scene[y][x] < 0;
 		}
 		return false;
 	}
