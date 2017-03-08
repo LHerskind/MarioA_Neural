@@ -88,13 +88,14 @@ public boolean[] getAction()
 
 public void integrateObservation(Environment environment)
 {
-    levelScene = environment.getLevelSceneObservationZ(zLevelScene);
-    enemies = environment.getEnemiesObservationZ(zLevelEnemies);
-    mergedObservation = environment.getMergedObservationZZ(1, 0);
-
     this.marioFloatPos = environment.getMarioFloatPos();
     this.enemiesFloatPos = environment.getEnemiesFloatPos();
     this.marioState = environment.getMarioState();
+    
+    levelScene = environment.getLevelSceneObservationZ(zLevelScene,9,(int) marioFloatPos[1]/16 );
+    enemies = environment.getEnemiesObservationZ(zLevelEnemies);
+    mergedObservation = environment.getMergedObservationZZ(1, 0);
+
 
     receptiveFieldWidth = environment.getReceptiveFieldWidth();
     receptiveFieldHeight = environment.getReceptiveFieldHeight();

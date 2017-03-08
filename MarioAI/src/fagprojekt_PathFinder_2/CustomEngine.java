@@ -36,11 +36,11 @@ public class CustomEngine {
 
 	public State tic(State last, boolean[] action) {
 		return customEngine_Move.move(last, action);
-	}
+	}	
 
 	public boolean isBlocking(int x, int y) {
-		if (x >= -9 && x <= 9 && y >= -9 && y < 9) {
-			return (scene[y + 9][x + 9] < 0);
+		if (x >= -9 && x <= 9 && y >= 0 && y < 16) {
+			return (scene[y][x + 9] < 0);
 		}
 		return false;
 	}

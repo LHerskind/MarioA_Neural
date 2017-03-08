@@ -1,4 +1,4 @@
-package fagprojekt_PathFinder_2;
+package fagprojekt_PathFinder_3;
 
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 

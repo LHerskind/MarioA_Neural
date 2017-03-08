@@ -7,7 +7,7 @@ import ch.idsia.agents.controllers.ForwardJumpingAgent;
 import ch.idsia.agents.controllers.human.HumanKeyboardAgent;
 import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.wox.serial.Easy;
-import fagprojekt_PathFinder_2.PFAgent;
+import fagprojekt_PathFinder_3.PFAgent;
 
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy,

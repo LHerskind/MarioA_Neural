@@ -1,4 +1,4 @@
-package fagprojekt_PathFinder_2;
+package fagprojekt_PathFinder_3;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,33 +28,6 @@ public class PFAgent extends BasicMarioAIAgent {
 		customEngine = new CustomEngine();
 	}
 
-
-	public void integrateObservation(Environment environment) {
-		this.marioFloatPos = environment.getMarioFloatPos();
-		this.enemiesFloatPos = environment.getEnemiesFloatPos();
-		this.marioState = environment.getMarioState();
-
-		levelScene = environment.getLevelSceneObservationZ(1, 9, (int) marioFloatPos[1] / 16);
-		enemies = environment.getEnemiesObservationZ(0);
-		mergedObservation = environment.getMergedObservationZZ(1, 0);
-
-		receptiveFieldWidth = environment.getReceptiveFieldWidth();
-		receptiveFieldHeight = environment.getReceptiveFieldHeight();
-
-		// It also possible to use direct methods from Environment interface.
-		//
-		marioStatus = marioState[0];
-		marioMode = marioState[1];
-		isMarioOnGround = marioState[2] == 1;
-		isMarioAbleToJump = marioState[3] == 1;
-		isMarioAbleToShoot = marioState[4] == 1;
-		isMarioCarrying = marioState[5] == 1;
-		getKillsTotal = marioState[6];
-		getKillsByFire = marioState[7];
-		getKillsByStomp = marioState[8];
-		getKillsByShell = marioState[9];
-	}
-
 	@Override
 	public boolean[] getAction() {
 		boolean[] action = new boolean[9];
@@ -69,18 +42,24 @@ public class PFAgent extends BasicMarioAIAgent {
 
 		// action[Mario.KEY_SPEED] = true;
 
-		// print();
+		print();
 
 		return action;
 	}
 
 	private void print() {
+		int x = 9;
+		if (marioFloatPos[0] < 16 * 9) {
+			x = (int) marioFloatPos[0] / 16;
+		}
+		int y = (int) marioFloatPos[1] / 16;
+
 		for (int i = 0; i < 19; i++) {
 			for (int j = 0; j < 19; j++) {
-				if (i == 9 && j == 9) {
-					System.out.print("M \t");
+				if (i == y && j == x) {
+					System.out.print("M" + "\t");
 				} else {
-					System.out.print(mergedObservation[i][j] + "\t");
+					System.out.print(levelScene[i][j] + "\t");
 				}
 			}
 			System.out.println();
@@ -94,24 +73,23 @@ public class PFAgent extends BasicMarioAIAgent {
 	private void addState(Move parent, boolean[] action) {
 		Move possibleNext = customEngine.getMove(parent, action);
 		if (possibleNext != null) {
-			// if (!explored.containsKey(possibleNext.getState().hashCode())) {
-			// explored.put(possibleNext.getState().hashCode(),
-			// possibleNext.getState());
-			frontier.add(possibleNext);
-			// }
+			if (!explored.containsKey(possibleNext.getState().hashCode())) {
+				explored.put(possibleNext.getState().hashCode(), possibleNext.getState());
+				frontier.add(possibleNext);
+			}
 		}
 	}
-
 
 	private void calculateMove() {
 		frontier.clear();
 		explored.clear();
 
-		System.out.println(marioFloatPos[0]);
+		System.out.println(marioFloatPos[0] + " " + marioFloatPos[1]);
 
 		customEngine.setScene(levelScene);
 
-		State firstState = new State(0, 0, 0, 0, null);
+		State firstState = new State(0, marioFloatPos[1], 0, 0, null);
+		firstState.setXTot(marioFloatPos[0]);
 
 		Move firstBestMove = new Move(0, null, firstState);
 
@@ -130,7 +108,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 			Move next = frontier.remove(0);
 
-			if (next.getPoints() >= 16 * 8) {
+			if (next.getPoints() >= 16 * 4) {
 				bestMove = next;
 				break;
 			}
@@ -144,15 +122,8 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void toFrontier(Move parent) {
 		boolean[] actions = new boolean[9];
-
 		actions[Mario.KEY_LEFT] = false;
 		actions[Mario.KEY_RIGHT] = true;
-		actions[Mario.KEY_JUMP] = false;
-		addState(parent, actions);
-
-		actions = new boolean[9];
-		actions[Mario.KEY_LEFT] = true;
-		actions[Mario.KEY_RIGHT] = false;
 		actions[Mario.KEY_JUMP] = false;
 		addState(parent, actions);
 
@@ -160,6 +131,12 @@ public class PFAgent extends BasicMarioAIAgent {
 		actions[Mario.KEY_LEFT] = false;
 		actions[Mario.KEY_RIGHT] = true;
 		actions[Mario.KEY_JUMP] = true;
+		addState(parent, actions);
+
+		actions = new boolean[9];
+		actions[Mario.KEY_LEFT] = true;
+		actions[Mario.KEY_RIGHT] = false;
+		actions[Mario.KEY_JUMP] = false;
 		addState(parent, actions);
 
 		actions = new boolean[9];
@@ -179,17 +156,20 @@ public class PFAgent extends BasicMarioAIAgent {
 	private void draw(float x, float y) {
 		if (debug) {
 			GlobalOptions.Pos[debugPos][0] = (int) (x + marioFloatPos[0]);
-			GlobalOptions.Pos[debugPos][1] = (int) (y + marioFloatPos[1]);
+			GlobalOptions.Pos[debugPos][1] = (int) (y);
 			debugPos++;
 		}
 	}
 
 	private void getBestMove() {
 		debugPos = 0;
+		GlobalOptions.Pos = new int[600][2];
 		while (bestMove.getParent().getParent() != null) {
+			System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY());
 			draw(bestMove.getState().getX(), bestMove.getState().getY());
 			bestMove = bestMove.getParent();
 		}
+		System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY());
 		draw(bestMove.getState().getX(), bestMove.getState().getY());
 	}
 
