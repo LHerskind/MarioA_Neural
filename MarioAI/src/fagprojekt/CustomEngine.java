@@ -243,20 +243,21 @@ public class CustomEngine {
 		int x = (int) (_x / 16);
 	    int y = (int) (_y / 16);
 	    if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) return false;
-	    /*  // CHEATER COLLISION!
+	      // CHEATER COLLISION!
 	    byte block = LevelScene.level.getBlock(x, y);
 	    boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
 	    blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
 	    blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
 	    return blocking;
-	    */
 	    
+	    /*
 	    if(x >= 0 && x < 600 && y >= 0 && y < 16) {
 	    	byte block = map[y][x];
 	    	return block < 0;
 	    } else {
 	    	return false;
-	    }   
+	    }  
+	    */ 
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {
@@ -287,7 +288,7 @@ public class CustomEngine {
 		mapX = 18;
 	}
 	public void toScene(float x) {
-		System.out.println(mapX);
+	
 		if(x > highestX) {
 			highestX = x;
 			if((int) (highestX / 16) > mapX - 9) {

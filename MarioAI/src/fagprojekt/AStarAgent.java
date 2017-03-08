@@ -100,7 +100,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.x = parent.x;
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
-			this.g = parent.g + 3;
+			this.g = parent.g + 2;
 		
 			penalty = 0;
 			//System.out.println(priority());
