@@ -10,7 +10,6 @@ public class CustomEngine {
 	// Jumping
 	public final int jumpPower = 7;
 	public int jumpTime = jumpPower;
-	public float jT; // What is this?
 	public float xJumpSpeed;
 	public float yJumpSpeed;
 	// Gravity and friction
@@ -25,17 +24,14 @@ public class CustomEngine {
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	// End right of screen
-	public final int maxRight = 18;
 	
-	public final int realMaxRight = screenWidth/2;
 	// Map
 	public byte[][] mergedObservation;
 	private byte[][] map = new byte[19][600];
 	private int mapX = 0;
 	private float highestX = 0;
 	// DEBUG
-	public boolean debug = true;
+	public boolean debug = false;
 	// TEMPORARY
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
 	public static final int BIT_BLOCK_UPPER = 1 << 0;
@@ -52,7 +48,6 @@ public class CustomEngine {
 	}
 	public void predictFuture(State state)
 	{
-	    //state.wasonGround = state.onGround; // What is this used for?
 	    float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
 	    /*// FOR DUCKING
 	    if (state.onGround)
@@ -71,7 +66,6 @@ public class CustomEngine {
 	            state.jumpTime++;
 	        } else if (state.onGround && state.mayJump)
 	        {
-	        	
 	            xJumpSpeed = 0;
 	            yJumpSpeed = -1.9f;
 	            state.jumpTime = 7;
@@ -87,7 +81,6 @@ public class CustomEngine {
 	            
 	        } else if(state.jumpTime == 0) { //  SELF-MADE
 	        	state.action[Mario.KEY_JUMP] = false;
-	        	//System.out.println("LEEL");
 	        } 
 	    } else
 	    {
@@ -98,13 +91,11 @@ public class CustomEngine {
 	    if (state.action[Mario.KEY_LEFT]/* && !ducking*/)
 	    {
 	        state.xa -= sideWaysSpeed;
-	        //if (state.jumpTime >= 0) facing = -1;
 	    }
 
 	    if (state.action[Mario.KEY_RIGHT] /*&& !ducking*/)
 	    {
 	        state.xa += sideWaysSpeed;
-	        //if (state.jumpTime >= 0) facing = 1;
 	    }
 
 	    
@@ -114,24 +105,24 @@ public class CustomEngine {
 	    {
 	        levelScene.addSprite(new Fireball(levelScene, x + facing * 6, y - 20, facing));
 	    }
+	    ableToShoot = !keys[KEY_SPEED];
 	    */
-	    //ableToShoot = !keys[KEY_SPEED];
 
 	    state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
-
-	    //runTime += (Math.abs(state.xa)) + 5; //What is runTime?
+	    /*// WHAT IS RUNTIME?!
+	    runTime += (Math.abs(state.xa)) + 5;
 	    if (Math.abs(state.xa) < 0.5f)
 	    {
 	       // runTime = 0;
 	        state.xa = 0;
 	    }
+	    */
 	    state.onGround = false;
 	    move(state, state.xa, 0);
 	    move(state, 0, state.ya);
 	
 	    
 	     //GAPS - VERY IMPORTANT!
-	    
 	    if (state.y > LevelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
 	        state.penalty(1000);
 	     
@@ -288,7 +279,6 @@ public class CustomEngine {
 		mapX = 18;
 	}
 	public void toScene(float x) {
-	
 		if(x > highestX) {
 			highestX = x;
 			if((int) (highestX / 16) > mapX - 9) {
