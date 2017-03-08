@@ -58,7 +58,7 @@ public class CustomEngine {
 		System.out.println(__x + " " + __y);
 
 		for (int i = 0; i < 19; i++) {
-			for (int j = mapX - 18; j < mapX + 1; j++) {
+			for (int j = 0; j < mapX + 1; j++) {
 				if (i == __y && j == __x) {
 					System.out.print("M" + "\t");
 				} else {
@@ -73,10 +73,10 @@ public class CustomEngine {
 	public Move getMove(Move move, boolean[] action) {
 		if (move.getState().getX() > highestX) {
 			highestX = move.getState().getX();
-			if ((int) highestX / 16 > mapX) {
+			if ((int) highestX / 16 >=  mapX ) {
 				byte[] array = new byte[19];
 				for (int i = 0; i < 19; i++) {
-					array[i] = map[i][18];
+					array[i] = agent.getBlock (i);  //scene[i][18];
 				}
 				addToScene(array);
 			}
@@ -112,7 +112,7 @@ public class CustomEngine {
 		collideX = false;
 		collideY = false;
 
-		onGround = isBlocking(last.getX(), last.getY() + 1);
+		onGround = isBlocking(last.getX(), last.getY() + height/2);
 		System.out.println(onGround + " " + last.getX() / 16 + " " + last.getY() / 16);
 
 		float vx = getVX(last, action);

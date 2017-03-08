@@ -66,7 +66,7 @@ public final class Play {
 
 	public static void main(String[] args) {
 		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-		marioAIOptions.setFPS(4);
+		marioAIOptions.setFPS(12);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
 //		marioAIOptions.setLevelDifficulty(1);

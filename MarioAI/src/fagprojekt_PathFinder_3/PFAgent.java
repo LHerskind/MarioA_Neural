@@ -69,6 +69,11 @@ public class PFAgent extends BasicMarioAIAgent {
 
 		return action;
 	}
+	
+	public byte getBlock(int y){
+		System.out.println(levelScene[y][18]);
+		return levelScene[y][18];
+	}
 
 	public void print() {
 		int x = 9;
@@ -134,7 +139,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 			Move next = frontier.remove(0);
 
-			if (next.getPoints() >= firstBestMove.getPoints() + 16 * 3) {
+			if (next.getPoints() >= firstBestMove.getPoints() + 16 * 4) {
 				if (debug) {
 					customEngine.printOnGoing(marioFloatPos[0], marioFloatPos[1]);
 				}
@@ -195,9 +200,11 @@ public class PFAgent extends BasicMarioAIAgent {
 		debugPos = 0;
 		GlobalOptions.Pos = new int[600][2];
 		while (bestMove.getParent().getParent() != null) {
+			System.out.println(bestMove.getState().getX()/16 + " " + bestMove.getState().getY());
 			draw(bestMove.getState().getX(), bestMove.getState().getY());
 			bestMove = bestMove.getParent();
 		}
+		System.out.println(bestMove.getState().getX()/16 + " " + bestMove.getState().getY());
 		draw(bestMove.getState().getX(), bestMove.getState().getY());
 	}
 
