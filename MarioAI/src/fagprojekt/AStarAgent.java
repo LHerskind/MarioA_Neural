@@ -15,7 +15,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	public final int searchDepth = 130;
+	public final int maxRight = 176;
+	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 	
 	public int debugPos;
@@ -95,7 +96,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
 
-			this.g = parent.g + 2;
+			this.g = parent.g + 4;
 		
 			penalty = 0;
 			// Sets all relevant values for the state
@@ -176,8 +177,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		long startTime = System.currentTimeMillis();
         openSet.clear();
         closed.clear();
-        // FOR DEBUGGING
         
+        // FOR DEBUGGING
 		for(int i = 0; i <600; i++)
 		{
 			GlobalOptions.Pos[i][0] = 0;
@@ -199,12 +200,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             if (state.isGoal()) {
             	return getRootState(state);
             }
-            /*// Debugging for being stuck in loop
-            if(System.currentTimeMillis() - startTime > 20) {
+            // Debugging for being stuck in loop
+            if(System.currentTimeMillis() - startTime > 25) {
             	System.out.println("stuck in while-loop");
-            	return new boolean[]{false,false,false,false,false,false};
+            	return getRootState(state);
             }
-            */
+            
 
             // Make sure we don't revisit this state.
             closed.add(state);
@@ -213,10 +214,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             addSuccessor(state.moveE());
             addSuccessor(state.moveNE());
             /*
-            addSuccessor(state.still());
-            addSuccessor(state.SmoveNE());
-            addSuccessor(state.SmoveN());
             addSuccessor(state.SmoveE());
+            addSuccessor(state.SmoveNE());
+            addSuccessor(state.still());
+            addSuccessor(state.SmoveN());
             addSuccessor(state.moveN());
             addSuccessor(state.moveW());
             addSuccessor(state.moveNW());
