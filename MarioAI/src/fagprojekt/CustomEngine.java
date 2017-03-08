@@ -229,8 +229,6 @@ public class CustomEngine {
 
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya)
 	{
-		//state.xGrid = (int) ((_x - state.xOriginal) / cellSize + 9);
-		//state.yGrid = (int) ((_y - state.yOriginal) / cellSize + 9);
 		int x = (int) (_x / 16);
 	    int y = (int) (_y / 16);
 	    if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) return false;
