@@ -71,7 +71,6 @@ public class CustomEngine {
 	            yJumpSpeed = -1.9f;
 	            state.jumpTime = 7;
 	            state.ya = state.jumpTime * yJumpSpeed;
-	            //System.out.println(state.ya);
 	            state.onGround = false;
 	            state.sliding = false;
 	     
@@ -80,10 +79,15 @@ public class CustomEngine {
 	            state.xa += xJumpSpeed;
 	            state.ya = state.jumpTime * yJumpSpeed;
 	            state.jumpTime--;
-	        }
+	            
+	        } /*else if(state.jumpTime == 0) { //  SELF-MADE
+	        	state.action[Mario.KEY_JUMP] = false;
+	        } */
 	    } else
 	    {
+	    	
 	        state.jumpTime = 0;
+	        
 	    }
 
 	    if (state.action[Mario.KEY_LEFT]/* && !ducking*/)
@@ -117,15 +121,17 @@ public class CustomEngine {
 	        state.xa = 0;
 	    }
 	    state.onGround = false;
-	    
 	    move(state, state.xa, 0);
 	    move(state, 0, state.ya);
+	
+	    
 	    /* GAPS - VERY IMPORTANT!
 	    if (state.y > levelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
 	        die("Gap");
 	*/
 	    if (state.x < 0)
 	    {
+	    	
 	        state.x = 0;
 	        state.xa = 0;
 	    }
@@ -151,15 +157,13 @@ public class CustomEngine {
 	        state.xa *= (AIR_INERTIA);
 	    }
 
-//	    if /
-
 	    if (!state.onGround)
 	    {
-//	        
 	        state.ya += 3;
 	    }
 	}
 	private boolean move(State state, float xa, float ya) {
+		
 		while (xa > 8)
 	    {
 	        if (!move(state, 8, 0)) return false;
@@ -181,11 +185,13 @@ public class CustomEngine {
 	        ya += 8;
 	        
 	    }
-
+		 
 	    boolean collide = false;
-	    /*
+	    //if(isBlocking(state, state.x, state.y, xa, ya)) collide =true;
+	    
 	    if (ya > 0)
 	    {
+	    	
 	        if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, 0)) collide = true;
 	        else if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, 0)) collide = true;
 	        else if (isBlocking(state, state.x + xa - marioWidth, state.y + ya + 1, xa, ya)) collide = true;
@@ -193,39 +199,38 @@ public class CustomEngine {
 	    }
 	    if (ya < 0)
 	    {
+	    
 	    	
 	        if (isBlocking(state, state.x + xa, state.y + ya - marioHeight, xa, ya)) collide = true;
 	        else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
 	        else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
 	    }
-	    */
+	    
 	    if (xa > 0)
 	    {
 	    	
-	        //state.sliding = true;
-	        if (isBlocking(state, state.x, state.y, xa, ya)) collide = true;
-	        /*
+	      
 	    	if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
-	        else state.sliding = false;
+	     
 	        if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya)) collide = true;
-	        else state.sliding = false;
+	
 	        if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, ya)) collide = true;
-	        else state.sliding = false;
-	        */
+	      
+	        
 	        
 	    }
-	    /*
+	    
 	    if (xa < 0)
 	    {
-	        state.sliding = true;
+	    
 	        if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya)) collide = true;
-	        else state.sliding = false;
+	       
 	        if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya)) collide = true;
-	        else state.sliding = false;
+	 
 	        if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, ya)) collide = true;
-	        else state.sliding = false;
+	       
 	    }
-		*/
+		
 	    if (collide)
 	    {
 	    	
@@ -236,47 +241,55 @@ public class CustomEngine {
 	        }
 	        if (xa > 0)
 	        {
-	        	
-	        	
-	            state.x = (int) ((state.x + marioWidth) / 16 + 1) * 16 - marioWidth - 1;
+	            //state.x = (int) ((state.x + marioWidth) / 16 + 1) * 16 - marioWidth - 1;
 	            state.xa = 0;
 	        }
 	        if (ya < 0)
 	        {
+	        	
 	            state.y = (int) ((state.y - marioHeight) / 16) * 16 + marioHeight;
 	            jumpTime = 0;
-	           
-	            //state.ya = 0;
+	            state.ya = 0;
 	        }
 	        if (ya > 0)
 	        {
-	            state.y = (int) ((state.y - 1) / 16 + 1) * 16 - 1;
+	            //state.y = (int) ((state.y - 1) / 16 + 1) * 16 - 1;
 	            state.onGround = true;
 	        }
+	        //System.out.println("x: " + state.x + "  " + "y: " + state.y);
+	        
 	        return false;
 	    } else
 	    {
-	    	//System.out.println("counting up x and y");
+
 	    	//System.out.println(xa);
-	        state.x += state.xa;
-	       // System.out.println(ya);
-	        state.y += state.ya;
+	        state.x += xa;
+	        //if(ya != 0) System.out.println(ya);
+	        state.y += ya;
+	        //System.out.println(state.y);
 	        return true;
 	    }
 	}
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya)
 	{
+		state.xGrid = (int) (_x - state.xOriginal) / cellSize + 9;
+		state.yGrid = (int) (_y - state.yOriginal) / cellSize + 9;
 		
-		//System.out.println("x before: " + _x);
-	    int x = (int) (_x / cellSize);
-	    int y = (int) (_y / cellSize);
+		
 	   // System.out.println("x: " + x + "  " + "y: " + y);
 	    //System.out.println("x after: " + x);
-	    //if (x == (int) (state.x / cellSize) && y == (int) (state.y / cellSize)) return false;
+	    //System.out.println(x);
+	    
 	    //LEVELSCENE?!?!?!?!
 	    //boolean blocking = levelScene.level.isBlocking(x, y, xa, ya); 
-	   
-	    byte block = mergedObservation[y][x];
+		//if (state.xGrid == (int) (state.x / 16) && state.yGrid == (int) (state.y / 16)) return false;
+	    if(state.xGrid < 0 || state.yGrid < 0 || state.xGrid > 18 || state.yGrid > 18) {
+	    	
+	    	//System.out.println("NOT LEGAL!: ");
+	    	return false; 
+	    }
+	    
+	    byte block = mergedObservation[state.yGrid][state.xGrid];
 	    //System.out.println(block);
 	    /*
 	    boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
@@ -300,9 +313,13 @@ public class CustomEngine {
 	    }
 	     */
 //	    if(block != 0) System.out.println(block);
-	    return (block!=0);
+	    
 
 	    //if(block != 0) System.out.println(block != 0);
-	    //return (block != 0);
+	    //System.out.println((block != 0) || (block != 2));
+	    //System.out.println(state.xGrid + " " + state.yGrid + "  " + (block!=0));
+	   
+	    //return false;
+	    return ((block != 0) && (block != 2));
 	}
 }

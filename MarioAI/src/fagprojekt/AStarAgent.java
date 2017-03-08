@@ -14,11 +14,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	
-	private final int maxRight = 18;
-	private final int maxJumpFrames = 16;
+	public int debugPos;
 	private CustomEngine ce;
-	private int jumpFrame;
+
     // The closed state set.
     private HashSet <State> closed = new HashSet <State>();
 	private PriorityQueue <State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -27,13 +25,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			return a.priority()-b.priority();
 		}
 	});
-	public AStarAgent() {
+	public AStarAgent() { 
 		super("AStarAgent");
 	    reset();
 	}
 	public class State {
 		public int xGrid;
 		public int yGrid;
+		public float xOriginal;
+		public float yOriginal;
 		public float x;
 		public float y;
 		public float xa;
@@ -49,23 +49,21 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		public State parent;
 		public int heuristic;
 		public boolean[] action;
-		
-		public int tempJumpFrame;
+		public int g;
 		
 		// initial state
 		public State(int xGrid, int yGrid) {
 			this.xGrid = xGrid;
 			this.yGrid = yGrid;
+			this.xOriginal = marioFloatPos[0];
+			this.yOriginal = marioFloatPos[1];
 			// 0,0 in pixels is always top left of screen
-			x = xGrid * cellSize;
-			y = yGrid * cellSize;
 			
 			initValues();
 			penalty = 0;
 			parent = null;
 			action = null;
-			heuristic = (int) (screenWidth-x-50);
-			tempJumpFrame = jumpFrame;
+			heuristic = (int) (176 - (x - xOriginal));
 			
 			
 		}
@@ -73,27 +71,55 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			// Are these needed?
 			onGround = isMarioOnGround;
 			mayJump = isMarioAbleToJump;
+			x = marioFloatPos[0];
+			y = marioFloatPos[1];
 			penalty = 0;
-			// WHAT TO DO WITH xa, ya, jumpTime?!?!
+			this.g = 0;
 		}
 		public State(State parent, boolean[] action) {
-			//if(cost!=0)System.out.println(cost);
+			this.xOriginal = marioFloatPos[0];
+			this.yOriginal = marioFloatPos[1];
+			this.action = action;
+			this.parent = parent;
 			this.xGrid = parent.xGrid;
 			this.yGrid = parent.yGrid;
-			this.parent = parent;
-			this.action = action;
-			
 			this.onGround = parent.onGround;
 			this.mayJump = parent.mayJump;
+			this.xa = parent.xa;
+			this.ya = parent.ya;
 			this.x = parent.x;
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
+			this.g = parent.g + 1;
+		
 			penalty = 0;
-			//if(isMarioOnGround && action[Mario.KEY_JUMP]) action[Mario.KEY_JUMP]=false;
 			//System.out.println(priority());
 			// Sets all relevant values for the state
+			
+			 // FOR DEBUGGING
+			/*
+			if (debugPos < 1000)
+            {
+                GlobalOptions.Pos[debugPos][0] = (int) x;
+                GlobalOptions.Pos[debugPos][1] = (int) y;
+                debugPos++;
+            }
+        	*/
+            //advanceStep(action);
 			ce.predictFuture(this);
-			heuristic = (int) (screenWidth-x-50);
+			/*
+            if (debugPos < 1000)
+            {
+                GlobalOptions.Pos[debugPos][0] = (int) x;
+                GlobalOptions.Pos[debugPos][1] = (int) y;
+                debugPos++;
+            }
+            if (debugPos > 1000)
+    			debugPos = 0;
+            */
+			//heuristic = (int) (screenWidth-x-50);
+			heuristic = (int) (176 - (x - xOriginal));
+			
 			//System.out.println("x: " + x + "  " + "y: " + y);
 		}
 		
@@ -111,10 +137,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		}
 		public int priority() {
 			//if(cost!=0)System.out.println(cost);
-			return heuristic + penalty;
+		
+			return heuristic /*+ g*/ + penalty;
+		}
+		public void penalty(int amount) {
+			penalty += amount;
 		}
 		public boolean isGoal() {
-			if(heuristic <= 0) {
+			if (x > marioFloatPos[0]+130) {
 				return true;
 			}
 			return false;
@@ -142,10 +172,20 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 	}
 	
 	public boolean [] getRootAction(State state) {
+		
 		if(state.parent.parent != null) {
 			//System.out.println(state.x + "  " + state.y); // Track the solve path
+			
+			if (debugPos < 1000)
+            {
+                GlobalOptions.Pos[debugPos][0] = (int) state.x;
+                GlobalOptions.Pos[debugPos][1] = (int) state.y;
+                debugPos++;
+            }
 			return getRootAction(state.parent);
 		} else{
+			if(mergedObservation[state.yGrid][state.xGrid] != 0) System.out.println(mergedObservation[state.yGrid][state.xGrid]);
+			//System.out.println("start x: " + state.x);
 			return state.action;
 		}
 	}
@@ -157,6 +197,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		long startTime = System.currentTimeMillis();
         openSet.clear();
         closed.clear();
+        // FOR DEBUGGING
+        
+		for(int i = 0; i < 1000; i++)
+		{
+			GlobalOptions.Pos[i][0] = 0;
+			GlobalOptions.Pos[i][1] = 0;
+		}
+    	debugPos = 0;
+    	
         // Add initial state to queue.
         State initial = new State(marioEgoCol, marioEgoRow);
         openSet.add(initial);
@@ -190,14 +239,16 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             	state.printAll();
             	System.out.println("rootpath:");
             	*/
+            	
+            	//System.out.println("end x: " + state.x);
             	return getRootAction(state);
             }
-            
+            /*
             if(System.currentTimeMillis() - startTime > 20) {
-            	System.out.println("stuck in while loop");
+            	System.out.println("stuck in while-loop");
             	return new boolean[]{false,false,false,false,false,false};
             }
-            
+            */
 
             // Make sure we don't revisit this state.
             closed.add(state);
@@ -205,17 +256,18 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             // Add successors to the queue.
            
             addSuccessor(state.moveE());
+            addSuccessor(state.moveNE());
+            /*
             addSuccessor(state.SmoveE());
             addSuccessor(state.SmoveNE());
-            addSuccessor(state.moveNE());
             addSuccessor(state.SmoveN());
-            addSuccessor(state.moveN());
-            addSuccessor(state.SmoveNW());
-            addSuccessor(state.moveNW());
-            addSuccessor(state.SmoveW());
-            addSuccessor(state.moveW());
             addSuccessor(state.still());
-           
+            addSuccessor(state.moveN());
+            addSuccessor(state.moveW());
+            addSuccessor(state.moveNW());
+            addSuccessor(state.SmoveNW());
+            addSuccessor(state.SmoveW());
+           */
         }
         return null;
 	}
@@ -234,7 +286,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		/*//mergedObservation
 		for(int i = 0; i < mergedObservation.length; i++) {
 			for(int j = 0; j < mergedObservation[i].length; j++) {
-				System.out.print(mergedObservation[i][j] + " ");
+				if(i == 9 && j == 9) {
+					System.out.print("M" + " ");
+				}
+				else System.out.print(mergedObservation[i][j] + " ");
 			}
 			System.out.println();
 		}
