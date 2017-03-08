@@ -1,13 +1,13 @@
 package ch.idsia.agents;
 
+import java.io.IOException;
+
+import ch.idsia.agents.controllers.ForwardAgent;
+import ch.idsia.agents.controllers.ForwardJumpingAgent;
 import ch.idsia.agents.controllers.human.HumanKeyboardAgent;
 import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.wox.serial.Easy;
-import fagprojekt_PathFinder.PFAgent;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import fagprojekt_PathFinder_3.PFAgent;
 
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy,
@@ -31,6 +31,7 @@ public final class AgentLoader {
 			if (name.endsWith(".py"))
 				agent = new AmiCoAgent(name);
 			else
+//				name = ForwardJumpingAgent.class.getName();
 				name = PFAgent.class.getName();
 			agent = (Agent) Class.forName(name).newInstance();
 		} catch (ClassNotFoundException e) {
