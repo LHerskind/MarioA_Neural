@@ -94,12 +94,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.x = parent.x;
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
-<<<<<<< HEAD
+
 			this.g = parent.g + 2;
 		
-=======
-			this.g = parent.g + 4;
->>>>>>> origin/MesterBranchen
 			penalty = 0;
 			// Sets all relevant values for the state
 			ce.predictFuture(this);
@@ -275,27 +272,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		*/
 		
 		ce.updateMap(mergedObservation);
-<<<<<<< HEAD
-		//ce.toScene(marioFloatPos[0]);
-		/*
-=======
-		/*
-		ce.toScene(marioFloatPos[0]);
->>>>>>> origin/MesterBranchen
-		if(firstScene) {
-			ce.setScene(levelScene);
-			firstScene = false;
-		}
-		*/
-<<<<<<< HEAD
-		action = solve();
-		return action;
-=======
 		State bestState = solve();
 		prevJumpTime = bestState.jumpTime;
 		prevXa = bestState.xa;
 		prevYa = bestState.ya;
->>>>>>> origin/MesterBranchen
+
 		
 		return bestState.action;
 	}

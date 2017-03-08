@@ -69,11 +69,8 @@ public final class Play {
 		marioAIOptions.setFPS(30);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
-<<<<<<< HEAD
 		marioAIOptions.setLevelDifficulty(1);
-=======
-		marioAIOptions.setLevelDifficulty(2);
->>>>>>> origin/MesterBranchen
+
 //		marioAIOptions.setArgs("-lf on -lg on");
 		//marioAIOptions.setRecordFile("on");
 		marioAIOptions.setEnemies("off");
