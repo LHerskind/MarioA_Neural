@@ -8,15 +8,22 @@ import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import ch.idsia.benchmark.mario.environments.Environment;
 
 public class AStarAgent extends BasicMarioAIAgent implements Agent{
 	// General dimensions
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
+	public boolean firstScene = true;
+	
 	public int debugPos;
 	private CustomEngine ce;
-
+	
+	// Need-to-know states persisting for each tick
+	public int prevJumpTime;
+	public float prevXa;
+	public float prevYa;
     // The closed state set.
     private HashSet <State> closed = new HashSet <State>();
 	private PriorityQueue <State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -75,6 +82,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			y = marioFloatPos[1];
 			penalty = 0;
 			this.g = 0;
+			jumpTime = prevJumpTime;
+			xa = prevXa;
+			ya = prevYa;
 		}
 		public State(State parent, boolean[] action) {
 			this.xOriginal = marioFloatPos[0];
@@ -90,7 +100,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.x = parent.x;
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
-			this.g = parent.g + 1;
+			this.g = parent.g + 2;
 		
 			penalty = 0;
 			//System.out.println(priority());
@@ -124,13 +134,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		}
 		
 		public int penalty() {
-			//System.out.print(x + "  " + y + "  ");
-			//System.out.println();
-			if(isLegalMove() && enemies[yGrid][xGrid] != 0) {
-				//System.out.println(x + "  " + y + "  " + "Enemy here");
-				return 1000;
-			}
-			else return 0;
+			return 0;
 		}
 		public boolean isLegalMove() {
 			return xGrid > 0 && yGrid > 0 && xGrid < 18 && yGrid < 18;
@@ -138,7 +142,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		public int priority() {
 			//if(cost!=0)System.out.println(cost);
 		
-			return heuristic /*+ g*/ + penalty;
+			return heuristic + g + penalty;
 		}
 		public void penalty(int amount) {
 			penalty += amount;
@@ -184,7 +188,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             }
 			return getRootAction(state.parent);
 		} else{
-			if(mergedObservation[state.yGrid][state.xGrid] != 0) System.out.println(mergedObservation[state.yGrid][state.xGrid]);
+			prevJumpTime = state.jumpTime;
+			prevXa = state.xa;
+			prevYa = state.ya;
+			//ce.printOnGoing(state.x, state.y);
 			//System.out.println("start x: " + state.x);
 			return state.action;
 		}
@@ -257,11 +264,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
            
             addSuccessor(state.moveE());
             addSuccessor(state.moveNE());
+            addSuccessor(state.still());
             /*
+            addSuccessor(state.SmoveN());
             addSuccessor(state.SmoveE());
             addSuccessor(state.SmoveNE());
-            addSuccessor(state.SmoveN());
-            addSuccessor(state.still());
             addSuccessor(state.moveN());
             addSuccessor(state.moveW());
             addSuccessor(state.moveNW());
@@ -341,16 +348,39 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		}
 		//System.out.println();
 		*/
-		//if(isMarioAbleToJump ) jumpFrame = 0;
-		//else if(action[Mario.KEY_JUMP]) jumpFrame++;
-		//System.out.println(jumpFrame);
-		//System.out.println();
 		ce.updateMap(mergedObservation);
+		ce.toScene(marioFloatPos[0]);
+		if(firstScene) {
+			ce.setScene(levelScene);
+			firstScene = false;
+		}
 		action = solve();
 		return action;
 		
 	}
+	public void integrateObservation(Environment environment) {
+		this.marioFloatPos = environment.getMarioFloatPos();
+		this.enemiesFloatPos = environment.getEnemiesFloatPos();
+		this.marioState = environment.getMarioState();
 
+		levelScene = environment.getLevelSceneObservationZ(0, 2, (int) marioFloatPos[1] / 16);
+		enemies = environment.getEnemiesObservationZ(0);
+		mergedObservation = environment.getMergedObservationZZ(1, 0);
+
+		receptiveFieldWidth = environment.getReceptiveFieldWidth();
+		receptiveFieldHeight = environment.getReceptiveFieldHeight();
+
+		marioStatus = marioState[0];
+		marioMode = marioState[1];
+		isMarioOnGround = marioState[2] == 1;
+		isMarioAbleToJump = marioState[3] == 1;
+		isMarioAbleToShoot = marioState[4] == 1;
+		isMarioCarrying = marioState[5] == 1;
+		getKillsTotal = marioState[6];
+		getKillsByFire = marioState[7];
+		getKillsByStomp = marioState[8];
+		getKillsByShell = marioState[9];
+	}
 
 	public String getName() { return name; }
 
