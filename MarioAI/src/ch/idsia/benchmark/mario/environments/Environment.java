@@ -92,6 +92,9 @@ public byte[][] getMergedObservationZZ(int ZLevelScene, int ZLevelEnemies);
 
 public byte[][] getLevelSceneObservationZ(int ZLevelScene);
 
+public byte[][] getLevelSceneObservationZ(int ZLevelScene, int mCol, int mRow);
+
+
 public byte[][] getEnemiesObservationZ(int ZLevelEnemies);
 
 // OBSERVATION FOR AmiCo Agents

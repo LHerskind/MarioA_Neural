@@ -224,9 +224,29 @@ public int getMarioMode()
     return levelScene.getMarioMode();
 }
 
+public byte[][] getLevelSceneObservationZ(int ZLevel, int mCol, int mRow)
+{
+    for (int y = levelScene.mario.mapY - mRow, row = 0; y <= levelScene.mario.mapY + (receptiveFieldHeight - mRow - 1); y++, row++)
+    {
+        for (int x = levelScene.mario.mapX - mCol, col = 0; x <= levelScene.mario.mapX + (receptiveFieldWidth - mCol - 1); x++, col++)
+        {
+            if (x >= 0 && x < levelScene.level.length && y >= 0 && y < levelScene.level.height)
+            {
+                mergedZZ[row][col] = levelSceneZ[row][col] = GeneralizerLevelScene.ZLevelGeneralization(levelScene.level.map[x][y], ZLevel);
+            } else
+            {
+                mergedZZ[row][col] = levelSceneZ[row][col] = 0;
+            }
+        }
+    }
+    return levelSceneZ;
+}
+
+
 public byte[][] getLevelSceneObservationZ(int ZLevel)
 {
     int mCol = marioEgoPos[1];
+	System.out.println(mCol);
     int mRow = marioEgoPos[0];
     for (int y = levelScene.mario.mapY - mRow, row = 0; y <= levelScene.mario.mapY + (receptiveFieldHeight - mRow - 1); y++, row++)
     {
