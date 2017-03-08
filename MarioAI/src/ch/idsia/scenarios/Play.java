@@ -74,7 +74,7 @@ public final class Play {
 		marioAIOptions.setEnemies("off");
 		int seed = new Random().nextInt(400);
 		System.out.println(seed);
-		marioAIOptions.setLevelRandSeed(214);
+		marioAIOptions.setLevelRandSeed(seed);
 		// basicTask.reset(marioAIOptions);
 		final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 		// basicTask.runSingleEpisode();

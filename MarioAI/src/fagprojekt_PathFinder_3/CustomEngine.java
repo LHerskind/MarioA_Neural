@@ -73,7 +73,7 @@ public class CustomEngine {
 	public Move getMove(Move move, boolean[] action) {
 		if (move.getState().getX() > highestX) {
 			highestX = move.getState().getX();
-			if ((int) highestX / 16 >=  mapX ) {
+			if ((int) highestX / 16 >=  mapX -9) {
 				byte[] array = new byte[19];
 				for (int i = 0; i < 19; i++) {
 					array[i] = agent.getBlock (i);  //scene[i][18];
