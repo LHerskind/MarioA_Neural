@@ -96,13 +96,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			this.y = parent.y;
 			this.jumpTime = parent.jumpTime;
 
-			this.g = parent.g + 4;
+			this.g = parent.g + 2;
 		
 			penalty = 0;
 			// Sets all relevant values for the state
 			ce.predictFuture(this);
 			// TODO - HEURISTIC NEEEEEDS TO BE AMOUNT OF TICKS TO GOAL, BASED ON HIS MAXIMUM SPEED!!!!!!!
 			heuristic = ((searchDepth + 10) - (int)(x - marioFloatPos[0]));
+			
 			
 			// grid heuristic: doesn't work currently
 //			this.xGrid = (int) ((x - marioFloatPos[0]) / cellSize + 9);
@@ -111,7 +112,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 			
 			
 		}
-		
 		public int penalty() {
 			return 0;
 		}
@@ -179,6 +179,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
         closed.clear();
         
         // FOR DEBUGGING
+        GlobalOptions.Pos = new int[600][2];
 		for(int i = 0; i <600; i++)
 		{
 			GlobalOptions.Pos[i][0] = 0;
@@ -214,13 +215,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
             addSuccessor(state.moveE());
             addSuccessor(state.moveNE());
             /*
-            addSuccessor(state.SmoveE());
+            addSuccessor(state.moveNW());
             addSuccessor(state.SmoveNE());
             addSuccessor(state.still());
             addSuccessor(state.SmoveN());
             addSuccessor(state.moveN());
+            addSuccessor(state.SmoveE());
             addSuccessor(state.moveW());
-            addSuccessor(state.moveNW());
             addSuccessor(state.SmoveNW());
             addSuccessor(state.SmoveW());
            */
@@ -249,11 +250,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		}
 		System.out.println();
 		*/
-		/*//levelScene in grid
-		
+		//levelScene in grid
+		/*
 		for(int i = 0; i < levelScene.length; i++) {
 			for(int j = 0; j < levelScene[i].length; j++) {
-				System.out.print(levelScene[i][j]);
+				System.out.print(levelScene[i][j] + "\t");
 			}
 			System.out.println();
 		}
@@ -271,8 +272,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		}
 		//System.out.println();
 		*/
+		//ce.updateMap(mergedObservation);
+		System.out.println(marioFloatPos[0] + " " + (int) marioFloatPos[0]/16); 
+
+		ce.setScene(levelScene, marioFloatPos);
 		
-		ce.updateMap(mergedObservation);
 		State bestState = solve();
 		prevJumpTime = bestState.jumpTime;
 		prevXa = bestState.xa;
@@ -286,8 +290,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent{
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-
-		levelScene = environment.getLevelSceneObservationZ(0, 2, (int) marioFloatPos[1] / 16);
+				
+		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 

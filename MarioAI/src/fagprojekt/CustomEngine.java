@@ -24,7 +24,7 @@ public class CustomEngine {
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	
+	public float[] marioFloatPos;
 	// Map
 	public byte[][] mergedObservation;
 	private byte[][] map = new byte[19][600];
@@ -231,22 +231,28 @@ public class CustomEngine {
 	{
 		int x = (int) (_x / 16);
 	    int y = (int) (_y / 16);
+	    state.xGrid = (int) (((_x - marioFloatPos[0] +4) / cellSize) + 3);	    	
 	    if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) return false;
-	      // CHEATER COLLISION!
+	    /*  // CHEATER COLLISION!
 	    byte block = LevelScene.level.getBlock(x, y);
 	    boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
 	    blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
 	    blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
 	    return blocking;
+	    */
 	    
-	    /*
-	    if(x >= 0 && x < 600 && y >= 0 && y < 16) {
-	    	byte block = map[y][x];
+	    if(state.xGrid >= 0 && state.xGrid < 19 && y >= 0 && y < 16) {
+	    	byte block = map[y][state.xGrid];
+	    	if(ya < 0){
+	    		if(block == -62) {
+	    			return false;
+	    		} 
+	    	}
 	    	return block < 0;
 	    } else {
 	    	return false;
 	    }  
-	    */ 
+	    
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {
@@ -268,13 +274,26 @@ public class CustomEngine {
 			System.out.println();
 		}
 	}
-	public void setScene(byte[][] levelScene) {
+	public void setScene(byte[][] levelScene, float[] marioFloatPos) {
+		this.marioFloatPos = marioFloatPos;
+
+		boolean same = true;
+		for(int i = 0; i < 19; i++){
+			for(int j = 0; j < 19; j++){
+				if(map[i][j] != levelScene[i][j]){
+					same = false;
+				}
+			}
+		}
+		
+		if(!same){
 		for(int i = 0; i < 19; i++) {
 			for(int j = 0; j < 19; j++) {
 				this.map[i][j] = levelScene[i][j];
 			}
 		}
 		mapX = 18;
+		}
 	}
 	public void toScene(float x) {
 		if(x > highestX) {

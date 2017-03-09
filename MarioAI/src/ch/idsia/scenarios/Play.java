@@ -66,10 +66,10 @@ public final class Play {
 
 	public static void main(String[] args) {
 		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-		marioAIOptions.setFPS(30);
+		marioAIOptions.setFPS(24);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
-		marioAIOptions.setLevelDifficulty(3);
+		marioAIOptions.setLevelDifficulty(0);
 
 //		marioAIOptions.setArgs("-lf on -lg on");
 		//marioAIOptions.setRecordFile("on");
