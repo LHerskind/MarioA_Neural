@@ -18,12 +18,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	public final int maxRight = 176;
+	public final int maxRight = 16 * 13;
 	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 
 	private int penaltySize = 50;
-	private int speedPriority = 0;
+	private int speedPriority = 9;
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -285,8 +285,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// addSuccessor(state.moveNE());
 			// addSuccessor(state.moveN());
 			// addSuccessor(state.still());
-			addSuccessor(state.SmoveNW());
-			addSuccessor(state.SmoveW());
+			// addSuccessor(state.SmoveNW());
+			// addSuccessor(state.SmoveW());
 			// addSuccessor(state.moveNW());
 			// addSuccessor(state.moveW());
 		}
@@ -325,8 +325,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		// ce.updateMap(mergedObservation);
 		// System.out.println(marioFloatPos[0] + " " + (int) marioFloatPos[0] /
 		// 16);
-
-		ce.setScene(levelScene, marioFloatPos);
+		if (firstScene) {
+			ce.setScene(levelScene, marioFloatPos);
+			firstScene = false;
+		} else {
+			ce.setLevelScene(levelScene);
+			ce.toScene(marioFloatPos[0]);
+		}
 
 		State bestState = solve();
 		prevJumpTime = bestState.jumpTime;
@@ -336,14 +341,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		return bestState.action;
 	}
 
+	public int getBlock(int x, int y) {
+		return levelScene[y][x];
+	}
+
 	@Override
 	public void integrateObservation(Environment environment) {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		levelScene = environment.getLevelSceneObservationZ(1);
-		// levelScene = environment.getLevelSceneObservationZ(1, 2, (int)
-		// marioFloatPos[1] / 16);
+		// levelScene = environment.getLevelSceneObservationZ(1);
+		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 
