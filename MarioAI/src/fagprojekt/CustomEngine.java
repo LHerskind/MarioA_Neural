@@ -233,13 +233,13 @@ public class CustomEngine {
 	    int y = (int) (_y / 16);
 	    state.xGrid = (int) (((_x - marioFloatPos[0] +4) / cellSize) + 3);	    	
 	    if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) return false;
-	    /*  // CHEATER COLLISION!
+	      // CHEATER COLLISION!
 	    byte block = LevelScene.level.getBlock(x, y);
 	    boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
 	    blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
 	    blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
 	    return blocking;
-	    */
+	    /*
 	    
 	    if(state.xGrid >= 0 && state.xGrid < 19 && y >= 0 && y < 16) {
 	    	byte block = map[y][state.xGrid];
@@ -251,12 +251,11 @@ public class CustomEngine {
 	    	return block < 0;
 	    } else {
 	    	return false;
-	    }  
+	    } */ 
 	    
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {
-			System.out.println(mapX);
 			int __x = (int) x / 16;
 			int __y = (int) y / 16;
 			// System.out.println(__x + " " + __y);

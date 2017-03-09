@@ -69,8 +69,7 @@ public final class Play {
 		marioAIOptions.setFPS(24);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
-		marioAIOptions.setLevelDifficulty(0);
-
+		marioAIOptions.setLevelDifficulty(1);
 //		marioAIOptions.setArgs("-lf on -lg on");
 		//marioAIOptions.setRecordFile("on");
 		marioAIOptions.setEnemies("off");
