@@ -69,14 +69,14 @@ public final class Play {
 		marioAIOptions.setFPS(24);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
-		marioAIOptions.setLevelDifficulty(2);
+		marioAIOptions.setLevelDifficulty(0);
 		marioAIOptions.setLevelLength(550);
 //		marioAIOptions.setArgs("-lf on -lg on");
 		//marioAIOptions.setRecordFile("on");
 		marioAIOptions.setEnemies("off");
 		int seed = new Random().nextInt(400);
 		System.out.println(seed);
-		marioAIOptions.setLevelRandSeed(seed);
+		marioAIOptions.setLevelRandSeed(305);
 		// basicTask.reset(marioAIOptions);
 		final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 		// basicTask.runSingleEpisode();

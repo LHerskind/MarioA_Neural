@@ -1,29 +1,27 @@
 package fagprojekt;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.PriorityQueue;
+
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.controllers.BasicMarioAIAgent;
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.mario.environments.Environment;
-import fagprojekt.AStarAgent.State;
 
 public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	// General dimensions
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	public final int maxRight = 16 * 13;
+	public final int maxRight = 16 * 11;
 	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 
-	private int penaltySize = 50;
-	private int speedPriority = 9;
+	private int speedPriority = 0;
+	private int penaltySize = 25;
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -32,7 +30,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public int prevJumpTime;
 	public float prevXa;
 	public float prevYa;
-	// The closed state set.
+
 	private HashMap<Integer, State> closed = new HashMap<>();
 
 	private PriorityQueue<State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -129,16 +127,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.g = parent.g + speedPriority;
 
 			penalty = parent.penalty;
-			// Sets all relevant values for the state
+
 			ce.predictFuture(this);
 			// TODO - HEURISTIC NEEEEEDS TO BE AMOUNT OF TICKS TO GOAL, BASED ON
 			// HIS MAXIMUM SPEED!!!!!!!
 			heuristic = ((searchDepth) - (int) (x - marioFloatPos[0]));
-
-			// grid heuristic: doesn't work currently
-			// this.xGrid = (int) ((x - marioFloatPos[0]) / cellSize + 9);
-			// this.yGrid = (int) ((y - marioFloatPos[1]) / cellSize + 9);
-			// heuristic = 18 - this.xGrid;
 
 		}
 
@@ -218,8 +211,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public State getRootState(State state) {
 
 		if (state.parent.parent != null) {
-			// System.out.println(state.x + " " + state.y); // Track the solve
-			// path
 
 			if (debugPos < 600) {
 				GlobalOptions.Pos[debugPos][0] = (int) state.x;
@@ -228,7 +219,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			return getRootState(state.parent);
 		} else {
-			// ce.printOnGoing(state.x, state.y);
 			return state;
 		}
 	}
@@ -260,15 +250,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		openSet.add(initial);
 
 		while (!openSet.isEmpty()) {
-			// Get the lowest priority state.
-			// System.out.println("OPEN: " + openSet.size());
-			// System.out.println("CLOSED: " + closed.size());
 			State state = openSet.poll();
 
-			// If it's the goal, we're done.
 			if (state.isGoal()) {
 				return getRootState(state);
 			}
+
 			// Debugging for being stuck in loop
 			if (System.currentTimeMillis() - startTime > 25) {
 				System.out.println("stuck in while-loop");
@@ -281,14 +268,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-			// addSuccessor(state.moveE());
-			// addSuccessor(state.moveNE());
-			// addSuccessor(state.moveN());
-			// addSuccessor(state.still());
-			// addSuccessor(state.SmoveNW());
-			// addSuccessor(state.SmoveW());
-			// addSuccessor(state.moveNW());
-			// addSuccessor(state.moveW());
+			addSuccessor(state.moveE());
+			addSuccessor(state.moveNE());
+			addSuccessor(state.moveN());
+			addSuccessor(state.still());
+			addSuccessor(state.SmoveNW());
+			addSuccessor(state.SmoveW());
+			addSuccessor(state.moveNW());
+			addSuccessor(state.moveW());
 		}
 		return null;
 	}
@@ -301,32 +288,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	}
 
 	public boolean[] getAction() {
-		// DEBUG
-		/*
-		 * //mergedObservation for(int i = 0; i < mergedObservation.length; i++)
-		 * { for(int j = 0; j < mergedObservation[i].length; j++) { if(i == 9 &&
-		 * j == 9) { System.out.print("M" + " "); } else
-		 * System.out.print(mergedObservation[i][j] + " "); }
-		 * System.out.println(); } System.out.println();
-		 */
-		// levelScene in grid
-		/*
-		 * for(int i = 0; i < levelScene.length; i++) { for(int j = 0; j <
-		 * levelScene[i].length; j++) { System.out.print(levelScene[i][j] +
-		 * "\t"); } System.out.println(); } System.out.println();
-		 */
-
-		/*
-		 * //enemies in grid System.out.println("enemy: "); for(int i = 0; i <
-		 * enemies.length; i++) { for(int j = 0; j < enemies[i].length; j++) {
-		 * if(enemies[i][j] != 0) System.out.print(i + "  " + j); }
-		 * //System.out.println(); } //System.out.println();
-		 */
-		// ce.updateMap(mergedObservation);
-		// System.out.println(marioFloatPos[0] + " " + (int) marioFloatPos[0] /
-		// 16);
 		if (firstScene) {
-			ce.setScene(levelScene, marioFloatPos);
+			ce.setScene(levelScene);
 			firstScene = false;
 		} else {
 			ce.setLevelScene(levelScene);
@@ -350,7 +313,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		// levelScene = environment.getLevelSceneObservationZ(1);
+		// levelScene = environment.getLevelSceneObservationZ(1); // The normal
 		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
