@@ -20,7 +20,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 
-	private int speedPriority = 0;
+	private int speedPriority = 9;
 	private int penaltySize = 25;
 
 	public int debugPos;
@@ -125,10 +125,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.jumpTime = parent.jumpTime;
 
 			this.g = parent.g + speedPriority;
-
 			penalty = parent.penalty;
 
 			ce.predictFuture(this);
+			
+			// previous value + the length of the combined vector after the prediction (doesnt work well for some reason
+			//this.g= (int) (parent.g + (Math.sqrt(Math.pow(Math.abs(x - parent.x),2) + Math.pow(Math.abs(y - parent.y),2))));
+			
 			// TODO - HEURISTIC NEEEEEDS TO BE AMOUNT OF TICKS TO GOAL, BASED ON
 			// HIS MAXIMUM SPEED!!!!!!!
 			heuristic = ((searchDepth) - (int) (x - marioFloatPos[0]));
@@ -238,10 +241,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		closed.clear();
 
 		// FOR DEBUGGING
-		GlobalOptions.Pos = new int[600][2];
 		for (int i = 0; i < 600; i++) {
-			GlobalOptions.Pos[i][0] = 0;
-			GlobalOptions.Pos[i][1] = 0;
+			GlobalOptions.Pos[i][0] = (int)marioFloatPos[0];
+			GlobalOptions.Pos[i][1] = (int) marioFloatPos[1];
 		}
 		debugPos = 0;
 
@@ -268,6 +270,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
+			/*
 			addSuccessor(state.moveE());
 			addSuccessor(state.moveNE());
 			addSuccessor(state.moveN());
@@ -276,6 +279,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveW());
 			addSuccessor(state.moveNW());
 			addSuccessor(state.moveW());
+			*/
 		}
 		return null;
 	}
