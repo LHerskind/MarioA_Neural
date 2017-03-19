@@ -24,7 +24,6 @@ public class CustomEngine {
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	public float[] marioFloatPos;
 	// Map
 	public byte[][] mergedObservation;
 	private byte[][] map = new byte[19][600];
@@ -215,6 +214,7 @@ public class CustomEngine {
 		int y = (int) (_y / 16);
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16))
 			return false;
+
 		// CHEATER COLLISION!
 		/*
 		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
@@ -240,17 +240,16 @@ public class CustomEngine {
 
 	public void printOnGoing(float x, float y) {
 		if (debug) {
-//			int __x = (int) x / 16;
-//			int __y = (int) y / 16;
-			// System.out.println(__x + " " + __y);
+			int __x = (int) x / 16;
+			int __y = (int) y / 16;
 
 			for (int i = 0; i < 19; i++) {
 				for (int j = mapX - 18; j < mapX + 1; j++) {
-					// if (i == __y && j == __x) {
-					// System.out.print("M" + "\t");
-					// } else {
-					System.out.print(map[i][j] + "\t");
-					// }
+					if (i == __y && j == __x) {
+						System.out.print("M" + "\t");
+					} else {
+						System.out.print(map[i][j] + "\t");
+					}
 				}
 				System.out.println();
 			}
@@ -264,9 +263,7 @@ public class CustomEngine {
 		this.levelScene = levelScene;
 	}
 
-	public void setScene(byte[][] levelScene, float[] marioFloatPos) {
-		this.marioFloatPos = marioFloatPos;
-
+	public void setScene(byte[][] levelScene) {
 		for (int i = 0; i < 19; i++) {
 			for (int j = 0; j < 19; j++) {
 				this.map[i][j] = levelScene[i][j];
