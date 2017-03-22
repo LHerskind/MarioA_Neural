@@ -237,11 +237,8 @@ public class CustomEngine {
 		 * BIT_BLOCK_LOWER) > 0; return blocking;
 		 */
 
-<<<<<<< HEAD
-		//if (state.xGrid >= 0 && state.xGrid < 600 && y >= 0 && y < 16) {
-=======
-		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
->>>>>>> master
+
+		if (_x >= 0 && _x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {
 				if (block == -62) {
@@ -249,10 +246,10 @@ public class CustomEngine {
 				}
 			}
 			return block < 0;
-		/*} else {
+		} else {
 			return false;
 		}
-		*/
+		
 	}
 	public void stomp(State state, final Enemy enemy) {
 		float targetY = enemy.y - enemy.height / 2;

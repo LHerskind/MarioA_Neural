@@ -22,15 +22,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public boolean firstScene = true;
 
 	private int speedPriority = 9;
-<<<<<<< HEAD
-	private int penaltySize = 25;
-=======
-	private int penaltySize = 10;
+	private int penaltySize = 15;
 
 	private int numberOfStates = 200000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
->>>>>>> master
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -254,11 +250,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		// FOR DEBUGGING
 		for (int i = 0; i < 600; i++) {
 			GlobalOptions.Pos[i][0] = (int) marioFloatPos[0];
-<<<<<<< HEAD
-			GlobalOptions.Pos[i][1] = (int )marioFloatPos[1];
-=======
+
 			GlobalOptions.Pos[i][1] = (int) marioFloatPos[1];
->>>>>>> master
 		}
 		debugPos = 0;
 
@@ -286,27 +279,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-<<<<<<< HEAD
-			/*
-			addSuccessor(state.moveE());
-			addSuccessor(state.moveNE());
-			addSuccessor(state.moveN());
-			addSuccessor(state.still());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-			addSuccessor(state.moveNW());
-			addSuccessor(state.moveW());
-			*/
-=======
-			// addSuccessor(state.moveE());
-			// addSuccessor(state.moveNE());
-			// addSuccessor(state.moveN());
-			// addSuccessor(state.still());
-			addSuccessor(state.SmoveNW());
-			addSuccessor(state.SmoveW());
-			// addSuccessor(state.moveNW());
-			// addSuccessor(state.moveW());
->>>>>>> master
 		}
 		return null;
 	}
