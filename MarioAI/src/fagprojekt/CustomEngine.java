@@ -212,17 +212,9 @@ public class CustomEngine {
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
-		if (x == (int) (state.x / 16) && y == (int) (state.y / 16))
+		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
 			return false;
-
-		// CHEATER COLLISION!
-		/*
-		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
-		 * ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0; blocking |= (ya
-		 * > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
-		 * BIT_BLOCK_LOWER) > 0; return blocking;
-		 */
+		}
 
 		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
