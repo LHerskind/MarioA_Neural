@@ -257,13 +257,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
+				System.out.println("confused!");
 				return getRootState(state);
 			}
 
 			// Debugging for being stuck in loop
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-//				System.out.println("stuck in while-loop" + " Index = " + indexStateArray + " Open = " + openSet.size()
-//						+ " Close = " + closed.size());
+				System.out.println("stuck in while-loop" + " Index = " + indexStateArray + " Open = " + openSet.size()
+						+ " Close = " + closed.size());
 				return getRootState(state);
 			}
 

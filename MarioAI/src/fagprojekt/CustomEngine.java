@@ -156,37 +156,37 @@ public class CustomEngine {
 		}
 		boolean collide = false;
 		if (ya > 0) {
-			if (isBlocking(state.x + xa - marioWidth, state.y + ya, xa, 0))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, 0))
 				collide = true;
-			else if (isBlocking(state.x + xa + marioWidth, state.y + ya, xa, 0))
+			else if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, 0))
 				collide = true;
-			else if (isBlocking(state.x + xa - marioWidth, state.y + ya + 1, xa, ya))
+			else if (isBlocking(state, state.x + xa - marioWidth, state.y + ya + 1, xa, ya))
 				collide = true;
-			else if (isBlocking(state.x + xa + marioWidth, state.y + ya + 1, xa, ya))
+			else if (isBlocking(state, state.x + xa + marioWidth, state.y + ya + 1, xa, ya))
 				collide = true;
 		}
 		if (ya < 0) {
-			if (isBlocking(state.x + xa, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
 		}
 		if (xa > 0) {
-			if (isBlocking(state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			if (isBlocking(state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya))
 				collide = true;
-			if (isBlocking(state.x + xa + marioWidth, state.y + ya, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, ya))
 				collide = true;
 		}
 		if (xa < 0) {
-			if (isBlocking(state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			if (isBlocking(state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya))
 				collide = true;
-			if (isBlocking(state.x + xa - marioWidth, state.y + ya, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, ya))
 				collide = true;
 		}
 
@@ -216,8 +216,21 @@ public class CustomEngine {
 			return true;
 		}
 	}
-
-	public boolean isBlocking(final float _x, final float _y, final float xa, final float ya) {
+	public boolean isBlocking(Enemy e, final float _x, final float _y, final float xa, final float ya) {
+		if (e.x >= 0 && e.x < 600 * 16 && _y >= 0 && _y < 16) {
+			byte block = map[(int)_y][(int)_x];
+			if (ya <= 0) {
+				if (block == -62) {
+					return false;
+				}
+			}
+			return block < 0;
+		} else {
+			return false;
+		}
+		
+	}
+	public boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
 
@@ -233,14 +246,14 @@ public class CustomEngine {
 		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
 		 * BIT_BLOCK_LOWER) > 0; return blocking;
 		 */
-/*
+
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
 			return false;
 		}
-		*/
+		
 
 
-		if (_x >= 0 && _x < 600 * 16 && y >= 0 && y < 16) {
+		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {
 				if (block == -62) {
