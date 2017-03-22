@@ -236,7 +236,7 @@ public class Enemy {
 				collide = true;
 
 			if (avoidCliffs && onGround
-					&& !ce.isBlocking(this, (int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1))
+					&& !ce.isEnemyBlocking(this, (int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1))
 				collide = true;
 		}
 		if (xa < 0) {
@@ -248,7 +248,7 @@ public class Enemy {
 				collide = true;
 
 			if (avoidCliffs && onGround
-					&& !ce.isBlocking(this, (int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
+					&& !ce.isEnemyBlocking(this, (int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
 				collide = true;
 		}
 
@@ -283,7 +283,7 @@ public class Enemy {
 		if (x == (int) (this.x / 16) && y == (int) (this.y / 16))
 			return false;
 
-		boolean blocking = ce.isBlocking(this, x, y, xa, ya);
+		boolean blocking = ce.isEnemyBlocking(this, x, y, xa, ya);
 
 		return blocking;
 	}

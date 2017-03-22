@@ -216,7 +216,8 @@ public class CustomEngine {
 			return true;
 		}
 	}
-	public boolean isBlocking(Enemy e, final float _x, final float _y, final float xa, final float ya) {
+	public boolean isEnemyBlocking(Enemy e, final float _x, final float _y, final float xa, final float ya) {
+		if(_y >= 16) System.out.println("y: " + _y);
 		if (e.x >= 0 && e.x < 600 * 16 && _y >= 0 && _y < 16) {
 			byte block = map[(int)_y][(int)_x];
 			if (ya <= 0) {

@@ -257,7 +257,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
-				System.out.println("confused!");
 				return getRootState(state);
 			}
 
