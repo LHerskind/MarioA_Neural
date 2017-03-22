@@ -2,13 +2,11 @@ package ch.idsia.agents;
 
 import java.io.IOException;
 
-import ch.idsia.agents.controllers.ForwardAgent;
-import ch.idsia.agents.controllers.ForwardJumpingAgent;
 import ch.idsia.agents.controllers.human.HumanKeyboardAgent;
 import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.wox.serial.Easy;
 import fagprojekt.AStarAgent;
-import fagprojekt_PathFinder_3.PFAgent;
+import fagprojekt_PathFinder.PFAgent;
 
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy,
@@ -31,10 +29,10 @@ public final class AgentLoader {
 		try {
 			if (name.endsWith(".py"))
 				agent = new AmiCoAgent(name);
-			else
-//				name = ForwardJumpingAgent.class.getName();
+			else {
 				name = AStarAgent.class.getName();
-			agent = (Agent) Class.forName(name).newInstance();
+				agent = (Agent) Class.forName(name).newInstance();
+			}
 		} catch (ClassNotFoundException e) {
 			System.out.println("[~ Mario AI ~] :" + name
 					+ " is not a class name; trying to load a wox definition with that name.");
