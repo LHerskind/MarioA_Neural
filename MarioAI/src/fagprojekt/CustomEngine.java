@@ -33,8 +33,9 @@ public class CustomEngine {
 	private byte[][] map = new byte[19][600];
 	private int mapX = 0;
 	private float highestX = 0;
-	// DEBUG
+	// UTILITIES
 	public boolean debug = true;
+	public boolean calcEnemies = true;
 	
 	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
@@ -103,9 +104,11 @@ public class CustomEngine {
 		state.onGround = false;
 		move(state, state.xa, 0); //marioMove
 		move(state, 0, state.ya); // marioMove
-		for(Enemy e: enemyList) {
-			e.move(this);
-			e.collideCheck(this, state); // mario stomp, wall handling
+		if(calcEnemies) {
+			for(Enemy e: enemyList) {
+				e.move(this);
+				e.collideCheck(this, state); // mario stomp, wall handling
+			}
 		}
 		
 

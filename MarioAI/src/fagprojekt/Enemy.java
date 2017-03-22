@@ -89,13 +89,15 @@ public class Enemy {
 		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED) height = 12;
 		this.x = x;
 		this.y = y;
-
+		
 		yaa = creaturesGravity * 2;
 		yaw = creaturesGravity == 1 ? 1 : 0.3f * creaturesGravity;
 
 		avoidCliffs = kind == KIND_RED_KOOPA;
-
+		
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
+		//facing = dir; HOW TO MAKE DIR?
+		if (facing == 0) facing = -1;
 	}
 
 	public void collideCheck(CustomEngine ce, State state) {
@@ -165,6 +167,7 @@ public class Enemy {
 
 		ya *= winged ? 0.95f : 0.85f;
 		if (onGround) {
+			
 			xa *= (ce.GROUND_INERTIA);
 		} else {
 			xa *= (ce.AIR_INERTIA);
@@ -268,7 +271,6 @@ public class Enemy {
 			}
 			return false;
 		} else {
-			if(xa == 0) System.out.println(xa);
 			x += xa;
 			y += ya;
 			return true;
