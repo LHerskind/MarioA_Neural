@@ -67,14 +67,14 @@ public final class Play {
 
 	public static void main(String[] args) {
 		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-		marioAIOptions.setFPS(24);
+		marioAIOptions.setFPS(4);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		GlobalOptions.changeScale2x();
 		marioAIOptions.setVisualization(true);
 
 		marioAIOptions.setLevelDifficulty(1);
 //		marioAIOptions.setArgs("-lf on -lg on");
-		marioAIOptions.setEnemies("off");
+		//marioAIOptions.setEnemies("off");
 		int seed = new Random().nextInt(400);
 		System.out.println(seed);
 		marioAIOptions.setLevelRandSeed(seed);

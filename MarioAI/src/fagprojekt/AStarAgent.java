@@ -81,7 +81,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			parent = null;
 			action = null;
 			heuristic = (int) ((searchDepth + 10) - (x - marioFloatPos[0]));
-			// heuristic = 18 - this.xGrid;
 		}
 
 		@Override
@@ -107,7 +106,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			String lort = x + "" + y + "" + z + "" + zz;
 			int l = lort.length() > 9 ? 9 : lort.length();
-			return Integer.parseInt(lort.substring(0, l));
+			return Integer.parseInt(lort.substring(0, l)); // GIVER CRASHES
 		}
 
 		public void initValues() {
@@ -279,8 +278,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-			addSuccessor(state.SmoveNW());
-			addSuccessor(state.SmoveW());
+			//addSuccessor(state.SmoveNW());
+			//addSuccessor(state.SmoveW());
 		}
 		return null;
 	}
@@ -291,14 +290,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			action[i] = false;
 		ce = new CustomEngine();
 	}
-	ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	public boolean[] getAction() {
+		
+		ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
 			enemyList.add(new Enemy((int) (marioFloatPos[0] + enemiesFloatPos[i+1]),
 					(int) (marioFloatPos[1] + enemiesFloatPos[i+2]), (int) enemiesFloatPos[i]));
 		}
-		
 		ce.updateEnemies(enemyList);
+		
 		if (firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;

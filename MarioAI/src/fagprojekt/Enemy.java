@@ -31,21 +31,43 @@ import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 import fagprojekt.AStarAgent.State;
 
-public class Enemy extends Sprite {
-	public static final int IN_FILE_POS_RED_KOOPA = 0;
-	public static final int IN_FILE_POS_GREEN_KOOPA = 1;
-	public static final int IN_FILE_POS_GOOMBA = 2;
-	public static final int IN_FILE_POS_SPIKY = 3;
-	public static final int IN_FILE_POS_FLOWER = 4;
-	public static final int POSITION_WAVE_GOOMBA = 7;
+public class Enemy {
+	public static final int KIND_NONE = 0;
+	public static final int KIND_GOOMBA = 80;
+	public static final int KIND_GOOMBA_WINGED = 95;
+	public static final int KIND_RED_KOOPA = 82;
+	public static final int KIND_RED_KOOPA_WINGED = 97;
+	public static final int KIND_GREEN_KOOPA = 81;
+	public static final int KIND_GREEN_KOOPA_WINGED = 96;
+	public static final int KIND_BULLET_BILL = 84;
+	public static final int KIND_SPIKY = 93;
+	public static final int KIND_SPIKY_WINGED = 99;
+	public static final int KIND_ENEMY_FLOWER = 91;
+	public static final int KIND_WAVE_GOOMBA = 98;
+	public static final int KIND_SHELL = 13;
+	public static final int KIND_MUSHROOM = 2;
+	public static final int KIND_GREEN_MUSHROOM = 9;
+	public static final int KIND_PRINCESS = 49;
+	public static final int KIND_FIRE_FLOWER = 3;
+	public static final int KIND_PARTICLE = 21;
+	public static final int KIND_SPARCLE = 22;
+	public static final int KIND_COIN_ANIM = 1;
+	public static final int KIND_FIREBALL = 25;
 
+	public static final int KIND_UNDEF = -42;
+	
+	public byte kind = KIND_UNDEF;
+	public float creaturesGravity = 1;
 	public float runTime;
 	public boolean onGround = false;
 
 	public int width = 4;
 	public int height = 24;
-
 	public float yaa = 1;
+	public float x;
+	public float y;
+	public float ya;
+	public float xa;
 
 	public int facing;
 	public int deadTime = 0;
@@ -64,56 +86,22 @@ public class Enemy extends Sprite {
 			int type /* ,boolean winged, int mapX, int mapY */) {
 		kind = (byte) type;
 		this.winged = winged; // What to do here?
-
+		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED) height = 12;
 		this.x = x;
 		this.y = y;
-		this.mapX = mapX; // What is this?
-		this.mapY = mapY;
-
-		xPicO = 8;
-		yPicO = 31;
 
 		yaa = creaturesGravity * 2;
 		yaw = creaturesGravity == 1 ? 1 : 0.3f * creaturesGravity;
 
-		switch (type) {
-		case KIND_GOOMBA:
-		case KIND_GOOMBA_WINGED:
-			yPic = IN_FILE_POS_GOOMBA;
-			break;
-		case KIND_RED_KOOPA:
-		case KIND_RED_KOOPA_WINGED:
-			yPic = IN_FILE_POS_RED_KOOPA;
-			break;
-		case KIND_GREEN_KOOPA:
-		case KIND_GREEN_KOOPA_WINGED:
-			yPic = IN_FILE_POS_GREEN_KOOPA;
-			break;
-		case KIND_SPIKY:
-		case KIND_SPIKY_WINGED:
-			yPic = IN_FILE_POS_SPIKY;
-			break;
-		case KIND_ENEMY_FLOWER:
-			yPic = IN_FILE_POS_FLOWER;
-			break;
-		case KIND_WAVE_GOOMBA:
-			yPic = POSITION_WAVE_GOOMBA;
-			break;
-		}
-
 		avoidCliffs = kind == KIND_RED_KOOPA;
 
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
-		if (yPic > 1)
-			height = 12;
-		this.wPic = 16;
 	}
 
 	public void collideCheck(CustomEngine ce, State state) {
 		if (deadTime != 0) {
 			return;
 		}
-
 		float xMarioD = state.x - x;
 		float yMarioD = state.y - y;
 		// float w = 16;
@@ -123,27 +111,18 @@ public class Enemy extends Sprite {
 				if ((kind != KIND_SPIKY && kind != KIND_SPIKY_WINGED && kind != KIND_ENEMY_FLOWER)
 						&& state.ya > 0 && yMarioD <= 0 && (!state.onGround)) {
 					ce.stomp(state, this);
+					
 					if (winged) {
 						winged = false;
 						ya = 0;
 					} else {
-						this.yPicO = 31 - (32 - 8);
-						hPic = 8;
-						if (spriteTemplate != null)
-							spriteTemplate.isDead = true;
 						deadTime = 10;
 						winged = false;
-						/* EEHHHHH???? TODO - wtf
-						if (kind == KIND_RED_KOOPA || kind == KIND_RED_KOOPA_WINGED) {
-							spriteContext.addSprite(new Shell(levelScene, x, y, 0));
-						} else if (kind == KIND_GREEN_KOOPA || kind == KIND_GREEN_KOOPA_WINGED) {
-							spriteContext.addSprite(new Shell(levelScene, x, y, 1));
-						}
-						*/
 					}
 				} else {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
 					state.penalty(500);
+					//state.devolve (mario got worse)
 				}
 			}
 		}
@@ -186,9 +165,9 @@ public class Enemy extends Sprite {
 
 		ya *= winged ? 0.95f : 0.85f;
 		if (onGround) {
-			xa *= (GROUND_INERTIA);
+			xa *= (ce.GROUND_INERTIA);
 		} else {
-			xa *= (AIR_INERTIA);
+			xa *= (ce.AIR_INERTIA);
 		}
 
 		if (!onGround) {
@@ -281,7 +260,6 @@ public class Enemy extends Sprite {
 			}
 			if (ya < 0) {
 				y = (int) ((y - height) / 16) * 16 + height;
-				// jumpTime = 0;
 				this.ya = 0;
 			}
 			if (ya > 0) {
@@ -290,9 +268,7 @@ public class Enemy extends Sprite {
 			}
 			return false;
 		} else {
-			if (GlobalOptions.areFrozenCreatures)
-				return true;
-
+			if(xa == 0) System.out.println(xa);
 			x += xa;
 			y += ya;
 			return true;

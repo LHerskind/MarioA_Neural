@@ -35,6 +35,7 @@ public class CustomEngine {
 	private float highestX = 0;
 	// DEBUG
 	public boolean debug = true;
+	
 	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
 	public static final int BIT_BLOCK_UPPER = 1 << 0;
@@ -55,11 +56,6 @@ public class CustomEngine {
 	}
 	public void predictFuture(State state) {
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
-		/*
-		 * // FOR DUCKING if (state.onGround) { ducking = keys[KEY_DOWN] &&
-		 * large; }
-		 */
-
 		if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding)) {
 
 			if (state.jumpTime < 0) {
@@ -96,27 +92,24 @@ public class CustomEngine {
 		}
 
 		/*
-		 * //FIREBALLS if (keys[KEY_SPEED] && ableToShoot && Mario.fire &&
-		 * levelScene.fireballsOnScreen < 2) { levelScene.addSprite(new
-		 * Fireball(levelScene, x + facing * 6, y - 20, facing)); } ableToShoot
-		 * = !keys[KEY_SPEED];
+		 if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire &&
+		  levelScene.fireballsOnScreen < 2) {
+			 levelScene.addSprite(new
+		  Fireball(levelScene, x + facing * 6, y - 20, facing)); } 
+		 ableToShoot = !keys[KEY_SPEED];
 		 */
 
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
-		/*
-		 * // WHAT IS RUNTIME?! runTime += (Math.abs(state.xa)) + 5; if
-		 * (Math.abs(state.xa) < 0.5f) { // runTime = 0; state.xa = 0; }
-		 */
 		state.onGround = false;
 		move(state, state.xa, 0); //marioMove
 		move(state, 0, state.ya); // marioMove
-		
 		for(Enemy e: enemyList) {
 			e.move(this);
 			e.collideCheck(this, state); // mario stomp, wall handling
 		}
+		
 
-		// GAPS - VERY IMPORTANT!
+		// GAPS - VERY IMPORTANT! MAKE Level non-static!
 		if (state.y > LevelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
 			state.penalty(1000);
 
@@ -251,18 +244,16 @@ public class CustomEngine {
 		}
 		
 	}
-	public void stomp(State state, final Enemy enemy) {
+	public void stomp(State state, Enemy enemy) {
 		float targetY = enemy.y - enemy.height / 2;
 		move(state, 0, targetY - state.y);
-		//mapY = (int) y / 16; TODO - ??
 
 		xJumpSpeed = 0;
 		yJumpSpeed = -1.9f;
-		//state.jumpTime = (int) jT + 1; TODO - ??
-		state.jumpTime++; // REPLACEMENT FOR ABOVE
+		
+		state.jumpTime = 8;
 		state.ya = jumpTime * yJumpSpeed;
 		state.onGround = false;
-		//invulnerableTime = 1; TODO - ??
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {
