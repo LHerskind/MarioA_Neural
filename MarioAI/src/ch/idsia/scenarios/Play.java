@@ -72,10 +72,9 @@ public final class Play {
 		GlobalOptions.changeScale2x();
 		marioAIOptions.setVisualization(true);
 
-		marioAIOptions.setLevelDifficulty(15);
+		marioAIOptions.setLevelDifficulty(1);
 //		marioAIOptions.setArgs("-lf on -lg on");
 		marioAIOptions.setEnemies("off");
-		GlobalOptions.changeScale2x();
 		int seed = new Random().nextInt(400);
 		System.out.println(seed);
 		marioAIOptions.setLevelRandSeed(seed);
