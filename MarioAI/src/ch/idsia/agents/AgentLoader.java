@@ -7,6 +7,7 @@ import ch.idsia.agents.controllers.ForwardJumpingAgent;
 import ch.idsia.agents.controllers.human.HumanKeyboardAgent;
 import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.wox.serial.Easy;
+import fagprojekt.AStarAgent;
 import fagprojekt_PathFinder_3.PFAgent;
 
 /**
@@ -32,7 +33,7 @@ public final class AgentLoader {
 				agent = new AmiCoAgent(name);
 			else
 //				name = ForwardJumpingAgent.class.getName();
-				name = PFAgent.class.getName();
+				name = AStarAgent.class.getName();
 			agent = (Agent) Class.forName(name).newInstance();
 		} catch (ClassNotFoundException e) {
 			System.out.println("[~ Mario AI ~] :" + name

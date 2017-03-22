@@ -53,7 +53,7 @@ public final class LevelScene implements SpriteContext {
 	final private List<Sprite> spritesToAdd = new ArrayList<Sprite>();
 	final private List<Sprite> spritesToRemove = new ArrayList<Sprite>();
 
-	public Level level;
+	public static Level level;
 	public Mario mario;
 	public float xCam, yCam, xCamO, yCamO;
 
