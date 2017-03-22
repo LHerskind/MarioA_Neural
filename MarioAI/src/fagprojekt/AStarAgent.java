@@ -22,10 +22,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public boolean firstScene = true;
 
 	private int speedPriority = 9;
-<<<<<<< HEAD
 	private int penaltySize = 15;
-=======
->>>>>>> Nanochrome
+
 
 	private int numberOfStates = 200000;
 	private State[] stateArray = new State[numberOfStates];
@@ -79,16 +77,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		public State(boolean lala) {
 			initValues();
-<<<<<<< HEAD
 			penalty = 0;
 			parent = null;
 			action = null;
 			heuristic = (int) ((searchDepth + 10) - (x - marioFloatPos[0]));
-=======
-			this.parent = null;
-			this.action = null;
-			this.heuristic = (int) ((searchDepth + 10) - (this.x - marioFloatPos[0]));
->>>>>>> Nanochrome
+
 		}
 
 		@Override
@@ -110,16 +103,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			String lort = x + "" + y + "" + z;
 			int l = lort.length() > 9 ? 9 : lort.length();
-<<<<<<< HEAD
+
 			return Integer.parseInt(lort.substring(0, l)); // GIVER CRASHES
-=======
-
-			for (int i = 0; i < 9 - l; i++) {
-				lort += 0;
-			}
-
-			return Integer.parseInt(lort.substring(0, 9));
->>>>>>> Nanochrome
 		}
 
 		public void initValues() {
@@ -284,18 +269,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-<<<<<<< HEAD
+
 			//addSuccessor(state.SmoveNW());
 			//addSuccessor(state.SmoveW());
-=======
-			addSuccessor(state.SmoveW());
-			addSuccessor(state.SmoveNW());
+
+//			addSuccessor(state.SmoveW());
+//			addSuccessor(state.SmoveNW());
 //			addSuccessor(state.moveE());
 //			addSuccessor(state.moveNE());
 //			addSuccessor(state.moveW());
 //			addSuccessor(state.moveNW());
-			addSuccessor(state.still());
->>>>>>> Nanochrome
+//			addSuccessor(state.still());
 		}
 		return null;
 	}

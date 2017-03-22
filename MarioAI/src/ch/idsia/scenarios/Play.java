@@ -69,29 +69,6 @@ public final class Play {
 	static boolean all = true;
 
 	public static void main(String[] args) {
-<<<<<<< HEAD
-		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-		marioAIOptions.setFPS(4);
-		final BasicTask basicTask = new BasicTask(marioAIOptions);
-		GlobalOptions.changeScale2x();
-		marioAIOptions.setVisualization(true);
-
-		marioAIOptions.setLevelDifficulty(1);
-//		marioAIOptions.setArgs("-lf on -lg on");
-		//marioAIOptions.setEnemies("off");
-		int seed = new Random().nextInt(400);
-		System.out.println(seed);
-		marioAIOptions.setLevelRandSeed(seed);
-		// basicTask.reset(marioAIOptions);
-		final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
-		// basicTask.runSingleEpisode();
-		// run 1 episode with same options, each time giving output of
-		// Evaluation info.
-		// verbose = false
-		basicTask.doEpisodes(1, false, 1);
-		System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
-		System.out.println("\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
-=======
 		if (all) {
 			manyMaps(400, 15, false);
 		} else {
@@ -149,7 +126,6 @@ public final class Play {
 			System.out.println("LOST: " + lostMaps[i] + " " + lostReason[i]);
 		}
 
->>>>>>> Nanochrome
 		System.exit(0);
 	}
 
