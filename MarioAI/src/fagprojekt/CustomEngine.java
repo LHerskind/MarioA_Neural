@@ -220,6 +220,7 @@ public class CustomEngine {
 	public boolean isBlocking(final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
+<<<<<<< HEAD
 		/*
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16))
 			return false;
@@ -232,6 +233,11 @@ public class CustomEngine {
 		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
 		 * BIT_BLOCK_LOWER) > 0; return blocking;
 		 */
+=======
+		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
+			return false;
+		}
+>>>>>>> Nanochrome
 
 
 		if (_x >= 0 && _x < 600 * 16 && y >= 0 && y < 16) {

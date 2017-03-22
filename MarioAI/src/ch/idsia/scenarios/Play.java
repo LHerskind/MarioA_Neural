@@ -30,6 +30,7 @@ package ch.idsia.scenarios;
 import java.util.Random;
 
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
+import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.benchmark.tasks.MarioCustomSystemOfValues;
 import ch.idsia.tools.MarioAIOptions;
@@ -65,7 +66,10 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
+	static boolean all = true;
+
 	public static void main(String[] args) {
+<<<<<<< HEAD
 		final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 		marioAIOptions.setFPS(4);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
@@ -87,6 +91,66 @@ public final class Play {
 		basicTask.doEpisodes(1, false, 1);
 		System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
 		System.out.println("\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
+=======
+		if (all) {
+			manyMaps(400, 15, false);
+		} else {
+			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
+			marioAIOptions.setFPS(24);
+			final BasicTask basicTask = new BasicTask(marioAIOptions);
+			GlobalOptions.changeScale2x();
+			marioAIOptions.setVisualization(true);
+			marioAIOptions.setLevelDifficulty(0);
+			marioAIOptions.setEnemies("off");
+			int seed = new Random().nextInt(400);
+			System.out.println(seed);
+			marioAIOptions.setLevelRandSeed(393);
+			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
+			basicTask.doEpisodes(1, false, 1);
+			System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
+			System.out.println(
+					"\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
+			System.exit(0);
+		}
+	}
+
+	public static void manyMaps(int howMany, int difficulty, boolean visualize) {
+		int lost = 0;
+		int[] lostMaps = new int[howMany];
+		String[] lostReason = new String[howMany];
+
+		for (int i = 0; i < howMany; i++) {
+			final MarioAIOptions marioAIOptions = new MarioAIOptions();
+			marioAIOptions.setVisualization(visualize);
+			if (marioAIOptions.isVisualization()) {
+				marioAIOptions.setFPS(24);
+			}
+			final BasicTask basicTask = new BasicTask(marioAIOptions);
+			if (!GlobalOptions.isScale2x) {
+				GlobalOptions.changeScale2x();
+			}
+			marioAIOptions.setLevelDifficulty(difficulty);
+			marioAIOptions.setEnemies("off");
+			marioAIOptions.setLevelRandSeed(i);
+			basicTask.doEpisodes(1, false, 1);
+			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
+				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
+					if (!basicTask.getEvaluationInfo().Memo.contains("Collision")) {
+						lostMaps[lost] = i;
+						lostReason[lost++] = basicTask.getEvaluationInfo().Memo;
+					}
+				}
+			}
+		}
+		if (lost == 0) {
+			System.out.println("Wins all the way");
+		}
+		for (int i = 0; i < lost; i++) {
+			System.out.println("LOST: " + lostMaps[i] + " " + lostReason[i]);
+		}
+
+>>>>>>> Nanochrome
 		System.exit(0);
 	}
+
 }
