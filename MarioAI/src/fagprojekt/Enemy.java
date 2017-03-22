@@ -27,8 +27,6 @@
 
 package fagprojekt;
 
-import ch.idsia.benchmark.mario.engine.GlobalOptions;
-import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 import fagprojekt.AStarAgent.State;
 
 public class Enemy {

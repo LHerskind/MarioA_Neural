@@ -217,7 +217,6 @@ public class CustomEngine {
 		}
 	}
 	public boolean isEnemyBlocking(Enemy e, final float _x, final float _y, final float xa, final float ya) {
-		if(_y >= 16) System.out.println("y: " + _y);
 		if (e.x >= 0 && e.x < 600 * 16 && _y >= 0 && _y < 16) {
 			byte block = map[(int)_y][(int)_x];
 			if (ya <= 0) {
@@ -235,10 +234,6 @@ public class CustomEngine {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
 
-		/*
-		if (x == (int) (state.x / 16) && y == (int) (state.y / 16))
-			return false;
-		*/
 		// CHEATER COLLISION!
 		/*
 		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
@@ -247,13 +242,9 @@ public class CustomEngine {
 		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
 		 * BIT_BLOCK_LOWER) > 0; return blocking;
 		 */
-
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
 			return false;
 		}
-		
-
-
 		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {

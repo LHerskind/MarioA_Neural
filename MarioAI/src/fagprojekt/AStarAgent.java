@@ -22,16 +22,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public boolean firstScene = true;
 
 	private int speedPriority = 9;
-<<<<<<< HEAD
-	private int penaltySize = 25;
-=======
-	private int penaltySize = 15;
 
 
 	private int numberOfStates = 200000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
->>>>>>> origin/MesterBranchen
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -107,7 +102,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			String lort = x + "" + y + "" + z;
 			int l = lort.length() > 9 ? 9 : lort.length();
-
+			for (int i = 0; i < 9 - l; i++) {
+				lort += 0;
+			}
 			return Integer.parseInt(lort.substring(0, l)); // GIVER CRASHES
 		}
 
@@ -118,41 +115,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.y = marioFloatPos[1];
 			this.penalty = 0;
 			this.g = 0;
-<<<<<<< HEAD
-
-			jumpTime = prevJumpTime;
-			xa = prevXa;
-			ya = prevYa;
-		}
-
-		public State(State parent, boolean[] action) {
-			this.action = action;
-			this.parent = parent;
-			this.onGround = parent.onGround;
-			this.mayJump = parent.mayJump;
-			this.xa = parent.xa;
-			this.ya = parent.ya;
-			this.x = parent.x;
-			this.y = parent.y;
-			this.jumpTime = parent.jumpTime;
-
-			this.g = parent.g + speedPriority;
-			penalty = parent.penalty;
-
-			ce.predictFuture(this);
-			
-			// previous value + the length of the combined vector after the prediction (doesnt work well for some reason
-			//this.g= (int) (parent.g + (Math.sqrt(Math.pow(Math.abs(x - parent.x),2) + Math.pow(Math.abs(y - parent.y),2))));
-			
-			// TODO - HEURISTIC NEEEEEDS TO BE AMOUNT OF TICKS TO GOAL, BASED ON
-			// HIS MAXIMUM SPEED!!!!!!!
-			heuristic = ((searchDepth) - (int) (x - marioFloatPos[0]));
-
-=======
 			this.jumpTime = prevJumpTime;
 			this.xa = prevXa;
 			this.ya = prevYa;
->>>>>>> origin/MesterBranchen
 		}
 
 		public State getNextState(State parent, boolean[] action) {
@@ -277,12 +242,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		// FOR DEBUGGING
 		for (int i = 0; i < 600; i++) {
-<<<<<<< HEAD
-			GlobalOptions.Pos[i][0] = (int)marioFloatPos[0];
-=======
 			GlobalOptions.Pos[i][0] = (int) marioFloatPos[0];
 
->>>>>>> origin/MesterBranchen
 			GlobalOptions.Pos[i][1] = (int) marioFloatPos[1];
 		}
 		debugPos = 0;
@@ -309,21 +270,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-<<<<<<< HEAD
-			/*
-			addSuccessor(state.moveE());
-			addSuccessor(state.moveNE());
-			addSuccessor(state.moveN());
-			addSuccessor(state.still());
+
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-			addSuccessor(state.moveNW());
-			addSuccessor(state.moveW());
-			*/
-=======
-
-			//addSuccessor(state.SmoveNW());
-			//addSuccessor(state.SmoveW());
 
 //			addSuccessor(state.SmoveW());
 //			addSuccessor(state.SmoveNW());
@@ -331,8 +280,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 //			addSuccessor(state.moveNE());
 //			addSuccessor(state.moveW());
 //			addSuccessor(state.moveNW());
-//			addSuccessor(state.still());
->>>>>>> origin/MesterBranchen
+			addSuccessor(state.still());
 		}
 		return null;
 	}
