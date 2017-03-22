@@ -101,7 +101,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 				double __aa = Math.pow(this.xa - parent.xa, 2);
 				double __bb = Math.pow(this.ya - parent.ya, 2);
-				double __zz = Math.pow(Math.sqrt(__aa + __bb),2) / 20;
+				double __zz = Math.pow(Math.sqrt(__aa + __bb), 2) / 20;
 				zz = (int) __zz;
 			}
 			String lort = x + "" + y + "" + z + "" + zz;
@@ -137,9 +137,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.y = parent.y;
 				nextState.jumpTime = parent.jumpTime;
 				nextState.penalty = parent.penalty;
-
-				ce.predictFuture(nextState);
 				nextState.g = parent.g + speedPriority;
+				ce.predictFuture(nextState);
 
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
 				return nextState;
@@ -277,13 +276,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
+			addSuccessor(state.SmoveW());
 			addSuccessor(state.SmoveNE());
+			addSuccessor(state.SmoveNW());
 			// addSuccessor(state.moveE());
 			// addSuccessor(state.moveNE());
 			// addSuccessor(state.moveN());
 			// addSuccessor(state.still());
-			addSuccessor(state.SmoveNW());
-			addSuccessor(state.SmoveW());
 			// addSuccessor(state.moveNW());
 			// addSuccessor(state.moveW());
 		}
