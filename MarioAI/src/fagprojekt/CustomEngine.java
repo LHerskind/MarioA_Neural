@@ -237,9 +237,13 @@ public class CustomEngine {
 		 * BIT_BLOCK_LOWER) > 0; return blocking;
 		 */
 
+<<<<<<< HEAD
 		//if (state.xGrid >= 0 && state.xGrid < 600 && y >= 0 && y < 16) {
+=======
+		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
+>>>>>>> master
 			byte block = map[y][x];
-			if (ya < 0) {
+			if (ya <= 0) {
 				if (block == -62) {
 					return false;
 				}
