@@ -246,7 +246,6 @@ public byte[][] getLevelSceneObservationZ(int ZLevel, int mCol, int mRow)
 public byte[][] getLevelSceneObservationZ(int ZLevel)
 {
     int mCol = marioEgoPos[1];
-	System.out.println(mCol);
     int mRow = marioEgoPos[0];
     for (int y = levelScene.mario.mapY - mRow, row = 0; y <= levelScene.mario.mapY + (receptiveFieldHeight - mRow - 1); y++, row++)
     {

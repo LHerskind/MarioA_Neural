@@ -48,3 +48,5 @@ Temporary Items
 
 MarioAI/bin/
 bin/
+
+*.class
