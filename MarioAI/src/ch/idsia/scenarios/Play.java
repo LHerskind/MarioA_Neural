@@ -29,6 +29,7 @@ package ch.idsia.scenarios;
 
 import java.util.Random;
 
+import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.tasks.BasicTask;
 import ch.idsia.benchmark.tasks.MarioCustomSystemOfValues;
 import ch.idsia.tools.MarioAIOptions;
@@ -69,10 +70,11 @@ public final class Play {
 		marioAIOptions.setFPS(24);
 		final BasicTask basicTask = new BasicTask(marioAIOptions);
 		marioAIOptions.setVisualization(true);
-		marioAIOptions.setLevelDifficulty(5);
+		marioAIOptions.setLevelDifficulty(1);
 //		marioAIOptions.setArgs("-lf on -lg on");
 		//marioAIOptions.setRecordFile("on");
 		marioAIOptions.setEnemies("off");
+		GlobalOptions.changeScale2x();
 		int seed = new Random().nextInt(400);
 		System.out.println(seed);
 		marioAIOptions.setLevelRandSeed(seed);

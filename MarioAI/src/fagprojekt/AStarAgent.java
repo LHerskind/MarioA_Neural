@@ -1,5 +1,6 @@
 package fagprojekt;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -20,7 +21,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 
-	private int speedPriority = 0;
+	private int speedPriority = 9;
 	private int penaltySize = 25;
 
 	public int debugPos;
@@ -238,10 +239,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		closed.clear();
 
 		// FOR DEBUGGING
-		GlobalOptions.Pos = new int[600][2];
 		for (int i = 0; i < 600; i++) {
-			GlobalOptions.Pos[i][0] = 0;
-			GlobalOptions.Pos[i][1] = 0;
+			GlobalOptions.Pos[i][0] = (int) marioFloatPos[0];
+			GlobalOptions.Pos[i][1] = (int )marioFloatPos[1];
 		}
 		debugPos = 0;
 
@@ -268,6 +268,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
+			/*
 			addSuccessor(state.moveE());
 			addSuccessor(state.moveNE());
 			addSuccessor(state.moveN());
@@ -276,6 +277,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveW());
 			addSuccessor(state.moveNW());
 			addSuccessor(state.moveW());
+			*/
 		}
 		return null;
 	}
@@ -286,8 +288,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			action[i] = false;
 		ce = new CustomEngine();
 	}
-
+	ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	public boolean[] getAction() {
+		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
+			enemyList.add(new Enemy((int) (marioFloatPos[0] + enemiesFloatPos[i+1]),
+					(int) (marioFloatPos[1] + enemiesFloatPos[i+2]), (int) enemiesFloatPos[i]));
+		}
+		
+		ce.updateEnemies(enemyList);
 		if (firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;
