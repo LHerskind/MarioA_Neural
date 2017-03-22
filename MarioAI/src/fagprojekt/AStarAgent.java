@@ -20,8 +20,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 
-	private int speedPriority = 0;
-	private int penaltySize = 25;
+	private int speedPriority = 9;
+	private int penaltySize = 10;
+
+	private int numberOfStates = 200000;
+	private State[] stateArray = new State[numberOfStates];
+	private int indexStateArray = 0;
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -42,12 +46,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	public AStarAgent() {
 		super("AStarAgent");
+		for (int i = 1; i < numberOfStates; i++) {
+			stateArray[i] = new State();
+		}
 		reset();
 	}
 
 	public class State {
-		public int xGrid;
-		public int yGrid;
 		public float x;
 		public float y;
 		public float xa;
@@ -65,9 +70,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public boolean[] action;
 		public int g;
 
-		// initial state
 		public State() {
+		}
 
+		// initial state
+		public State(boolean lala) {
 			initValues();
 			penalty = 0;
 			parent = null;
@@ -78,18 +85,23 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		@Override
 		public int hashCode() {
-			int x = (int) this.x;
-			int y = (int) this.y;
+			int x = (int) (this.x - marioFloatPos[0]);
+			int y = (int) (150 + this.y - marioFloatPos[1]);
 			int z = 0;
 			int zz = 0;
 			if (parent != null) {
-				double __a = Math.pow(this.x - parent.x, 2);
-				double __b = Math.pow(this.y - parent.y, 2);
-				double __z = Math.sqrt(__a + __b);
-				z = (int) __z;
+				if (this.action[Mario.KEY_LEFT]) {
+					z += 1;
+				}
+				if (this.action[Mario.KEY_RIGHT]) {
+					z += 2;
+				}
+				if (this.action[Mario.KEY_JUMP]) {
+					z += 4;
+				}
 				double __aa = Math.pow(this.xa - parent.xa, 2);
 				double __bb = Math.pow(this.ya - parent.ya, 2);
-				double __zz = Math.sqrt(__aa + __bb);
+				double __zz = Math.pow(Math.sqrt(__aa + __bb),2) / 20;
 				zz = (int) __zz;
 			}
 			String lort = x + "" + y + "" + z + "" + zz;
@@ -102,8 +114,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			mayJump = isMarioAbleToJump;
 			x = marioFloatPos[0];
 			y = marioFloatPos[1];
-			this.xGrid = 9;
-			this.yGrid = 9;
 
 			penalty = 0;
 			this.g = 0;
@@ -113,30 +123,28 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			ya = prevYa;
 		}
 
-		public State(State parent, boolean[] action) {
-			this.action = action;
-			this.parent = parent;
-			this.onGround = parent.onGround;
-			this.mayJump = parent.mayJump;
-			this.xa = parent.xa;
-			this.ya = parent.ya;
-			this.x = parent.x;
-			this.y = parent.y;
-			this.jumpTime = parent.jumpTime;
+		public State getNextState(State parent, boolean[] action) {
+			if (indexStateArray < numberOfStates) {
+				State nextState = stateArray[indexStateArray++];
 
-			this.g = parent.g + speedPriority;
+				nextState.action = action;
+				nextState.parent = parent;
+				nextState.onGround = parent.onGround;
+				nextState.mayJump = parent.mayJump;
+				nextState.xa = parent.xa;
+				nextState.ya = parent.ya;
+				nextState.x = parent.x;
+				nextState.y = parent.y;
+				nextState.jumpTime = parent.jumpTime;
+				nextState.penalty = parent.penalty;
 
-			penalty = parent.penalty;
+				ce.predictFuture(nextState);
+				nextState.g = parent.g + speedPriority;
 
-			ce.predictFuture(this);
-			// TODO - HEURISTIC NEEEEEDS TO BE AMOUNT OF TICKS TO GOAL, BASED ON
-			// HIS MAXIMUM SPEED!!!!!!!
-			heuristic = ((searchDepth) - (int) (x - marioFloatPos[0]));
-
-		}
-
-		public boolean isLegalMove() {
-			return xGrid > 0 && yGrid > 0 && xGrid < 18 && yGrid < 18;
+				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
+				return nextState;
+			}
+			return null;
 		}
 
 		public int priority() {
@@ -155,47 +163,47 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		State moveNE() {
-			return new State(this, createAction(false, true, true, false));
+			return getNextState(this, createAction(false, true, true, false));
 		}
 
 		State SmoveNE() {
-			return new State(this, createAction(false, true, true, true));
+			return getNextState(this, createAction(false, true, true, true));
 		}
 
 		State moveE() {
-			return new State(this, createAction(false, true, false, false));
+			return getNextState(this, createAction(false, true, false, false));
 		}
 
 		State SmoveE() {
-			return new State(this, createAction(false, true, false, true));
+			return getNextState(this, createAction(false, true, false, true));
 		}
 
 		State moveN() {
-			return new State(this, createAction(false, false, true, false));
+			return getNextState(this, createAction(false, false, true, false));
 		}
 
 		State SmoveN() {
-			return new State(this, createAction(false, false, true, true));
+			return getNextState(this, createAction(false, false, true, true));
 		}
 
 		State moveNW() {
-			return new State(this, createAction(true, false, true, false));
+			return getNextState(this, createAction(true, false, true, false));
 		}
 
 		State SmoveNW() {
-			return new State(this, createAction(true, false, true, true));
+			return getNextState(this, createAction(true, false, true, true));
 		}
 
 		State moveW() {
-			return new State(this, createAction(true, false, false, false));
+			return getNextState(this, createAction(true, false, false, false));
 		}
 
 		State SmoveW() {
-			return new State(this, createAction(true, false, false, true));
+			return getNextState(this, createAction(true, false, false, true));
 		}
 
 		State still() {
-			return new State(this, createAction(false, false, false, false));
+			return getNextState(this, createAction(false, false, false, false));
 		}
 	}
 
@@ -228,25 +236,27 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			if (closed.containsKey(successor.hashCode())) {
 				successor.penalty(penaltySize);
 			}
+			openSet.add(successor);
 		}
-		openSet.add(successor);
 	}
 
 	public State solve() {
 		long startTime = System.currentTimeMillis();
 		openSet.clear();
 		closed.clear();
+		indexStateArray = 1;
 
 		// FOR DEBUGGING
 		GlobalOptions.Pos = new int[600][2];
 		for (int i = 0; i < 600; i++) {
-			GlobalOptions.Pos[i][0] = 0;
-			GlobalOptions.Pos[i][1] = 0;
+			GlobalOptions.Pos[i][0] = (int) marioFloatPos[0];
+			GlobalOptions.Pos[i][1] = (int) marioFloatPos[1];
 		}
 		debugPos = 0;
 
 		// Add initial state to queue.
-		State initial = new State();
+		State initial = new State(true);
+		stateArray[0] = initial;
 		openSet.add(initial);
 
 		while (!openSet.isEmpty()) {
@@ -257,8 +267,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 
 			// Debugging for being stuck in loop
-			if (System.currentTimeMillis() - startTime > 25) {
-				System.out.println("stuck in while-loop");
+			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
+				System.out.println("stuck in while-loop" + " Index = " + indexStateArray);
 				return getRootState(state);
 			}
 
@@ -268,14 +278,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-			addSuccessor(state.moveE());
-			addSuccessor(state.moveNE());
-			addSuccessor(state.moveN());
-			addSuccessor(state.still());
+			// addSuccessor(state.moveE());
+			// addSuccessor(state.moveNE());
+			// addSuccessor(state.moveN());
+			// addSuccessor(state.still());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-			addSuccessor(state.moveNW());
-			addSuccessor(state.moveW());
+			// addSuccessor(state.moveNW());
+			// addSuccessor(state.moveW());
 		}
 		return null;
 	}
