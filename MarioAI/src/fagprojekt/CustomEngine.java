@@ -1,9 +1,13 @@
 package fagprojekt;
 
+import java.util.ArrayList;
+
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
+import fagprojekt.Enemy;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 import fagprojekt.AStarAgent.State;
 
 public class CustomEngine {
@@ -31,7 +35,8 @@ public class CustomEngine {
 	private float highestX = 0;
 	// DEBUG
 	public boolean debug = true;
-	// TEMPORARY
+	
+	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
 	public static final int BIT_BLOCK_UPPER = 1 << 0;
 	public static final int BIT_BLOCK_ALL = 1 << 1;
@@ -41,18 +46,16 @@ public class CustomEngine {
 	public static final int BIT_BREAKABLE = 1 << 5;
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
-
+	// ENEMIES
+	ArrayList<Enemy> enemyList;
 	public void updateMap(byte[][] mergedObservation) {
 		this.mergedObservation = mergedObservation;
 	}
-
+	public void updateEnemies(ArrayList<Enemy> enemyList) {
+		this.enemyList = enemyList;
+	}
 	public void predictFuture(State state) {
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
-		/*
-		 * // FOR DUCKING if (state.onGround) { ducking = keys[KEY_DOWN] &&
-		 * large; }
-		 */
-
 		if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding)) {
 
 			if (state.jumpTime < 0) {
@@ -89,22 +92,24 @@ public class CustomEngine {
 		}
 
 		/*
-		 * //FIREBALLS if (keys[KEY_SPEED] && ableToShoot && Mario.fire &&
-		 * levelScene.fireballsOnScreen < 2) { levelScene.addSprite(new
-		 * Fireball(levelScene, x + facing * 6, y - 20, facing)); } ableToShoot
-		 * = !keys[KEY_SPEED];
+		 if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire &&
+		  levelScene.fireballsOnScreen < 2) {
+			 levelScene.addSprite(new
+		  Fireball(levelScene, x + facing * 6, y - 20, facing)); } 
+		 ableToShoot = !keys[KEY_SPEED];
 		 */
 
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
-		/*
-		 * // WHAT IS RUNTIME?! runTime += (Math.abs(state.xa)) + 5; if
-		 * (Math.abs(state.xa) < 0.5f) { // runTime = 0; state.xa = 0; }
-		 */
 		state.onGround = false;
-		move(state, state.xa, 0);
-		move(state, 0, state.ya);
+		move(state, state.xa, 0); //marioMove
+		move(state, 0, state.ya); // marioMove
+		for(Enemy e: enemyList) {
+			e.move(this);
+			e.collideCheck(this, state); // mario stomp, wall handling
+		}
+		
 
-		// GAPS - VERY IMPORTANT!
+		// GAPS - VERY IMPORTANT! MAKE Level non-static!
 		if (state.y > LevelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
 			state.penalty(1000);
 
@@ -148,37 +153,37 @@ public class CustomEngine {
 		}
 		boolean collide = false;
 		if (ya > 0) {
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, 0))
+			if (isBlocking(state.x + xa - marioWidth, state.y + ya, xa, 0))
 				collide = true;
-			else if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, 0))
+			else if (isBlocking(state.x + xa + marioWidth, state.y + ya, xa, 0))
 				collide = true;
-			else if (isBlocking(state, state.x + xa - marioWidth, state.y + ya + 1, xa, ya))
+			else if (isBlocking(state.x + xa - marioWidth, state.y + ya + 1, xa, ya))
 				collide = true;
-			else if (isBlocking(state, state.x + xa + marioWidth, state.y + ya + 1, xa, ya))
+			else if (isBlocking(state.x + xa + marioWidth, state.y + ya + 1, xa, ya))
 				collide = true;
 		}
 		if (ya < 0) {
-			if (isBlocking(state, state.x + xa, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state.x + xa, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
 		}
 		if (xa > 0) {
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, ya))
+			if (isBlocking(state.x + xa + marioWidth, state.y + ya, xa, ya))
 				collide = true;
 		}
 		if (xa < 0) {
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, ya))
+			if (isBlocking(state.x + xa - marioWidth, state.y + ya, xa, ya))
 				collide = true;
 		}
 
@@ -209,12 +214,13 @@ public class CustomEngine {
 		}
 	}
 
-	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
+	public boolean isBlocking(final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
+		/*
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16))
 			return false;
-
+		*/
 		// CHEATER COLLISION!
 		/*
 		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
@@ -224,7 +230,8 @@ public class CustomEngine {
 		 * BIT_BLOCK_LOWER) > 0; return blocking;
 		 */
 
-		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
+
+		if (_x >= 0 && _x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {
 				if (block == -62) {
@@ -235,9 +242,19 @@ public class CustomEngine {
 		} else {
 			return false;
 		}
-
+		
 	}
+	public void stomp(State state, Enemy enemy) {
+		float targetY = enemy.y - enemy.height / 2;
+		move(state, 0, targetY - state.y);
 
+		xJumpSpeed = 0;
+		yJumpSpeed = -1.9f;
+		
+		state.jumpTime = 8;
+		state.ya = jumpTime * yJumpSpeed;
+		state.onGround = false;
+	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {
 			int __x = (int) x / 16;

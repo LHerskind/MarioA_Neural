@@ -1,5 +1,6 @@
 package fagprojekt;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -21,7 +22,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public boolean firstScene = true;
 
 	private int speedPriority = 9;
-	private int penaltySize = 10;
+	private int penaltySize = 15;
 
 	private int numberOfStates = 200000;
 	private State[] stateArray = new State[numberOfStates];
@@ -80,7 +81,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			parent = null;
 			action = null;
 			heuristic = (int) ((searchDepth + 10) - (x - marioFloatPos[0]));
-			// heuristic = 18 - this.xGrid;
 		}
 
 		@Override
@@ -106,7 +106,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			String lort = x + "" + y + "" + z + "" + zz;
 			int l = lort.length() > 9 ? 9 : lort.length();
-			return Integer.parseInt(lort.substring(0, l));
+			return Integer.parseInt(lort.substring(0, l)); // GIVER CRASHES
 		}
 
 		public void initValues() {
@@ -247,9 +247,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		indexStateArray = 1;
 
 		// FOR DEBUGGING
-		GlobalOptions.Pos = new int[600][2];
 		for (int i = 0; i < 600; i++) {
 			GlobalOptions.Pos[i][0] = (int) marioFloatPos[0];
+
 			GlobalOptions.Pos[i][1] = (int) marioFloatPos[1];
 		}
 		debugPos = 0;
@@ -278,14 +278,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// Add successors to the queue.
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
-			// addSuccessor(state.moveE());
-			// addSuccessor(state.moveNE());
-			// addSuccessor(state.moveN());
-			// addSuccessor(state.still());
-			addSuccessor(state.SmoveNW());
-			addSuccessor(state.SmoveW());
-			// addSuccessor(state.moveNW());
-			// addSuccessor(state.moveW());
+			//addSuccessor(state.SmoveNW());
+			//addSuccessor(state.SmoveW());
 		}
 		return null;
 	}
@@ -296,8 +290,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			action[i] = false;
 		ce = new CustomEngine();
 	}
-
 	public boolean[] getAction() {
+		
+		ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
+		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
+			enemyList.add(new Enemy((int) (marioFloatPos[0] + enemiesFloatPos[i+1]),
+					(int) (marioFloatPos[1] + enemiesFloatPos[i+2]), (int) enemiesFloatPos[i]));
+		}
+		ce.updateEnemies(enemyList);
+		
 		if (firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;
