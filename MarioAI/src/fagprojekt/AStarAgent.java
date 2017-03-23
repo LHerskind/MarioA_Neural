@@ -81,7 +81,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		@Override
 		public int hashCode() {
-			double ratio = 2;
+			double ratio = 1;
 			int x = (int) ((300 + this.x - marioFloatPos[0]) / ratio);
 			int y = (int) ((300 + this.y - marioFloatPos[1]) / ratio);
 			int z = 0;
@@ -211,6 +211,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	}
 
 	public State getRootState(State state) {
+		if(state.parent == null){
+			return null;
+		}
 		if (state.parent.parent != null) {
 			if (debugPos < 600) {
 				GlobalOptions.Pos[debugPos][0] = (int) state.x;
@@ -270,10 +273,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveW());
 			addSuccessor(state.SmoveNW());
-//			addSuccessor(state.moveE());
-//			addSuccessor(state.moveNE());
-//			addSuccessor(state.moveW());
-//			addSuccessor(state.moveNW());
+			addSuccessor(state.moveE());
+			addSuccessor(state.moveNE());
+			addSuccessor(state.moveW());
+			addSuccessor(state.moveNW());
 			addSuccessor(state.still());
 		}
 		return null;

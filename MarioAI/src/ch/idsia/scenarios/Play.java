@@ -66,22 +66,22 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = true;
+	static boolean all = false;
 
 	public static void main(String[] args) {
 		if (all) {
-			manyMaps(400, 15, false);
+			manyMaps(40, 15, false);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(0);
+			marioAIOptions.setLevelDifficulty(15);
 			marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			marioAIOptions.setLevelRandSeed(393);
+			marioAIOptions.setLevelRandSeed(9);
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
 			System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());

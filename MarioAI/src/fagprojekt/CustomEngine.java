@@ -210,7 +210,7 @@ public class CustomEngine {
 	}
 
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
-		int x = (int) (_x / 16);
+		int x = (int) (_x / 16); // TODO: Lidt gøgl her
 		int y = (int) (_y / 16);
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
 			return false;
