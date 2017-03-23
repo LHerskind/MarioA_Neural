@@ -70,7 +70,7 @@ public final class Play {
 
 	public static void main(String[] args) {
 		if (all) {
-			manyMaps(40, 15, false);
+			manyMaps(40, 15, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -78,10 +78,11 @@ public final class Play {
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
 			marioAIOptions.setLevelDifficulty(15);
+			marioAIOptions.setMarioMode(2);
 			marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			marioAIOptions.setLevelRandSeed(9);
+			marioAIOptions.setLevelRandSeed(255);
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
 			System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
@@ -106,10 +107,11 @@ public final class Play {
 			if (!GlobalOptions.isScale2x) {
 				GlobalOptions.changeScale2x();
 			}
-			marioAIOptions.setLevelDifficulty(difficulty);
+			marioAIOptions.setLevelDifficulty(new Random().nextInt(difficulty));
 			marioAIOptions.setEnemies("off");
 			marioAIOptions.setLevelRandSeed(i);
-			basicTask.doEpisodes(1, false, 1);
+			marioAIOptions.setMarioMode(0);
+			basicTask.runSingleEpisode(1);
 			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
 				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
 					if (!basicTask.getEvaluationInfo().Memo.contains("Collision")) {

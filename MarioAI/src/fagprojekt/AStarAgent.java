@@ -20,7 +20,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int searchDepth = maxRight;
 	public boolean firstScene = true;
 
-	private int speedPriority = 9;
+	private double speedPriority = 9.99;
 
 	private int numberOfStates = 200000;
 	private State[] stateArray = new State[numberOfStates];
@@ -55,6 +55,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public float x;
 		public float y;
 		public float xa;
+		
+		public int marioHeight;
+		
 		public float ya;
 
 		public int jumpTime;
@@ -111,6 +114,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.mayJump = isMarioAbleToJump;
 			this.x = marioFloatPos[0];
 			this.y = marioFloatPos[1];
+			this.marioHeight = marioMode == 0 ? 12 : 24;
 			this.penalty = 0;
 			this.g = 0;
 			this.jumpTime = prevJumpTime;
@@ -124,6 +128,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 				nextState.action = action;
 				nextState.parent = parent;
+				nextState.marioHeight = parent.marioHeight;
 				nextState.onGround = parent.onGround;
 				nextState.mayJump = parent.mayJump;
 				nextState.xa = parent.xa;
@@ -132,7 +137,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.y = parent.y;
 				nextState.jumpTime = parent.jumpTime;
 				nextState.penalty = parent.penalty;
-				nextState.g = parent.g + speedPriority;
+				nextState.g = parent.g + (int) speedPriority; // TODO: Lad være med at være idiot
 				ce.predictFuture(nextState);
 
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
@@ -211,7 +216,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	}
 
 	public State getRootState(State state) {
-		if(state.parent == null){
+		if (state.parent == null) {
 			return null;
 		}
 		if (state.parent.parent != null) {
@@ -229,7 +234,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.hashCode())) {
-				openSet.add(successor);
+				if (successor.penalty == 0) {
+					openSet.add(successor);
+				}
 				closed.put(successor.hashCode(), successor);
 			}
 		}
@@ -264,8 +271,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			// Debugging for being stuck in loop
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-//				System.out.println("stuck in while-loop" + " Index = " + indexStateArray + " Open = " + openSet.size()
-//						+ " Close = " + closed.size());
+				System.out.println("stuck in while-loop" + " Index = " + indexStateArray + " Open = " + openSet.size()
+						+ " Close = " + closed.size());
 				return getRootState(state);
 			}
 

@@ -19,7 +19,7 @@ public class CustomEngine {
 	// Mario dimensions
 	public final int marioWidth = 4;
 	// Make small mario and ducking mario compatible with height
-	public final int marioHeight = 24;
+	public int marioHeight = 24;
 	// General dimensions
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
@@ -125,6 +125,7 @@ public class CustomEngine {
 	}
 
 	private boolean move(State state, float xa, float ya) {
+		marioHeight = state.marioHeight;
 
 		while (xa > 8) {
 			if (!move(state, 8, 0))
