@@ -1,6 +1,5 @@
 package fagprojekt;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -24,9 +23,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private int speedPriority = 9;
 
 
-	private int numberOfStates = 200000;
+	private int numberOfStates = 100000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
+	// enemies
+	private int estimatedMaxSearchDepth = 100;
+	private int maxNumberOfEnemies = 35;
+	private Enemy[][] enemyArray = new Enemy[estimatedMaxSearchDepth][maxNumberOfEnemies];
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -48,7 +51,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public AStarAgent() {
 		super("AStarAgent");
 		for (int i = 1; i < numberOfStates; i++) {
-			stateArray[i] = new State();
+			State state = new State();
+			/*
+			for(int j = 0; j < maxNumberOfEnemies; j++) {
+				enemyArray[i][j] = new Enemy();
+			}
+			state.enemyList = enemyArray[i];
+*/
+			stateArray[i] = state;
 		}
 		reset();
 	}
@@ -58,18 +68,21 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public float y;
 		public float xa;
 		public float ya;
-
 		public int jumpTime;
+		public int height;
 
 		public boolean onGround;
 		public boolean sliding; // Not needed
 		public boolean mayJump;
-
+		
 		public int penalty;
 		public State parent;
 		public int heuristic;
 		public boolean[] action;
 		public int g;
+		
+		//enemy stuff
+		public Enemy[] enemyList;
 
 		public State() {
 		}
@@ -80,12 +93,31 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			parent = null;
 			action = null;
 			heuristic = (int) ((searchDepth + 10) - (x - marioFloatPos[0]));
-
 		}
-
+		public void initValues() {
+			this.onGround = isMarioOnGround;
+			this.mayJump = isMarioAbleToJump;
+			this.x = marioFloatPos[0];
+			this.y = marioFloatPos[1];
+			this.penalty = 0;
+			this.g = 0;
+			this.jumpTime = prevJumpTime;
+			this.xa = prevXa;
+			this.ya = prevYa;
+			this.height = marioMode > 0 ? 24: 12;
+			/*
+			int eCounter = 0;
+			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
+				this.enemyList[eCounter].x = (marioFloatPos[0] + enemiesFloatPos[i+1]);
+				this.enemyList[eCounter].y = (marioFloatPos[1] + enemiesFloatPos[i+2]);
+				this.enemyList[eCounter].kind = (byte) enemiesFloatPos[i];
+				eCounter++;
+			}
+			*/
+		}
 		@Override
 		public int hashCode() {
-			double ratio = 2;
+			double ratio = 1;
 			int x = (int) ((300 + this.x - marioFloatPos[0]) / ratio);
 			int y = (int) ((300 + this.y - marioFloatPos[1]) / ratio);
 			int z = 0;
@@ -108,18 +140,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return Integer.parseInt(lort.substring(0, l)); // GIVER CRASHES
 		}
 
-		public void initValues() {
-			this.onGround = isMarioOnGround;
-			this.mayJump = isMarioAbleToJump;
-			this.x = marioFloatPos[0];
-			this.y = marioFloatPos[1];
-			this.penalty = 0;
-			this.g = 0;
-			this.jumpTime = prevJumpTime;
-			this.xa = prevXa;
-			this.ya = prevYa;
-		}
-
 		public State getNextState(State parent, boolean[] action) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
@@ -135,6 +155,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.jumpTime = parent.jumpTime;
 				nextState.penalty = parent.penalty;
 				nextState.g = parent.g + speedPriority;
+				//nextState.enemyList = parent.enemyList;
+				nextState.height = parent.height;
 				ce.predictFuture(nextState);
 
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
@@ -267,7 +289,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 						+ " Close = " + closed.size());
 				return getRootState(state);
 			}
-
+			
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
 
@@ -292,14 +314,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		ce = new CustomEngine();
 	}
 	public boolean[] getAction() {
-		
-		ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
-		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
-			enemyList.add(new Enemy((int) (marioFloatPos[0] + enemiesFloatPos[i+1]),
-					(int) (marioFloatPos[1] + enemiesFloatPos[i+2]), (int) enemiesFloatPos[i]));
-		}
-		ce.updateEnemies(enemyList);
-		
 		if (firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;

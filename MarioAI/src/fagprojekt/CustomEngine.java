@@ -35,7 +35,7 @@ public class CustomEngine {
 	private float highestX = 0;
 	// UTILITIES
 	public boolean debug = true;
-	public boolean calcEnemies = true;
+	public boolean calcEnemies = false;
 	
 	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
@@ -47,13 +47,9 @@ public class CustomEngine {
 	public static final int BIT_BREAKABLE = 1 << 5;
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
-	// ENEMIES
-	ArrayList<Enemy> enemyList;
+	
 	public void updateMap(byte[][] mergedObservation) {
 		this.mergedObservation = mergedObservation;
-	}
-	public void updateEnemies(ArrayList<Enemy> enemyList) {
-		this.enemyList = enemyList;
 	}
 	public void predictFuture(State state) {
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
@@ -105,15 +101,17 @@ public class CustomEngine {
 		move(state, state.xa, 0); //marioMove
 		move(state, 0, state.ya); // marioMove
 		if(calcEnemies) {
-			for(Enemy e: enemyList) {
-				e.move(this);
-				e.collideCheck(this, state); // mario stomp, wall handling
+			for(Enemy e: state.enemyList) {
+				e.move(map);
+				e.collideCheck(this, state); // mario stomp and mario damage TODO - change it to return a boolean instead of giving "this" as argument
 			}
+			//System.out.println("MARIO X: " + state.x);
+			//state.enemyList.get(0).move(map);
 		}
 		
 
-		// GAPS - VERY IMPORTANT! MAKE Level non-static!
-		if (state.y > LevelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
+		// GAPS
+		if (state.y > 19 /*TODO - 19 or 15?!*/ * LevelScene.cellSize + LevelScene.cellSize)
 			state.penalty(1000);
 
 		if (state.x < 0) {
@@ -166,25 +164,25 @@ public class CustomEngine {
 				collide = true;
 		}
 		if (ya < 0) {
-			if (isBlocking(state, state.x + xa, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa, state.y + ya - state.height, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
 		}
 		if (xa > 0) {
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - state.height / 2, xa, ya))
 				collide = true;
 			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, ya))
 				collide = true;
 		}
 		if (xa < 0) {
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - state.height / 2, xa, ya))
 				collide = true;
 			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, ya))
 				collide = true;
@@ -201,7 +199,7 @@ public class CustomEngine {
 			}
 			if (ya < 0) {
 
-				state.y = (int) ((state.y - marioHeight) / 16) * 16 + marioHeight;
+				state.y = (int) ((state.y - state.height) / 16) * 16 + state.height;
 				jumpTime = 0;
 				state.ya = 0;
 			}
@@ -247,12 +245,14 @@ public class CustomEngine {
 		}
 		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
+			boolean blocking = block < 0;
 			if (ya <= 0) {
 				if (block == -62) {
 					return false;
 				}
 			}
-			return block < 0;
+			
+			return blocking;
 		} else {
 			return false;
 		}
