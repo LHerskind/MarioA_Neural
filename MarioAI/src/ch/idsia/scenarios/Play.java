@@ -66,11 +66,11 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all = true;
 
 	public static void main(String[] args) {
 		if (all) {
-			manyMaps(40, 15, true);
+			manyMaps(50, 15, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -82,7 +82,7 @@ public final class Play {
 			marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			marioAIOptions.setLevelRandSeed(255);
+			marioAIOptions.setLevelRandSeed(6);
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
 			System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
@@ -107,10 +107,10 @@ public final class Play {
 			if (!GlobalOptions.isScale2x) {
 				GlobalOptions.changeScale2x();
 			}
-			marioAIOptions.setLevelDifficulty(new Random().nextInt(difficulty));
+			marioAIOptions.setLevelDifficulty(difficulty);
 			marioAIOptions.setEnemies("off");
 			marioAIOptions.setLevelRandSeed(i);
-			marioAIOptions.setMarioMode(0);
+			// marioAIOptions.setMarioMode(0);
 			basicTask.runSingleEpisode(1);
 			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
 				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
@@ -120,7 +120,11 @@ public final class Play {
 					}
 				}
 			}
+			if (i % 50 == 0) {
+				System.out.print(i + " , " + lost + " : ");
+			}
 		}
+		System.out.println();
 		if (lost == 0) {
 			System.out.println("Wins all the way");
 		}

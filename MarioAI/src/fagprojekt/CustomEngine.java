@@ -105,7 +105,7 @@ public class CustomEngine {
 		move(state, 0, state.ya);
 
 		// GAPS - VERY IMPORTANT!
-		if (state.y > LevelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
+		if (state.y >= 15 * LevelScene.cellSize + LevelScene.cellSize)
 			state.penalty(1000);
 
 		if (state.x < 0) {
