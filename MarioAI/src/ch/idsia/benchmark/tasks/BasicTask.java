@@ -81,10 +81,10 @@ public boolean runSingleEpisode(final int repetitionsOfSingleEpisode)
                 agent.giveIntermediateReward(environment.getIntermediateReward());
 
                 boolean[] action = agent.getAction();
-              /*  // THIS FUCKER CRASHES OUR MARIO - FUUUUCK IT SO HARD 8====> ()  FUCK IT REAL GOOD
+                // THIS FUCKER CRASHES OUR MARIO - FUUUUCK IT SO HARD 8====> ()  FUCK IT REAL GOOD
                 if (System.currentTimeMillis() - c > COMPUTATION_TIME_BOUND)
                     return false;
-              */
+              
 //                System.out.println("action = " + Arrays.toString(action));
 //            environment.setRecording(GlobalOptions.isRecording);
                 environment.performAction(action);

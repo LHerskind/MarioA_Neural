@@ -29,7 +29,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	// enemies
 	private int estimatedMaxSearchDepth = 100;
 	private int maxNumberOfEnemies = 35;
-	private Enemy[][] enemyArray = new Enemy[estimatedMaxSearchDepth][maxNumberOfEnemies];
+	//private Enemy[][] enemyArray = new Enemy[numberOfStates][maxNumberOfEnemies];
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -56,7 +56,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			for(int j = 0; j < maxNumberOfEnemies; j++) {
 				enemyArray[i][j] = new Enemy();
 			}
-			state.enemyList = enemyArray[i];
+			//state.enemyList = enemyArray[i];
 */
 			stateArray[i] = state;
 		}

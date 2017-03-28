@@ -72,7 +72,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(400, 15, false);
+			manyMaps(400, 15, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -80,7 +80,7 @@ public final class Play {
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
 			marioAIOptions.setLevelDifficulty(15);
-			//marioAIOptions.setEnemies("off");
+			marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 			marioAIOptions.setLevelRandSeed(seed);
