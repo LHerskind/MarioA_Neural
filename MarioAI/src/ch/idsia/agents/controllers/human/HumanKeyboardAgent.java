@@ -80,6 +80,10 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
+<<<<<<< HEAD
+=======
+//		print();
+>>>>>>> Nanochrome
 		return Action;
 	}
 
@@ -94,14 +98,14 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public void integrateObservation(Environment environment) {
-		// levelScene = environment.getLevelSceneObservationZ(zLevelScene);
+		levelScene = environment.getLevelSceneObservationZ(zLevelScene);
 		enemies = environment.getEnemiesObservationZ(zLevelEnemies);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2, (int) marioFloatPos[1] / 16);
+//		levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2, (int) marioFloatPos[1] / 16);
 
 		// It also possible to use direct methods from Environment interface.
 		//

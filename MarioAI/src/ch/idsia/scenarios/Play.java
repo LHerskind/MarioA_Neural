@@ -72,7 +72,11 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
+<<<<<<< HEAD
 			manyMaps(400, 15, true);
+=======
+			manyMaps(50, 15, true);
+>>>>>>> Nanochrome
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -80,10 +84,18 @@ public final class Play {
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
 			marioAIOptions.setLevelDifficulty(15);
+<<<<<<< HEAD
 			marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 			marioAIOptions.setLevelRandSeed(seed);
+=======
+			marioAIOptions.setMarioMode(2);
+			marioAIOptions.setEnemies("off");
+			int seed = new Random().nextInt(400);
+			System.out.println(seed);
+			marioAIOptions.setLevelRandSeed(6);
+>>>>>>> Nanochrome
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
 			System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
@@ -111,7 +123,8 @@ public final class Play {
 			marioAIOptions.setLevelDifficulty(difficulty);
 			marioAIOptions.setEnemies("off");
 			marioAIOptions.setLevelRandSeed(i);
-			basicTask.doEpisodes(1, false, 1);
+			// marioAIOptions.setMarioMode(0);
+			basicTask.runSingleEpisode(1);
 			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
 				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
 					if (!basicTask.getEvaluationInfo().Memo.contains("Collision")) {
@@ -120,7 +133,11 @@ public final class Play {
 					}
 				}
 			}
+			if (i % 50 == 0) {
+				System.out.print(i + " , " + lost + " : ");
+			}
 		}
+		System.out.println();
 		if (lost == 0) {
 			System.out.println("Wins all the way");
 		}

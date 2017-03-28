@@ -23,7 +23,7 @@ public class CustomEngine {
 	// Mario dimensions
 	public final int marioWidth = 4;
 	// Make small mario and ducking mario compatible with height
-	public final int marioHeight = 24;
+	public int marioHeight = 24;
 	// General dimensions
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
@@ -110,8 +110,13 @@ public class CustomEngine {
 		}
 		
 
+<<<<<<< HEAD
 		// GAPS
 		if (state.y > 19 /*TODO - 19 or 15?!*/ * LevelScene.cellSize + LevelScene.cellSize)
+=======
+		// GAPS - VERY IMPORTANT!
+		if (state.y >= 15 * LevelScene.cellSize + LevelScene.cellSize)
+>>>>>>> Nanochrome
 			state.penalty(1000);
 
 		if (state.x < 0) {
@@ -131,6 +136,7 @@ public class CustomEngine {
 	}
 
 	private boolean move(State state, float xa, float ya) {
+		marioHeight = state.marioHeight;
 
 		while (xa > 8) {
 			if (!move(state, 8, 0))
@@ -214,6 +220,7 @@ public class CustomEngine {
 			return true;
 		}
 	}
+<<<<<<< HEAD
 	public boolean isEnemyBlocking(Enemy e, final float _x, final float _y, final float xa, final float ya) {
 		if (e.x >= 0 && e.x < 600 * 16 && _y >= 0 && _y < 16) {
 			byte block = map[(int)_y][(int)_x];
@@ -230,6 +237,11 @@ public class CustomEngine {
 	}
 	public boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
+=======
+
+	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
+		int x = (int) (_x / 16); // TODO: Lidt gøgl her
+>>>>>>> Nanochrome
 		int y = (int) (_y / 16);
 
 		// CHEATER COLLISION!
