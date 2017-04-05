@@ -1,21 +1,19 @@
 package fagprojekt;
 
-import java.util.ArrayList;
-
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
+import fagprojekt.AStarAgent.State;
 import fagprojekt.Enemy;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
-import ch.idsia.benchmark.mario.environments.MarioEnvironment;
-import fagprojekt.AStarAgent.State;
+
 
 public class CustomEngine {
+	// shooting
+//	private int fireBallsOnScreen = 0;
 	// Jumping
 	public final int jumpPower = 7;
-	public int jumpTime = jumpPower;
-	public float xJumpSpeed;
-	public float yJumpSpeed;
+
 	// Gravity and friction
 	public final float marioGravity = 1.0f;
 	public final float GROUND_INERTIA = 0.89f; // Need this?
@@ -35,7 +33,6 @@ public class CustomEngine {
 	private float highestX = 0;
 	// UTILITIES
 	public boolean debug = true;
-	public boolean calcEnemies = false;
 	
 	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
@@ -52,27 +49,31 @@ public class CustomEngine {
 		this.mergedObservation = mergedObservation;
 	}
 	public void predictFuture(State state) {
+		
+		for(int i = 0; i < state.enemyList.size(); i++) {
+			Enemy e = state.enemyList.get(i);
+			e.move(map);
+		}
+		state.wasOnGround = state.onGround;
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
 		if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding)) {
 
 			if (state.jumpTime < 0) {
-				state.xa = xJumpSpeed;
-				state.ya = -state.jumpTime * yJumpSpeed;
+				state.ya = -state.jumpTime * state.yJumpSpeed;
 				state.jumpTime++;
 			} else if (state.onGround && state.mayJump) {
-				xJumpSpeed = 0;
-				yJumpSpeed = -1.9f;
+				state.yJumpSpeed = -1.9f;
 				state.jumpTime = 7;
-				state.ya = state.jumpTime * yJumpSpeed;
+				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.onGround = false;
 				state.sliding = false;
 
 			} else if (state.jumpTime > 0) {
-				state.xa += xJumpSpeed;
-				state.ya = state.jumpTime * yJumpSpeed;
+				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.jumpTime--;
 
-			} else if (state.jumpTime == 0) { // SELF-MADE
+			} 
+			else if (state.jumpTime == 0) { // SELF-MADE
 				state.action[Mario.KEY_JUMP] = false;
 			}
 		} else {
@@ -88,35 +89,22 @@ public class CustomEngine {
 			state.xa += sideWaysSpeed;
 		}
 
-		/*
-		 if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire &&
-		  levelScene.fireballsOnScreen < 2) {
-			 levelScene.addSprite(new
-		  Fireball(levelScene, x + facing * 6, y - 20, facing)); } 
-		 ableToShoot = !keys[KEY_SPEED];
-		 */
+	/*
+		 if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire && fireBallsOnScreen < 2) {
+			 fireBallsOnScreen++;
+			 // MAKE FIREBALL CLASS AND CREATE FIREBALL OBJECT HERE
+		 }
+	*/
 
+		 state.ableToShoot = !state.action[Mario.KEY_SPEED];
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
 		state.onGround = false;
 		move(state, state.xa, 0); //marioMove
 		move(state, 0, state.ya); // marioMove
-		if(calcEnemies) {
-			for(Enemy e: state.enemyList) {
-				e.move(map);
-				e.collideCheck(this, state); // mario stomp and mario damage TODO - change it to return a boolean instead of giving "this" as argument
-			}
-			//System.out.println("MARIO X: " + state.x);
-			//state.enemyList.get(0).move(map);
-		}
 		
 
-<<<<<<< HEAD
-		// GAPS
-		if (state.y > 19 /*TODO - 19 or 15?!*/ * LevelScene.cellSize + LevelScene.cellSize)
-=======
-		// GAPS - VERY IMPORTANT!
-		if (state.y >= 15 * LevelScene.cellSize + LevelScene.cellSize)
->>>>>>> Nanochrome
+
+		if (state.y >= 15 * cellSize + cellSize)
 			state.penalty(1000);
 
 		if (state.x < 0) {
@@ -133,6 +121,15 @@ public class CustomEngine {
 		if (!state.onGround) {
 			state.ya += 3;
 		}
+		for(int i = 0; i < state.enemyList.size(); i++) {
+			Enemy e = state.enemyList.get(i);
+			e.collideCheck(state);
+			if(state.stomp) {
+				stomp(state,e);
+				
+			}
+		}
+		
 	}
 
 	private boolean move(State state, float xa, float ya) {
@@ -206,7 +203,7 @@ public class CustomEngine {
 			if (ya < 0) {
 
 				state.y = (int) ((state.y - state.height) / 16) * 16 + state.height;
-				jumpTime = 0;
+				state.jumpTime = 0;
 				state.ya = 0;
 			}
 			if (ya > 0) {
@@ -220,41 +217,23 @@ public class CustomEngine {
 			return true;
 		}
 	}
-<<<<<<< HEAD
-	public boolean isEnemyBlocking(Enemy e, final float _x, final float _y, final float xa, final float ya) {
-		if (e.x >= 0 && e.x < 600 * 16 && _y >= 0 && _y < 16) {
-			byte block = map[(int)_y][(int)_x];
-			if (ya <= 0) {
-				if (block == -62) {
-					return false;
-				}
-			}
-			return block < 0;
-		} else {
-			return false;
-		}
-		
-	}
-	public boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
-		int x = (int) (_x / 16);
-=======
 
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
-		int x = (int) (_x / 16); // TODO: Lidt gøgl her
->>>>>>> Nanochrome
+		int x = (int) (_x / 16); // TODO: Lidt gï¿½gl her
 		int y = (int) (_y / 16);
 
-		// CHEATER COLLISION!
-		/*
-		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
-		 * ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0; blocking |= (ya
-		 * > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
-		 * BIT_BLOCK_LOWER) > 0; return blocking;
-		 */
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
 			return false;
 		}
+		// CHEATER COLLISION!
+		/*
+		  byte block = LevelScene.level.getBlock(x, y);
+		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		  blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		  return blocking;
+		*/
+		// CORRECT COLLISION
 		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			boolean blocking = block < 0;
@@ -270,16 +249,16 @@ public class CustomEngine {
 		}
 		
 	}
-	public void stomp(State state, Enemy enemy) {
+	public void stomp(State state, final Enemy enemy) {
 		float targetY = enemy.y - enemy.height / 2;
 		move(state, 0, targetY - state.y);
 
-		xJumpSpeed = 0;
-		yJumpSpeed = -1.9f;
+		state.yJumpSpeed = -1.9f;
 		
 		state.jumpTime = 8;
-		state.ya = jumpTime * yJumpSpeed;
+		state.ya = state.jumpTime * state.yJumpSpeed;
 		state.onGround = false;
+		state.stomp = false;
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {

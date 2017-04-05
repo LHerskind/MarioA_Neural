@@ -678,6 +678,7 @@ public final class Mario extends Sprite {
 			return;
 
 		float targetY = enemy.y - enemy.height / 2;
+
 		move(0, targetY - y);
 		mapY = (int) y / 16;
 
@@ -685,6 +686,7 @@ public final class Mario extends Sprite {
 		yJumpSpeed = -1.9f;
 		jumpTime = (int) jT + 1;
 		ya = jumpTime * yJumpSpeed;
+
 		onGround = false;
 		sliding = false;
 		invulnerableTime = 1;

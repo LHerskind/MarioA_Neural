@@ -255,7 +255,6 @@ public final class LevelScene implements SpriteContext {
 					}
 				}
 			}
-
 		for (Sprite sprite : sprites)
 			sprite.tick();
 

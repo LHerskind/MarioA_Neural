@@ -27,10 +27,10 @@
 
 package fagprojekt;
 
+import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 
 public class Enemy {
-	public static final int KIND_NONE = 0;
 	public static final int KIND_GOOMBA = 80;
 	public static final int KIND_GOOMBA_WINGED = 95;
 	public static final int KIND_RED_KOOPA = 82;
@@ -43,24 +43,13 @@ public class Enemy {
 	public static final int KIND_ENEMY_FLOWER = 91;
 	public static final int KIND_WAVE_GOOMBA = 98;
 	public static final int KIND_SHELL = 13;
-	public static final int KIND_MUSHROOM = 2;
-	public static final int KIND_GREEN_MUSHROOM = 9;
-	public static final int KIND_PRINCESS = 49;
 	public static final int KIND_FIRE_FLOWER = 3;
-	public static final int KIND_PARTICLE = 21;
-	public static final int KIND_SPARCLE = 22;
-	public static final int KIND_COIN_ANIM = 1;
-	public static final int KIND_FIREBALL = 25;
-
-	public static final int KIND_UNDEF = -42;
 	
 	protected static float GROUND_INERTIA = 0.89f;
 	protected static float AIR_INERTIA = 0.89f;
 	
 	
-	public byte kind = KIND_UNDEF;
-	public float creaturesGravity = 1;
-	public float runTime;
+	public byte kind;
 	public boolean onGround = false;
 
 	public int width = 4;
@@ -72,61 +61,67 @@ public class Enemy {
 	public float xa;
 
 	public int facing;
-	public int deadTime = 0;
-	public boolean flyDeath = false;
 
-	public boolean avoidCliffs = true;
+	public boolean avoidCliffs;
 
-	public boolean winged = true;
-	public int wingTime = 0;
+	public boolean winged;
 
-	public float yaw = 1;
-	public int debugPos;
 	public boolean noFireballDeath;
-	public Enemy() {}
-	public Enemy(int x, int y,
-			int type /* ,boolean winged, int mapX, int mapY */) {
-		debugPos = 0;
-		kind = (byte) type;
-		this.winged = winged; // What to do here?
-		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED) height = 12;
+	public boolean dead;
+	// CHEATER-COLLISION
+	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
+	public static final int BIT_BLOCK_UPPER = 1 << 0;
+	public static final int BIT_BLOCK_ALL = 1 << 1;
+	public static final int BIT_BLOCK_LOWER = 1 << 2;
+	public static final int BIT_SPECIAL = 1 << 3;
+	public static final int BIT_BUMPABLE = 1 << 4;
+	public static final int BIT_BREAKABLE = 1 << 5;
+	public static final int BIT_PICKUPABLE = 1 << 6;
+	public static final int BIT_ANIMATED = 1 << 7;
+	
+//	public Enemy() {}
+	public Enemy(float x, float y, byte kind, float ya, int facing, boolean dead /* ,boolean winged, int mapX, int mapY */) {
+		this.dead = dead;
+		this.facing = facing;
+		this.kind = kind;
 		this.x = x;
 		this.y = y;
+		this.ya = ya;
 		
-		yaa = creaturesGravity * 2;
-		yaw = creaturesGravity == 1 ? 1 : 0.3f * creaturesGravity;
+		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED || kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED)
+			this.winged = true;
+		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY ||
+				kind == KIND_SPIKY_WINGED || kind == KIND_BULLET_BILL) height = 12;
+		else height = 24;
+		
+		yaa = 2;
 
 		avoidCliffs = kind == KIND_RED_KOOPA;
 		
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
-		//facing = dir; HOW TO MAKE DIR?
-		if (facing == 0) facing = -1;
 	}
 
-	public void collideCheck(CustomEngine ce, State state) {
-		if (deadTime != 0) {
-			return;
-		}
-		float xMarioD = state.x - x;
-		float yMarioD = state.y - y;
+	public void collideCheck(State state) {
+
+		float xMarioD = state.x - this.x;
+		float yMarioD = state.y - this.y;
 		// float w = 16;
 		if (xMarioD > -width * 2 - 4 && xMarioD < width * 2 + 4) {
-			
-			if (yMarioD > -height && yMarioD < 24) { // CHANGE 24 TO MARIO HEIGHT
+			if (yMarioD > -height && yMarioD < state.height) {
 				if ((kind != KIND_SPIKY && kind != KIND_SPIKY_WINGED && kind != KIND_ENEMY_FLOWER)
-						&& state.ya > 0 && yMarioD <= 0 && (!state.onGround)) {
-					System.out.println("STOMPED");
-					ce.stomp(state, this);
+						&& state.ya > 0 && yMarioD <= 0 && (!state.onGround || !state.wasOnGround)) {
+					state.stomp = true;
 					
 					if (winged) {
 						winged = false;
 						ya = 0;
 					} else {
-						deadTime = 10;
+						dead = true;
 						winged = false;
 					}
 				} else {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
+					if(!dead)
 					state.penalty(500);
 					//state.devolve (mario got worse)
 				}
@@ -135,30 +130,12 @@ public class Enemy {
 	}
 
 	public void move(byte[][] map) {
-		wingTime++;
-		if (deadTime > 0) {
-			deadTime--;
-
-			if (deadTime == 0) {
-				deadTime = 1;
-			}
-
-			if (flyDeath) {
-				x += xa;
-				y += ya;
-				ya *= 0.95;
-				ya += 1;
-			}
-			return;
-		}
-
 		float sideWaysSpeed = 1.75f;
 
 		if (xa > 2)
 			facing = 1;
 		else if (xa < -2)
 			facing = -1;
-
 		xa = facing * sideWaysSpeed;
 		
 
@@ -168,7 +145,6 @@ public class Enemy {
 			facing = -facing;
 		onGround = false;
 		move(map, 0, ya);
-
 		ya *= winged ? 0.95f : 0.85f;
 		if (onGround) {
 			xa *= (GROUND_INERTIA);
@@ -178,14 +154,13 @@ public class Enemy {
 
 		if (!onGround) {
 			if (winged) {
-				ya += 0.6f * yaw;
+				ya += 0.6f;
 			} else {
 				ya += yaa;
 			}
 		} else if (winged) {
 			ya = -10;
 		}
-
 	}
 
 	public boolean move(byte[][] map, float xa, float ya) {
@@ -283,10 +258,20 @@ public class Enemy {
 	public boolean isBlocking(byte[][] map, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
-
 		if (x == (int) (this.x / 16) && y == (int) (this.y / 16)){
 			return false;
 		}
+
+		// CHEATER COLLISION!
+		/*
+		  byte block = LevelScene.level.getBlock(x, y);
+		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		  blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		  return blocking;
+		  */
+		  // CORRECT COLLISION!
+		
 		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {
@@ -328,7 +313,8 @@ public class Enemy {
 		return false;
 	}
 */
-/*// TODO - FIREBALLS
+// TODO - FIREBALLS
+	/*
 	public boolean fireballCollideCheck(Fireball fireball) {
 		if (deadTime != 0)
 			return false;
@@ -344,21 +330,17 @@ public class Enemy {
 				xa = fireball.facing * 2;
 				ya = -5;
 				flyDeath = true;
-				if (spriteTemplate != null)
-					spriteTemplate.isDead = true;
 				deadTime = 100;
 				winged = false;
-				hPic = -hPic;
-				yPicO = -yPicO + 16;
 				// System.out.println("fireballCollideCheck");
-				++LevelScene.killedCreaturesTotal;
-				++LevelScene.killedCreaturesByFireBall;
+				
 				return true;
 			}
 		}
 		return false;
 	}
 	*/
+	
 /* TODO - BUMPCHECK?!
 	public void bumpCheck(int xTile, int yTile) {
 		if (deadTime != 0)

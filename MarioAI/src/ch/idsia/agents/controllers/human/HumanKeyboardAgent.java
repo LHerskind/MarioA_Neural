@@ -80,10 +80,6 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
-<<<<<<< HEAD
-=======
-//		print();
->>>>>>> Nanochrome
 		return Action;
 	}
 

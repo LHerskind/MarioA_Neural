@@ -337,9 +337,9 @@ public boolean move(float xa, float ya)
     {
         if (GlobalOptions.areFrozenCreatures)
             return true;
-
         x += xa;
         y += ya;
+
         return true;
     }
 }

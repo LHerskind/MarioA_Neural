@@ -72,30 +72,22 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-<<<<<<< HEAD
-			manyMaps(400, 15, true);
-=======
+
 			manyMaps(50, 15, true);
->>>>>>> Nanochrome
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-			marioAIOptions.setFPS(24);
+			marioAIOptions.setFPS(20);
+//			marioAIOptions.setTimeLimit(-1);
+//			marioAIOptions.setLevelType(2);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(15);
-<<<<<<< HEAD
-			marioAIOptions.setEnemies("off");
+			marioAIOptions.setLevelDifficulty(1);
+//			marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 			marioAIOptions.setLevelRandSeed(seed);
-=======
-			marioAIOptions.setMarioMode(2);
-			marioAIOptions.setEnemies("off");
-			int seed = new Random().nextInt(400);
-			System.out.println(seed);
-			marioAIOptions.setLevelRandSeed(6);
->>>>>>> Nanochrome
+
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
 			System.out.println("\nEvaluationInfo: \n" + basicTask.getEnvironment().getEvaluationInfoAsString());
@@ -113,6 +105,7 @@ public final class Play {
 		for (int i = 0; i < howMany; i++) {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions();
 			marioAIOptions.setVisualization(visualize);
+			//marioAIOptions.setTimeLimit(-1);
 			if (marioAIOptions.isVisualization()) {
 				marioAIOptions.setFPS(24);
 			}
