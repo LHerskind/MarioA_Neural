@@ -123,6 +123,7 @@ public class Enemy {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
 					if(!dead)
 					state.penalty(500);
+//					if(dead) System.out.println(dead);
 					//state.devolve (mario got worse)
 				}
 			}
