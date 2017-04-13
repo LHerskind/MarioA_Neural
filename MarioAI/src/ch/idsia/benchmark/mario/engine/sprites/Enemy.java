@@ -171,6 +171,7 @@ public void collideCheck()
 
 public void move()
 {
+	if(facing == 0) System.out.println(facing);
     wingTime++;
     if (deadTime > 0)
     {

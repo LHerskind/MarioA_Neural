@@ -91,8 +91,9 @@ public class Enemy {
 		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED || kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED)
 			this.winged = true;
 		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY ||
-				kind == KIND_SPIKY_WINGED || kind == KIND_BULLET_BILL) height = 12;
-		else height = 24;
+				kind == KIND_SPIKY_WINGED || kind == KIND_BULLET_BILL || kind == KIND_WAVE_GOOMBA) 
+			this.height = 12;
+		else this.height = 24;
 		
 		yaa = 2;
 
@@ -129,7 +130,6 @@ public class Enemy {
 	}
 
 	public void move(byte[][] map) {
-		if(facing == 0) facing = -1;
 		float sideWaysSpeed = 1.75f;
 
 		if (xa > 2)

@@ -143,12 +143,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
 				//Check facing & Ya
 				float EnemyYa = 0;
-				int facing = 0;
+				int facing = -1;
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i+1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i+2]);
 				if(prevEnemyXArr != null) {
 					float prevEnemyX = prevEnemyXArr[i/3];
-					facing = (currEnemyX - prevEnemyX) > 0 ? 1 : -1;
+					if(prevEnemyX != 0)
+						facing = (currEnemyX - prevEnemyX) > 0 ? 1 : -1;
 				}
 				if(prevEnemyYaArr != null && prevEnemyYaArr.length >= enemiesFloatPos.length/3) {
 					EnemyYa = prevEnemyYaArr[i/3];
@@ -426,8 +427,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			float[] tempArr = new float[enemiesFloatPos.length/3];
 			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
 				for(int j = 0; j < prevEnemyXArr.length; j++) {
-					if(prevEnemyXArr[j] > (enemiesFloatPos[i+1]+marioFloatPos[0] - 2f) &&
-							prevEnemyXArr[j] < (enemiesFloatPos[i+1]+marioFloatPos[0] + 2f)) {
+					if(prevEnemyXArr[j] > (enemiesFloatPos[i+1]+marioFloatPos[0] - 3f) &&
+							prevEnemyXArr[j] < (enemiesFloatPos[i+1]+marioFloatPos[0] + 3f) &&
+							bestState.enemyList.get(j).kind == enemiesFloatPos[i]) {
 						tempArr[i/3] = prevEnemyXArr[j];
 						break;
 					}
@@ -443,11 +445,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				for(int j = 0; j < bestState.enemyList.size(); j++) {
 					Enemy e = bestState.enemyList.get(j);
 //					System.out.println("EX: " + e.x + "  ENGINE EX: " + (enemiesFloatPos[i+1] + marioFloatPos[0]));
-					if(e.x == (enemiesFloatPos[i+1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
+					/* TEMP FIX! LOOK BELOW!*/
+					if(e.x > (enemiesFloatPos[i+1]+marioFloatPos[0] - 3f) &&
+						e.x < (enemiesFloatPos[i+1]+marioFloatPos[0] + 3f) &&
+						e.kind == enemiesFloatPos[i]) {
 						prevEnemyYaArr[i/3] = e.ya;
 						bestState.enemyList.remove(e);
 						break;
-					} 
+					}
+//					if(e.x == (enemiesFloatPos[i+1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {} 
 				}
 			}
 		}
