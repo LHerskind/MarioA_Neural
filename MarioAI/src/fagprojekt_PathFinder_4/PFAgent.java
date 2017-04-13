@@ -170,7 +170,7 @@ public class PFAgent extends BasicMarioAIAgent {
 		actions[Mario.KEY_JUMP] = false;
 		addState(parent, actions);
 		if(frontier.size() > count){
-			System.out.println("Højre");
+			System.out.println("Hï¿½jre");
 			count = frontier.size();
 		}
 
@@ -180,7 +180,7 @@ public class PFAgent extends BasicMarioAIAgent {
 		actions[Mario.KEY_JUMP] = true;
 		addState(parent, actions);
 		if(frontier.size() > count){
-			System.out.println("Højre OP");
+			System.out.println("Hï¿½jre OP");
 			count = frontier.size();
 		}
 
@@ -191,7 +191,7 @@ public class PFAgent extends BasicMarioAIAgent {
 		addState(parent, actions);
 
 		if(frontier.size() > count){
-			System.out.println("Højre");
+			System.out.println("Hï¿½jre");
 			count = frontier.size();
 		}
 
@@ -210,15 +210,15 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void draw(float x, float y) {
 		if (debug) {
-			GlobalOptions.Pos[debugPos][0] = (int) (x);
-			GlobalOptions.Pos[debugPos][1] = (int) (y);
+			GlobalOptions.marioPos[debugPos][0] = (int) (x);
+			GlobalOptions.marioPos[debugPos][1] = (int) (y);
 			debugPos++;
 		}
 	}
 
 	private void getBestMove() {
 		debugPos = 0;
-		GlobalOptions.Pos = new int[600][2];
+		GlobalOptions.marioPos = new int[600][2];
 		while (bestMove.getParent().getParent() != null) {
 			System.out.println(bestMove.getState().getX() + " " + bestMove.getState().getY());
 			draw(bestMove.getState().getX(), bestMove.getState().getY());

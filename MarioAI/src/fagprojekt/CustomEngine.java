@@ -1,7 +1,5 @@
 package fagprojekt;
 
-import ch.idsia.benchmark.mario.engine.GlobalOptions;
-import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 import fagprojekt.Enemy;
@@ -11,8 +9,6 @@ import ch.idsia.benchmark.mario.engine.sprites.Mario;
 public class CustomEngine {
 	// shooting
 //	private int fireBallsOnScreen = 0;
-	// Jumping
-	public final int jumpPower = 7;
 
 	// Gravity and friction
 	public final float marioGravity = 1.0f;
@@ -20,14 +16,11 @@ public class CustomEngine {
 	public final float AIR_INERTIA = 0.89f; // Need this?
 	// Mario dimensions
 	public final int marioWidth = 4;
-	// Make small mario and ducking mario compatible with height
-	public int marioHeight = 24;
+
 	// General dimensions
-	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
-	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
-	public final int cellSize = LevelScene.cellSize;
+	public final int cellSize = 16;
 	// Map
-	public byte[][] mergedObservation;
+	
 	private byte[][] map = new byte[19][600];
 	private int mapX = 0;
 	private float highestX = 0;
@@ -45,14 +38,10 @@ public class CustomEngine {
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
 	
-	public void updateMap(byte[][] mergedObservation) {
-		this.mergedObservation = mergedObservation;
-	}
 	public void predictFuture(State state) {
 		
 		for(int i = 0; i < state.enemyList.size(); i++) {
-			Enemy e = state.enemyList.get(i);
-			e.move(map);
+			state.enemyList.get(i).move(map);
 		}
 		state.wasOnGround = state.onGround;
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
@@ -133,7 +122,6 @@ public class CustomEngine {
 	}
 
 	private boolean move(State state, float xa, float ya) {
-		marioHeight = state.marioHeight;
 
 		while (xa > 8) {
 			if (!move(state, 8, 0))

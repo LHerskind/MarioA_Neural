@@ -178,8 +178,8 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void draw(float x, float y) {
 		if (debug) {
-			GlobalOptions.Pos[debugPos][0] = (int) (x + marioFloatPos[0]);
-			GlobalOptions.Pos[debugPos][1] = (int) (y + marioFloatPos[1]);
+			GlobalOptions.marioPos[debugPos][0] = (int) (x + marioFloatPos[0]);
+			GlobalOptions.marioPos[debugPos][1] = (int) (y + marioFloatPos[1]);
 			debugPos++;
 		}
 	}

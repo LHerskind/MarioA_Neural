@@ -123,14 +123,13 @@ public class Enemy {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
 					if(!dead)
 					state.penalty(500);
-//					if(dead) System.out.println(dead);
-					//state.devolve (mario got worse)
 				}
 			}
 		}
 	}
 
 	public void move(byte[][] map) {
+		if(facing == 0) facing = -1;
 		float sideWaysSpeed = 1.75f;
 
 		if (xa > 2)
@@ -271,8 +270,8 @@ public class Enemy {
 		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
 		  return blocking;
 		  */
-		  // CORRECT COLLISION!
 		
+		  // CORRECT COLLISION!
 		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {
