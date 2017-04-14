@@ -99,7 +99,6 @@ public class Enemy {
 		yaa = 2;
 
 		avoidCliffs = kind == KIND_RED_KOOPA;
-		if(facing == 0) facing = -1;
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
 	}
 
@@ -130,7 +129,6 @@ public class Enemy {
 	}
 
 	public void move(byte[][] map) {
-		if(facing == 0) facing = -1;
 		float sideWaysSpeed = 1.75f;
 
 		if (xa > 2)

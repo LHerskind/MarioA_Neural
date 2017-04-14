@@ -137,21 +137,23 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.jumpTime = prevJumpTime;
 			this.xa = prevXa;
 			this.ya = prevYa;
+			if(prevYa == 0) this.ya = 3.0f; // For the first tick, ya value is 3.0f. Its a small detail
 			this.yJumpSpeed = prevYJumpSpeed;
 			this.height = marioMode > 0 ? 24 : 12;
 			
 			this.enemyList = new ArrayList<Enemy>();
 			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
 				//Check facing & Ya
-				// 2.0 is the value all new enemies WITHOUT wings are assigned, else it is 0.6
+				// 2.0 is the value all new enemies WITHOUT wings are assigned for first tick, else it is 0.6
 				float EnemyYa = 2.0f;
 				float k = enemiesFloatPos[i];
+				// Following values are for winged enemies
 				if(k == 96 || k == 97 || k == 95 || k == 99) EnemyYa = 0.6f;
 				
 				int facing = -1;
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i+1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i+2]);
-				if(prevEnemyFacingArr != null) {
+				if(prevEnemyFacingArr != null && prevEnemyFacingArr[i/3] != 0) {
 					facing = prevEnemyFacingArr[i/3];
 				}
 				if(prevEnemyYaArr != null && prevEnemyYaArr[i/3] != 0 && prevEnemyYaArr.length >= enemiesFloatPos.length/3) {
@@ -202,8 +204,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					nextState.enemyList.add(new Enemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 				}
 
-				
-				
 				nextState.height = parent.height;
 				nextState.g = parent.g + (int) speedPriority;
 				ce.predictFuture(nextState);
@@ -371,22 +371,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevXa = bestState.xa;
 		prevYa = bestState.ya;
 		prevYJumpSpeed = bestState.yJumpSpeed;
-		
-		
-		/*
-		System.out.println("LENGTH: " + enemiesFloatPos.length/3);
-		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
-			System.out.println("ENGINE Y: " + (enemiesFloatPos[i+2] + marioFloatPos[1]) + "  kind: " + enemiesFloatPos[i]);
-		}
-		
-		for(int i = 0; i < bestState.enemyList.size(); i++) {
-			Enemy e = bestState.enemyList.get(i);
-			System.out.println("PREDICTION YA: " + (e.ya) + "  kind: " + e.kind + "   FACING: " + e.facing + "   HEIGHT: " + e.height);
-		}
-		*/
-
-//		System.out.println("ENGINE Y: " + marioFloatPos[1]);
-//		System.out.println("PREDICT YA: " + bestState.ya);
 		return bestState.action;
 	}
 	
@@ -397,7 +381,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
 				for(int j = 0; j < bestState.enemyList.size(); j++) {
 					Enemy e = bestState.enemyList.get(j);
-//					System.out.println("EX: " + e.x + "  ENGINE EX: " + (enemiesFloatPos[i+1] + marioFloatPos[0]));
 					if(e.x == (enemiesFloatPos[i+1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
 						prevEnemyFacingArr[i/3] = e.facing;
 						prevEnemyYaArr[i/3] = e.ya;
