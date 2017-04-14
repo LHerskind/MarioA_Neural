@@ -122,7 +122,7 @@ public void render(Graphics g, int tick)
  // TODO - FOR DEBUGGING ONLY! REMOVE AFTER U ARE DONE
     g.setColor(Color.RED);
     
-    for (int i = 0; i < 599; i++)
+    for (int i = 0; i < 399; i++)
     {
             g.drawLine(GlobalOptions.marioPos[i][0] - xCam, GlobalOptions.marioPos[i][1] - yCam, 
                 GlobalOptions.marioPos[i+1][0] - xCam, GlobalOptions.marioPos[i+1][1] - yCam);

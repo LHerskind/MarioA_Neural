@@ -71,7 +71,7 @@ public static boolean isShowReceptiveField = false;
 public static boolean isScale2x = false;
 public static boolean isRecording = false;
 public static boolean isReplaying = false;
-public static int[][] marioPos = new int[600][2];
+public static int[][] marioPos = new int[400][2];
 public static int enemyNo = 10;
 public static int[][][] enemyPos = new int[enemyNo][400][2];
 /*

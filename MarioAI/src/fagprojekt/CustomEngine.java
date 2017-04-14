@@ -40,7 +40,9 @@ public class CustomEngine {
 	
 	public void predictFuture(State state) {
 		for(int i = 0; i < state.enemyList.size(); i++) {
-			state.enemyList.get(i).move(map);
+			Enemy e = state.enemyList.get(i);
+			if(!e.dead)
+				e.move(map);
 		}
 		state.wasOnGround = state.onGround;
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
@@ -111,10 +113,10 @@ public class CustomEngine {
 		}
 		for(int i = 0; i < state.enemyList.size(); i++) {
 			Enemy e = state.enemyList.get(i);
-			e.collideCheck(state);
-			if(state.stomp) {
-				stomp(state,e);
-				
+			if(!e.dead) {
+				e.collideCheck(state);
+				if(state.stomp) 
+					stomp(state,e);
 			}
 		}
 		

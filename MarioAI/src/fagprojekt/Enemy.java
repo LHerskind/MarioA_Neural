@@ -55,6 +55,7 @@ public class Enemy {
 	public int width = 4;
 	public int height = 24;
 	public float yaa = 1;
+	public float yaw = 1;
 	public float x;
 	public float y;
 	public float ya;
@@ -122,7 +123,6 @@ public class Enemy {
 					}
 				} else {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
-					if(!dead)
 					state.penalty(500);
 				}
 			}
@@ -152,7 +152,7 @@ public class Enemy {
 
 		if (!onGround) {
 			if (winged) {
-				ya += 0.6f;
+				ya += 0.6f * yaw;
 			} else {
 				ya += yaa;
 			}

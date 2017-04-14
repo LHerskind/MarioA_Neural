@@ -239,9 +239,11 @@ public void move()
         if (winged)
         {
             ya += 0.6f * yaw;
+
         } else
         {
             ya += yaa;
+            
         }
     } else if (winged)
     {
