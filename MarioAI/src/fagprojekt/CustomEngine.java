@@ -39,7 +39,6 @@ public class CustomEngine {
 	public static final int BIT_ANIMATED = 1 << 7;
 	
 	public void predictFuture(State state) {
-		
 		for(int i = 0; i < state.enemyList.size(); i++) {
 			state.enemyList.get(i).move(map);
 		}

@@ -33,6 +33,8 @@ import ch.idsia.benchmark.mario.engine.LevelScene;
 
 import java.awt.*;
 
+import javax.swing.plaf.synth.SynthSplitPaneUI;
+
 
 public class Enemy extends Sprite
 {
@@ -171,7 +173,6 @@ public void collideCheck()
 
 public void move()
 {
-	if(facing == 0) System.out.println(facing);
     wingTime++;
     if (deadTime > 0)
     {
@@ -340,7 +341,6 @@ public boolean move(float xa, float ya)
             return true;
         x += xa;
         y += ya;
-
         return true;
     }
 }

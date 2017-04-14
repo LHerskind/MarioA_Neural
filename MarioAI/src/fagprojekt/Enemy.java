@@ -62,7 +62,7 @@ public class Enemy {
 
 	public int facing;
 
-	public boolean avoidCliffs;
+	public boolean avoidCliffs = true;
 
 	public boolean winged;
 
@@ -98,7 +98,7 @@ public class Enemy {
 		yaa = 2;
 
 		avoidCliffs = kind == KIND_RED_KOOPA;
-		
+		if(facing == 0) facing = -1;
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
 	}
 
@@ -130,6 +130,7 @@ public class Enemy {
 	}
 
 	public void move(byte[][] map) {
+		if(facing == 0) facing = -1;
 		float sideWaysSpeed = 1.75f;
 
 		if (xa > 2)
@@ -137,9 +138,6 @@ public class Enemy {
 		else if (xa < -2)
 			facing = -1;
 		xa = facing * sideWaysSpeed;
-		
-
-		
 
 		if (!move(map, xa, 0))
 			facing = -facing;
@@ -187,78 +185,77 @@ public class Enemy {
 		}
 
 		boolean collide = false;
-		if (ya > 0) {
-			if (isBlocking(map, x + xa - width, y + ya, xa, 0))
-				collide = true;
-			else if (isBlocking(map, x + xa + width, y + ya, xa, 0))
-				collide = true;
-			else if (isBlocking(map, x + xa - width, y + ya + 1, xa, ya))
-				collide = true;
-			else if (isBlocking(map, x + xa + width, y + ya + 1, xa, ya))
-				collide = true;
-		}
-		if (ya < 0) {
-			if (isBlocking(map, x + xa, y + ya - height, xa, ya))
-				collide = true;
-			else if (collide || isBlocking(map, x + xa - width, y + ya - height, xa, ya))
-				collide = true;
-			else if (collide || isBlocking(map, x + xa + width, y + ya - height, xa, ya))
-				collide = true;
-		}
-		if (xa > 0) {
-			if (isBlocking(map, x + xa + width, y + ya - height, xa, ya))
-				collide = true;
-			if (isBlocking(map, x + xa + width, y + ya - height / 2, xa, ya))
-				collide = true;
-			if (isBlocking(map, x + xa + width, y + ya, xa, ya))
-				collide = true;
+		if (ya > 0)
+	    {
+	        if (isBlocking(map, x + xa - width, y + ya, xa, 0)) collide = true;
+	        else if (isBlocking(map, x + xa + width, y + ya, xa, 0)) collide = true;
+	        else if (isBlocking(map, x + xa - width, y + ya + 1, xa, ya)) collide = true;
+	        else if (isBlocking(map, x + xa + width, y + ya + 1, xa, ya)) collide = true;
+	    }
+	    if (ya < 0)
+	    {
+	        if (isBlocking(map, x + xa, y + ya - height, xa, ya)) collide = true;
+	        else if (collide || isBlocking(map, x + xa - width, y + ya - height, xa, ya)) collide = true;
+	        else if (collide || isBlocking(map, x + xa + width, y + ya - height, xa, ya)) collide = true;
+	    }
+	    if (xa > 0)
+	    {
+	        if (isBlocking(map, x + xa + width, y + ya - height, xa, ya)) collide = true;
+	        if (isBlocking(map, x + xa + width, y + ya - height / 2, xa, ya)) collide = true;
+	        if (isBlocking(map, x + xa + width, y + ya, xa, ya)) collide = true;
 
-			if (avoidCliffs && onGround
-					&& !(map[(int) ((y) / 16 + 1)][(int) ((x + xa + width) / 16)] < 0))
-				collide = true;
-		}
-		if (xa < 0) {
-			if (isBlocking(map, x + xa - width, y + ya - height, xa, ya))
-				collide = true;
-			if (isBlocking(map, x + xa - width, y + ya - height / 2, xa, ya))
-				collide = true;
-			if (isBlocking(map, x + xa - width, y + ya, xa, ya))
-				collide = true;
-
-			if (avoidCliffs && onGround
+	        if (avoidCliffs && onGround
 					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
 				collide = true;
-		}
+	    }
+	    if (xa < 0)
+	    {
+	        if (isBlocking(map, x + xa - width, y + ya - height, xa, ya)) collide = true;
+	        if (isBlocking(map, x + xa - width, y + ya - height / 2, xa, ya)) collide = true;
+	        if (isBlocking(map, x + xa - width, y + ya, xa, ya)) collide = true;
 
-		if (collide) {
-			if (xa < 0) {
-				x = (int) ((x - width) / 16) * 16 + width;
-				this.xa = 0;
-			}
-			if (xa > 0) {
-				x = (int) ((x + width) / 16 + 1) * 16 - width - 1;
-				this.xa = 0;
-			}
-			if (ya < 0) {
-				y = (int) ((y - height) / 16) * 16 + height;
-				this.ya = 0;
-			}
-			if (ya > 0) {
-				y = (int) (y / 16 + 1) * 16 - 1;
-				onGround = true;
-			}
-			return false;
-		} else {
-			x += xa;
-			y += ya;
-			return true;
-		}
+	        if (avoidCliffs && onGround
+					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
+				collide = true;
+	    }
+
+	    if (collide)
+	    {
+	        if (xa < 0)
+	        {
+	            x = (int) ((x - width) / 16) * 16 + width;
+	            this.xa = 0;
+	        }
+	        if (xa > 0)
+	        {
+	            x = (int) ((x + width) / 16 + 1) * 16 - width - 1;
+	            this.xa = 0;
+	        }
+	        if (ya < 0)
+	        {
+	            y = (int) ((y - height) / 16) * 16 + height;
+//	                jumpTime = 0;
+	            this.ya = 0;
+	        }
+	        if (ya > 0)
+	        {
+	            y = (int) (y / 16 + 1) * 16 - 1;
+	            onGround = true;
+	        }
+	        return false;
+	    } else
+	    {
+	        x += xa;
+	        y += ya;
+	        return true;
+	    }
 	}
 
 	public boolean isBlocking(byte[][] map, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
 		if (x == (int) (this.x / 16) && y == (int) (this.y / 16)){
+
 			return false;
 		}
 

@@ -44,6 +44,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	// Same but for enemies
 	public float[] prevEnemyXArr;
 	public float[] prevEnemyYaArr;
+	public int[] prevEnemyFacingArr;
 
 	private HashMap<Long, State> closed = new HashMap<>();
 	
@@ -146,10 +147,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				int facing = -1;
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i+1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i+2]);
-				if(prevEnemyXArr != null) {
-					float prevEnemyX = prevEnemyXArr[i/3];
-					if(prevEnemyX != 0)
-						facing = (currEnemyX - prevEnemyX) > 0 ? 1 : -1;
+				if(prevEnemyFacingArr != null) {
+					facing = prevEnemyFacingArr[i/3];
 				}
 				if(prevEnemyYaArr != null && prevEnemyYaArr.length >= enemiesFloatPos.length/3) {
 					EnemyYa = prevEnemyYaArr[i/3];
@@ -193,8 +192,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.jumpTime = parent.jumpTime;
 				nextState.penalty = parent.penalty;
 				
-//				nextState.enemyList = new Enemy[parent.enemyList.length];
-
 				nextState.enemyList = new ArrayList<Enemy>();
 				for(int i = 0; i < parent.enemyList.size(); i++) {
 					Enemy e = parent.enemyList.get(i);
@@ -206,9 +203,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.height = parent.height;
 				nextState.g = parent.g + (int) speedPriority;
 			
-				
 				ce.predictFuture(nextState);
-//				System.out.println("MARIO X: " + nextState.x + "  ENEMY X: " + nextState.enemyList.get(0).x + "  g: " + nextState.g/9);
 
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
 
@@ -406,64 +401,41 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevYa = bestState.ya;
 		prevYJumpSpeed = bestState.yJumpSpeed;
 		/*
-		System.out.println("LENGTH: " + enemiesFloatPos.length/3);
-		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
-			System.out.println("ENGINE X: " + (enemiesFloatPos[i+1] + marioFloatPos[0]) + "  kind: " + enemiesFloatPos[i]);
-		}
-		*/
-		setPrevEnemyXArr();
-		/*
 		for(int i = 0; i < bestState.enemyList.size(); i++) {
 			Enemy e = bestState.enemyList.get(i);
-			System.out.println("PREDICTION X: " + (e.x) + "  kind: " + e.kind);
+			System.out.println("PREDICTION Y: " + (e.y) + "  kind: " + e.kind + "   FACING: " + e.facing + "   HEIGHT: " + e.height);
 		}
 		*/
+		/*
+		System.out.println("LENGTH: " + enemiesFloatPos.length/3);
+		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
+			System.out.println("ENGINE Y: " + (enemiesFloatPos[i+2] + marioFloatPos[1]) + "  kind: " + enemiesFloatPos[i]);
+		}
+		*/
+//		System.out.println("ENGINE Y: " + marioFloatPos[1]);
+//		System.out.println("PREDICT Y: " + bestState.y );
 		return bestState.action;
 	}
 	
 	public void validatePrevArr() {
-		if(prevEnemyXArr != null) {
-			
-			float[] tempArr = new float[enemiesFloatPos.length/3];
-			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
-				for(int j = 0; j < prevEnemyXArr.length; j++) {
-					if(prevEnemyXArr[j] > (enemiesFloatPos[i+1]+marioFloatPos[0] - 3f) &&
-							prevEnemyXArr[j] < (enemiesFloatPos[i+1]+marioFloatPos[0] + 3f) &&
-							bestState.enemyList.get(j).kind == enemiesFloatPos[i]) {
-						tempArr[i/3] = prevEnemyXArr[j];
-						break;
-					}
-	
-				}
-			}
-			
-			prevEnemyXArr = tempArr; 
-		}
 		if(bestState != null) {
+			prevEnemyFacingArr = new int[enemiesFloatPos.length/3];
 			prevEnemyYaArr = new float[enemiesFloatPos.length/3];
 			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
 				for(int j = 0; j < bestState.enemyList.size(); j++) {
 					Enemy e = bestState.enemyList.get(j);
 //					System.out.println("EX: " + e.x + "  ENGINE EX: " + (enemiesFloatPos[i+1] + marioFloatPos[0]));
-					/* TEMP FIX! LOOK BELOW!*/
-					if(e.x > (enemiesFloatPos[i+1]+marioFloatPos[0] - 3f) &&
-						e.x < (enemiesFloatPos[i+1]+marioFloatPos[0] + 3f) &&
-						e.kind == enemiesFloatPos[i]) {
+					if(e.x == (enemiesFloatPos[i+1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
+						prevEnemyFacingArr[i/3] = e.facing;
 						prevEnemyYaArr[i/3] = e.ya;
 						bestState.enemyList.remove(e);
 						break;
 					}
-//					if(e.x == (enemiesFloatPos[i+1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {} 
+					 
 				}
 			}
 		}
 	}
-	public void setPrevEnemyXArr() {
-		prevEnemyXArr = new float[enemiesFloatPos.length/3];
-		for(int i = 0; i < enemiesFloatPos.length; i+=3) 
-			prevEnemyXArr[i/3] = (marioFloatPos[0] + enemiesFloatPos[i+1]);
-	}
-
 	public int getBlock(int x, int y) {
 		return levelScene[y][x];
 	}
