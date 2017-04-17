@@ -80,7 +80,8 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
-		return Action;
+		print();
+ 		return Action;
 	}
 
 	private void print() {

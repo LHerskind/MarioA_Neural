@@ -30,7 +30,7 @@ package fagprojekt;
 import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 
-public class Enemy {
+public abstract class Enemy {
 	public static final int KIND_GOOMBA = 80;
 	public static final int KIND_GOOMBA_WINGED = 95;
 	public static final int KIND_RED_KOOPA = 82;
@@ -128,36 +128,7 @@ public class Enemy {
 		}
 	}
 
-	public void move(byte[][] map) {
-		float sideWaysSpeed = 1.75f;
-
-		if (xa > 2)
-			facing = 1;
-		else if (xa < -2)
-			facing = -1;
-		xa = facing * sideWaysSpeed;
-
-		if (!move(map, xa, 0))
-			facing = -facing;
-		onGround = false;
-		move(map, 0, ya);
-		ya *= winged ? 0.95f : 0.85f;
-		if (onGround) {
-			xa *= (GROUND_INERTIA);
-		} else {
-			xa *= (AIR_INERTIA);
-		}
-
-		if (!onGround) {
-			if (winged) {
-				ya += 0.6f * yaw;
-			} else {
-				ya += yaa;
-			}
-		} else if (winged) {
-			ya = -10;
-		}
-	}
+	public abstract void move(byte[][] map);
 
 	public boolean move(byte[][] map, float xa, float ya) {
 
@@ -257,15 +228,6 @@ public class Enemy {
 			return false;
 		}
 
-		// CHEATER COLLISION!
-		/*
-		  byte block = LevelScene.level.getBlock(x, y);
-		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
-		  blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
-		  return blocking;
-		  */
-		
 		  // CORRECT COLLISION!
 		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];

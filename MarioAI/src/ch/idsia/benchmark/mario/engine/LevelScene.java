@@ -116,7 +116,7 @@ public final class LevelScene implements SpriteContext {
 	}
 
 	// TODO: !H!: Move to MarioEnvironment !!
-
+	// TODO: Vi tilføjede her de sidste fjender da det ikke giver mening ikke at have alle fjenderne med
 	public float[] getEnemiesFloatPos() {
 		enemiesFloatsList.clear();
 		for (Sprite sprite : sprites) {
@@ -135,7 +135,8 @@ public final class LevelScene implements SpriteContext {
 			case Sprite.KIND_RED_KOOPA_WINGED:
 			case Sprite.KIND_SPIKY:
 			case Sprite.KIND_SPIKY_WINGED:
-			case Sprite.KIND_SHELL: {
+			case Sprite.KIND_SHELL:
+			case Sprite.KIND_WAVE_GOOMBA:{
 				enemiesFloatsList.add((float) sprite.kind);
 				enemiesFloatsList.add(sprite.x - mario.x);
 				enemiesFloatsList.add(sprite.y - mario.y);
