@@ -28,7 +28,7 @@ public class Flower extends Enemy {
 		}
 
 		y += ya;
-		ya *= 0.9;
+		ya *= 0.9f;
 		ya += 0.1f;
 	}
 

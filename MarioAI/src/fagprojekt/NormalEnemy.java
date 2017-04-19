@@ -8,10 +8,6 @@ public class NormalEnemy extends Enemy {
 
 	public void move(byte[][] map) {
 		float sideWaysSpeed = 1.75f;
-		
-		if(kind == 91){
-			System.out.println("SHIT");
-		}
 
 		if (xa > 2)
 			facing = 1;

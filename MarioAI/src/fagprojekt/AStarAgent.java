@@ -41,6 +41,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public int prevJumpTime;
 	public float prevXa;
 	public float prevYa;
+	public int prevInvulnerable;
 	public float prevYJumpSpeed;
 	// Same but for enemies
 	public float[] prevEnemyXArr;
@@ -103,6 +104,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public boolean sliding; // Not needed
 		public boolean mayJump;
 		public boolean ableToShoot;
+		public int invulnerable;
 
 		public int penalty;
 		public State parent;
@@ -135,6 +137,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.jumpTime = prevJumpTime;
 			this.xa = prevXa;
 			this.ya = prevYa;
+			this.invulnerable = prevInvulnerable;
 			if (prevYa == 0)
 				this.ya = 3.0f; // For the first tick, ya value is 3.0f. Its a
 								// small detail
@@ -205,6 +208,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.parent = parent;
 				nextState.marioHeight = parent.marioHeight;
 				nextState.onGround = parent.onGround;
+				nextState.invulnerable = parent.invulnerable;
 				nextState.mayJump = parent.mayJump;
 				nextState.xa = parent.xa;
 				nextState.ya = parent.ya;
@@ -430,6 +434,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevXa = bestState.xa;
 		prevYa = bestState.ya;
 		prevYJumpSpeed = bestState.yJumpSpeed;
+		prevInvulnerable = bestState.invulnerable;
 		return bestState.action;
 	}
 

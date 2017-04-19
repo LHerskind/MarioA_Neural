@@ -72,7 +72,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-				manyMaps(50, 4, true);
+				manyMaps(50, 7, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -86,7 +86,7 @@ public final class Play {
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 			// REMEMBER 270
-			marioAIOptions.setLevelRandSeed(1);
+			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -115,6 +115,7 @@ public final class Play {
 			}
 			marioAIOptions.setLevelDifficulty(difficulty);
 //			 marioAIOptions.setEnemies("off");
+			marioAIOptions.setMarioMode(2);
 			marioAIOptions.setLevelRandSeed(i);
 			basicTask.runSingleEpisode(1);
 			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
@@ -123,7 +124,7 @@ public final class Play {
 					lostReason[lost++] = basicTask.getEvaluationInfo().Memo;
 				}
 			}
-			if (i % 50 == 0) {
+			if (i % 10 == 0) {
 				System.out.print(i + " , " + lost + " : ");
 			}
 		}

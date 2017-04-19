@@ -122,7 +122,10 @@ public abstract class Enemy {
 					}
 				} else {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
-					state.penalty(500);
+					if(state.invulnerable <= 0) {
+						state.penalty(500);
+						state.invulnerable = 32;
+					}
 				}
 			}
 		}

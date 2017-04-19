@@ -44,6 +44,8 @@ public class CustomEngine {
 				e.move(map);
 			}
 		}
+		if (state.invulnerable > 0)
+			state.invulnerable--;
 		state.wasOnGround = state.onGround;
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
 		if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding)) {
@@ -115,7 +117,7 @@ public class CustomEngine {
 					stomp(state, e);
 			}
 		}
-
+		
 	}
 
 	private boolean move(State state, float xa, float ya) {
@@ -243,6 +245,7 @@ public class CustomEngine {
 
 		state.jumpTime = 8;
 		state.ya = state.jumpTime * state.yJumpSpeed;
+		state.invulnerable = 1;
 		state.onGround = false;
 		state.stomp = false;
 	}
