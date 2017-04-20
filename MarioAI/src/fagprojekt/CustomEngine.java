@@ -208,7 +208,7 @@ public class CustomEngine {
 	}
 
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
-		int x = (int) (_x / 16); // TODO: Lidt g�gl her
+		int x = (int) (_x / 16); // TODO: Lidt gl her
 		int y = (int) (_y / 16);
 
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)){
@@ -269,30 +269,58 @@ public class CustomEngine {
 	}
 
 	private byte[][] levelScene;
+	private int currY;
 
 	public void setLevelScene(byte[][] levelScene) {
 		this.levelScene = levelScene;
 	}
 
 	public void setScene(byte[][] levelScene) {
-		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < 19; j++) {
-				this.map[i][j] = levelScene[i][j];
+		for (int i = 7; i < 19; i++) {
+			for (int j = 7; j < 19; j++) {
+				this.map[i - 7][j - 7] = levelScene[i][j];
 			}
 		}
-		mapX = 18;
+		mapX = 18 - 7;
+		currY = 2;
 	}
 
-	public void toScene(float x) {
+	public void toScene(float x, float y) {
 		if (x > highestX) {
 			highestX = x;
-			if ((int) ((highestX) / 16) > mapX - 15) {
+			if ((int) ((highestX) / 16) > mapX - 9) {
 				mapX++;
 				for (int i = 0; i < 19; i++) {
-					map[i][mapX] = levelScene[i][17];
+					if ((int) (y / 16) + i - 9 >= 0 && ((int) (y / 16) + i - 9) < 19) {
+						System.out.println((int) (y / 16) + i - 9);
+						map[(int) (y / 16) + i - 9][mapX] = levelScene[i][18];
+					}
+				}
+			}
+		}
+
+		if ((int) y / 16 > currY) {
+			currY = (int) y / 16;
+			if ((int) y / 16 + 9 < 19) {
+
+				for (int i = 0; i < 19; i++) {
+					if ((int) (x / 16) - (9 - i) >= 0) {
+						map[(int) (y / 16) + 9][i + (int) (x / 16) - 9] = levelScene[18][i];
+					}
+				}
+			}
+
+		} else if ((int) y / 16 < currY) {
+			currY = (int) y / 16;
+			if ((int) (y / 16) - 9 >= 0) {
+
+				for (int i = 0; i < 19; i++) {
+					if ((int) (x / 16) - (9 - i) >= 0) {
+						map[(int) (y / 16) - 9][i + (int) (x / 16) - 9] = levelScene[0][i];
+
+					}
 				}
 			}
 		}
 	}
-
 }

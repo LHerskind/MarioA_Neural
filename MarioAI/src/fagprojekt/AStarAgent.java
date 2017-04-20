@@ -358,7 +358,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			firstScene = false;
 		} else {
 			ce.setLevelScene(levelScene);
-			ce.toScene(marioFloatPos[0]);
+			ce.toScene(marioFloatPos[0],marioFloatPos[1]);
 		}
 		validatePrevArr();
 		
