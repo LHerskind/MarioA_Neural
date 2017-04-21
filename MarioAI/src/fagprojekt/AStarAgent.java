@@ -24,7 +24,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	private double speedPriority = 9;
 
-	private int numberOfStates = 12000;
+	private int numberOfStates = 4000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
 	// enemies
@@ -353,6 +353,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	public State solve() {
 		long startTime = System.currentTimeMillis();
+		
 		openSet.clear();
 		closed.clear();
 		indexStateArray = 1;
@@ -398,11 +399,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-			// addSuccessor(state.moveE());
-			// addSuccessor(state.moveNE());
-			// addSuccessor(state.moveW());
-			// addSuccessor(state.moveNW());
-			// addSuccessor(state.still());
+//			 addSuccessor(state.moveE());
+//			 addSuccessor(state.moveNE());
+//			 addSuccessor(state.moveW());
+//			 addSuccessor(state.moveNW());
+//			 addSuccessor(state.still());
 		}
 		return null;
 	}
@@ -415,6 +416,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	}
 
 	public boolean[] getAction() {
+		// If mario position is 32, it means we have started a new map in GamePlayTrack, and firstScene should be set true
+		if(marioFloatPos[0] == 32) {
+			firstScene = true;
+		}
+
 		// System.out.println("NEW TICK!");
 		if (firstScene) {
 			ce.setScene(levelScene);
@@ -424,6 +430,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			ce.toScene(marioFloatPos[0]);
 		}
 		validatePrevArr();
+//		print(); 
 
 		bestState = solve();
 
@@ -460,7 +467,18 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public int getBlock(int x, int y) {
 		return levelScene[y][x];
 	}
-
+	/*
+	private void print() {
+		for (int i = 0; i < 19; i++) {
+			for (int j = 0; j < 19; j++) {
+				System.out.print(levelScene[i][j] + "\t");
+				
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+	*/
 	@Override
 	public void integrateObservation(Environment environment) {
 		this.marioFloatPos = environment.getMarioFloatPos();
