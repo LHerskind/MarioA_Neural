@@ -2,6 +2,7 @@ package ch.idsia.agents;
 
 import java.io.IOException;
 
+import ch.idsia.agents.controllers.human.CheaterKeyboardAgent;
 import ch.idsia.agents.controllers.human.HumanKeyboardAgent;
 import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.wox.serial.Easy;

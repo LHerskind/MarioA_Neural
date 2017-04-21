@@ -36,6 +36,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.midi.Synthesizer;
+
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy Date: Mar 29, 2009 Time:
  * 12:19:49 AM Package: ch.idsia.controllers.agents.controllers;
@@ -73,6 +75,12 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	// marioai.org/marioaibenchmark/zLevels
 	int zLevelScene = 1;
 	int zLevelEnemies = 0;
+	private byte[][] map = new byte[19][600];
+	private int mapX;
+	private float highestX = 0;
+	private float highestY = 0;
+	private boolean initial = true;
+	private int currY;
 
 	public HumanKeyboardAgent() {
 		this.reset();
@@ -80,14 +88,79 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
+<<<<<<< HEAD
 		print();
  		return Action;
+=======
+		if (initial) {
+			setScene(mergedObservation);
+			initial = false;
+		} else {
+			toScene(marioFloatPos[0], marioFloatPos[1]);
+		}
+		print();
+		return Action;
+>>>>>>> whatamidoing
+	}
+
+	public void setScene(byte[][] levelScene) {
+		for (int i = 7; i < 19; i++) {
+			for (int j = 7; j < 19; j++) {
+				this.map[i - 7][j - 7] = mergedObservation[i][j];
+			}
+		}
+		mapX = 18 - 7;
+		currY = 2;
+	}
+
+	public void toScene(float x, float y) {
+		if (x > highestX) {
+			highestX = x;
+			if ((int) ((highestX) / 16) > mapX - 9) {
+				mapX++;
+				for (int i = 0; i < 19; i++) {
+					if ((int) (y / 16) + i - 9 >= 0 && ((int) (y / 16) + i - 9) < 19) {
+						System.out.println((int) (y / 16) + i - 9);
+						map[(int) (y / 16) + i - 9][mapX] = mergedObservation[i][18];
+					}
+				}
+			}
+		}
+
+		if ((int) y / 16 > currY) {
+			currY = (int) y / 16;
+			if ((int) y / 16 + 9 < 19) {
+
+				for (int i = 0; i < 19; i++) {
+					if ((int) (x / 16) - (9 - i) >= 0) {
+						map[(int) (y / 16) + 9][i + (int) (x / 16) - 9] = mergedObservation[18][i];
+					}
+				}
+			}
+
+		} else if ((int) y / 16 < currY) {
+			currY = (int) y / 16;
+			if ((int) (y / 16) - 9 >= 0) {
+
+				for (int i = 0; i < 19; i++) {
+					if ((int) (x / 16) - (9 - i) >= 0) {
+						map[(int) (y / 16) - 9][i + (int) (x / 16) - 9] = mergedObservation[0][i];
+
+					}
+				}
+			}
+		}
 	}
 
 	private void print() {
+
+		// System.out.println(marioFloatPos[1]+" : "+marioFloatPos[0]);
+		// System.out.println(mapX);
 		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < 19; j++) {
-				System.out.print(levelScene[i][j] + "\t");
+			for (int j = 0; j < mapX; j++) {
+
+				System.out.print(map[i][j] + "\t");
+
 			}
 			System.out.println();
 		}
@@ -102,7 +175,12 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
+<<<<<<< HEAD
 		levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2, (int) marioFloatPos[1] / 16);
+=======
+		// levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2,
+		// (int) marioFloatPos[1] / 16);
+>>>>>>> whatamidoing
 
 		// It also possible to use direct methods from Environment interface.
 		//
@@ -133,6 +211,7 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	public boolean[] getAction(Environment observation) {
 		float[] enemiesPos = observation.getEnemiesFloatPos();
 		return Action;
+
 	}
 
 	public String getName() {

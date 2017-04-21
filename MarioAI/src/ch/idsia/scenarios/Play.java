@@ -81,11 +81,19 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
+<<<<<<< HEAD
 			marioAIOptions.setLevelDifficulty(1);
 			// marioAIOptions.setEnemies("off");
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 			// REMEMBER 270
+=======
+			marioAIOptions.setLevelDifficulty(15);
+			marioAIOptions.setEnemies("off");
+			int seed = new Random().nextInt(400);
+			System.out.println(seed);
+			// REMEMBER 270, 350
+>>>>>>> whatamidoing
 			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();

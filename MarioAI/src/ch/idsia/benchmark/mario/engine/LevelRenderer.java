@@ -127,26 +127,13 @@ public void render(Graphics g, int tick)
             g.drawLine(GlobalOptions.marioPos[i][0] - xCam, GlobalOptions.marioPos[i][1] - yCam, 
                 GlobalOptions.marioPos[i+1][0] - xCam, GlobalOptions.marioPos[i+1][1] - yCam);
     }
+    //ENEMIES
     for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
     	for(int j = 0; j < 399; j++) {
     		g.drawLine(GlobalOptions.enemyPos[i][j][0] - xCam, GlobalOptions.enemyPos[i][j][1] - yCam, 
                     GlobalOptions.enemyPos[i][j+1][0] - xCam, GlobalOptions.enemyPos[i][j+1][1] - yCam);
     	}
     }
-    /*
-    for(int i = 0; i < 399; i++) {
-    	g.drawLine(GlobalOptions.enemyPos1[i][0] - xCam, GlobalOptions.enemyPos1[i][1] - yCam, 
-                GlobalOptions.enemyPos1[i+1][0] - xCam, GlobalOptions.enemyPos1[i+1][1] - yCam);
-    	g.drawLine(GlobalOptions.enemyPos2[i][0] - xCam, GlobalOptions.enemyPos2[i][1] - yCam, 
-                GlobalOptions.enemyPos2[i+1][0] - xCam, GlobalOptions.enemyPos2[i+1][1] - yCam);
-    	g.drawLine(GlobalOptions.enemyPos3[i][0] - xCam, GlobalOptions.enemyPos3[i][1] - yCam, 
-                GlobalOptions.enemyPos3[i+1][0] - xCam, GlobalOptions.enemyPos3[i+1][1] - yCam);
-    	g.drawLine(GlobalOptions.enemyPos4[i][0] - xCam, GlobalOptions.enemyPos4[i][1] - yCam, 
-                GlobalOptions.enemyPos4[i+1][0] - xCam, GlobalOptions.enemyPos4[i+1][1] - yCam);
-    	g.drawLine(GlobalOptions.enemyPos5[i][0] - xCam, GlobalOptions.enemyPos5[i][1] - yCam, 
-                GlobalOptions.enemyPos5[i+1][0] - xCam, GlobalOptions.enemyPos5[i+1][1] - yCam);
-    }
-    */
     
     
     for (int x = xCam / 16; x <= (xCam + width) / 16; x++)
