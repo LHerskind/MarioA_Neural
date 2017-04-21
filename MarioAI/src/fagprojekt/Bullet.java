@@ -36,8 +36,13 @@ public class Bullet extends Enemy {
 	                dead = true;
 	            } else{
 	            	if(state.invulnerable <= 0) {
-						state.penalty(500);
-						state.invulnerable = 32;
+	            		if(state.height != 12) {
+							state.invulnerable = 32;
+							state.penalty(500);
+							
+						} else {
+							state.penalty(2000);
+						}
 	            	}
 	            }
 	        }

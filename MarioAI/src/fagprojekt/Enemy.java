@@ -144,7 +144,6 @@ public abstract class Enemy {
 	public abstract void move(byte[][] map);
 
 	public boolean move(byte[][] map, float xa, float ya) {
-
 		while (xa > 8) {
 			if (!move(map, 8, 0))
 				return false;
@@ -186,9 +185,12 @@ public abstract class Enemy {
 	        if (isBlocking(map, x + xa + width, y + ya - height / 2, xa, ya)) collide = true;
 	        if (isBlocking(map, x + xa + width, y + ya, xa, ya)) collide = true;
 
-	        if (avoidCliffs && onGround
-					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
-				collide = true;
+//	        if (avoidCliffs && onGround
+//					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
+//				collide = true;
+
+	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
+	            collide = true;
 	    }
 	    if (xa < 0)
 	    {
@@ -196,9 +198,11 @@ public abstract class Enemy {
 	        if (isBlocking(map, x + xa - width, y + ya - height / 2, xa, ya)) collide = true;
 	        if (isBlocking(map, x + xa - width, y + ya, xa, ya)) collide = true;
 
-	        if (avoidCliffs && onGround
-					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
-				collide = true;
+//	        if (avoidCliffs && onGround
+//					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
+//				collide = true;
+	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
+	            collide = true;
 	    }
 
 	    if (collide)
@@ -229,8 +233,10 @@ public abstract class Enemy {
 	    {
 	        x += xa;
 	        y += ya;
+
 	        return true;
 	    }
+	    
 	}
 
 	public boolean isBlocking(byte[][] map, final float _x, final float _y, final float xa, final float ya) {

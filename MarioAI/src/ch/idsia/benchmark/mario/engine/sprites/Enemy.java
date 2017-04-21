@@ -343,6 +343,7 @@ public boolean move(float xa, float ya)
             return true;
         x += xa;
         y += ya;
+
         return true;
     }
 }

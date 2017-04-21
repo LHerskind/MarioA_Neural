@@ -47,6 +47,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public float[] prevEnemyXArr;
 	public float[] prevEnemyYaArr;
 	public int[] prevEnemyFacingArr;
+	public boolean[] prevEnemyOnGroundArr;
 
 	private HashMap<Long, State> closed = new HashMap<>();
 
@@ -150,6 +151,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i + 1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i + 2]);
 				byte kind = (byte) enemiesFloatPos[i];
+				boolean EnemyOnGround = false;
 				// Check facing & Ya
 				// 2.0 is the value all new enemies WITHOUT wings are assigned for first tick, else it is 0.6. 
 				// The reason this is not set to 0, is because when enemies spawn in the engine, they are put through one single tick for themselves,
@@ -170,15 +172,19 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0 ) {
 					EnemyYa = prevEnemyYaArr[i / 3];
 				}
+				if(prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3] != false) {
+					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
+				}
 
 				if (kind == 98) {
 					// Blue enemies ya value is set according to x, so it doesnt matter at all, thus set to 0
-					this.enemyList.add(
-							new BlueBeetle(currEnemyX, currEnemyY, kind, 0, facing, false));
+					this.enemyList.add(new BlueBeetle(currEnemyX, currEnemyY, kind, 0, facing, false));
 				} else if (kind == 84) {
 					this.enemyList.add(new Bullet(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				} else if (kind == 91) {
 					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
+				} else if(kind == 82) {
+					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false, EnemyOnGround));
 				} else {
 					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
 				}
@@ -230,7 +236,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 						nextState.enemyList.add(new Bullet(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 					} else if (e.kind == 91) {
 						nextState.enemyList.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else {
+					} else if (e.kind == 82) {
+						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
+					}
+					else {
 						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 					}
 				}
@@ -306,9 +315,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				if (successor.penalty < 2000) {// + marioMode * 500) {
+//				if (successor.penalty < 2000) {// + marioMode * 500) {
 					openSet.add(successor);
-				}
+//				}
 				closed.put(successor.superHashCode(), successor);
 			} else {
 				indexStateArray--;
@@ -386,7 +395,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		while (!openSet.isEmpty()) {
 			State state = openSet.poll();
-			
 
 			if (state.isGoal()) {
 				return getRootState(state);
@@ -422,12 +430,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	}
 
 	public boolean[] getAction() {
+//		 System.out.println("NEW TICK!");
+		
 		// If mario position is 32, it means we have started a new map in GamePlayTrack, and firstScene should be set true
 		if(marioFloatPos[0] == 32) {
 			firstScene = true;
 		}
 
-		// System.out.println("NEW TICK!");
 		if (firstScene) {
 			ce.setScene(levelScene);
 			firstScene = false;
