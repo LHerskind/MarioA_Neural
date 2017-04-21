@@ -5,7 +5,6 @@ public class NormalEnemy extends Enemy {
 	public NormalEnemy(float x, float y, byte kind, float ya, int facing, boolean dead /* ,boolean winged, int mapX, int mapY */) {
 		super(x,y,kind,ya,facing,dead);
 	}
-
 	public void move(byte[][] map) {
 		float sideWaysSpeed = 1.75f;
 
@@ -35,6 +34,8 @@ public class NormalEnemy extends Enemy {
 		} else if (winged) {
 			ya = -10;
 		}
+		
 	}
+	
 
 }

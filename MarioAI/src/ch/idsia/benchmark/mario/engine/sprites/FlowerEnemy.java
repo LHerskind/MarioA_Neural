@@ -63,6 +63,7 @@ public FlowerEnemy(LevelScene world, int x, int y, int mapX, int mapY)
 
 public void move()
 {
+
     //TODO:|L| check this
     if (GlobalOptions.areFrozenCreatures == true)
     {

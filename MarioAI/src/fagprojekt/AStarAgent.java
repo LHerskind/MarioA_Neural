@@ -139,45 +139,48 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.ya = prevYa;
 			this.invulnerable = prevInvulnerable;
 			if (prevYa == 0)
-				this.ya = 3.0f; // For the first tick, ya value is 3.0f. Its a
-								// small detail
+				this.ya = 3.0f; 
+			// For the first tick, ya value is 3.0f. Its a small detail
 			this.yJumpSpeed = prevYJumpSpeed;
 			this.height = marioMode > 0 ? 24 : 12;
 
 			this.enemyList = new ArrayList<Enemy>();
-			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
-				// Check facing & Ya
-				// 2.0 is the value all new enemies WITHOUT wings are assigned
-				// for first tick, else it is 0.6
-				float EnemyYa = 2.0f;
-				float k = enemiesFloatPos[i];
-				// Following values are for winged enemies
-				if (k == 96 || k == 97 || k == 95 || k == 99)
-					EnemyYa = 0.6f;
 
-				int facing = -1;
+			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i + 1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i + 2]);
-				if (prevEnemyFacingArr != null && i / 3 < prevEnemyFacingArr.length && prevEnemyFacingArr[i / 3] != 0) {
+				byte kind = (byte) enemiesFloatPos[i];
+				// Check facing & Ya
+				// 2.0 is the value all new enemies WITHOUT wings are assigned for first tick, else it is 0.6. 
+				// The reason this is not set to 0, is because when enemies spawn in the engine, they are put through one single tick for themselves,
+				// giving them some custom values for xa, ya, etc, which (luckily) are the same for all enemies of same kind. Flowers are given 5 ticks
+				// upon spawning, because why the fuck not??
+				float EnemyYa = 2.0f;
+				// Following values are for winged enemies
+				if (kind == 96 || kind == 97 || kind == 95 || kind == 99)
+					EnemyYa = 0.6f;
+				// This value is for flowerzzz
+				else if(kind == 91)
+					EnemyYa = -4.31441f;
+
+				int facing = -1;
+				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
 				}
-				if (prevEnemyYaArr != null && i / 3 < prevEnemyFacingArr.length && prevEnemyYaArr[i / 3] != 0
-						&& prevEnemyYaArr.length >= enemiesFloatPos.length / 3) {
+				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0 ) {
 					EnemyYa = prevEnemyYaArr[i / 3];
 				}
 
-				if (enemiesFloatPos[i] == 98) {
+				if (kind == 98) {
+					// Blue enemies ya value is set according to x, so it doesnt matter at all, thus set to 0
 					this.enemyList.add(
-							new BlueBeetle(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
-				} else if (enemiesFloatPos[i] == 84) {
-					this.enemyList
-							.add(new Bullet(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
-				} else if (enemiesFloatPos[i] == 91) {
-					this.enemyList
-							.add(new Flower(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
+							new BlueBeetle(currEnemyX, currEnemyY, kind, 0, facing, false));
+				} else if (kind == 84) {
+					this.enemyList.add(new Bullet(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
+				} else if (kind == 91) {
+					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				} else {
-					this.enemyList.add(
-							new NormalEnemy(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
+					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
 				}
 
 			}
@@ -303,7 +306,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				if (successor.penalty < 500 + marioMode * 500) {
+				if (successor.penalty < 2000) {// + marioMode * 500) {
 					openSet.add(successor);
 				}
 				closed.put(successor.superHashCode(), successor);
@@ -328,23 +331,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		if (state.parent.parent != null) {
 			if (debugPos < 400) {
-<<<<<<< HEAD
-				// ENEMY DEBUG
-
-				// if (!state.enemyList.isEmpty()) {
-				// for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-				// if (state.enemyList.size() > i) {
-				// GlobalOptions.enemyPos[i][debugPos][0] = (int)
-				// state.enemyList.get(i).x;
-				// GlobalOptions.enemyPos[i][debugPos][1] = (int)
-				// state.enemyList.get(i).y;
-				// }
-				// }
-				// }
-				// MARIO DEBUG
-=======
 				//ENEMY DEBUG
-				
 				if(!state.enemyList.isEmpty()) {
 					for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 						if(state.enemyList.size() > i) {
@@ -355,7 +342,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 				
 				//MARIO DEBUG
->>>>>>> whatamidoing
 				GlobalOptions.marioPos[debugPos][0] = (int) state.x;
 				GlobalOptions.marioPos[debugPos][1] = (int) state.y;
 				debugPos++;
@@ -386,16 +372,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 			GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
 		}
-<<<<<<< HEAD
-		for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-			for (int j = 0; j < 400; j++) {
-				if (initial.enemyList.size() > i) {
-=======
-		
+
 		for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 			for(int j = 0; j < 400; j++) {
 				if(initial.enemyList.size() > i) {
->>>>>>> whatamidoing
 					GlobalOptions.enemyPos[i][j][0] = (int) initial.enemyList.get(i).x;
 					GlobalOptions.enemyPos[i][j][1] = (int) initial.enemyList.get(i).y;
 				}
@@ -406,6 +386,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		while (!openSet.isEmpty()) {
 			State state = openSet.poll();
+			
 
 			if (state.isGoal()) {
 				return getRootState(state);
@@ -413,13 +394,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			// Debugging for being stuck in loop
 			if (System.currentTimeMillis() - startTime > 28 || indexStateArray >= numberOfStates) {
-<<<<<<< HEAD
-//				System.out.println("stuck in while-loop" + " Index = " + indexStateArray + " Open = " + openSet.size()
-//						+ " Close = " + closed.size());
-=======
 //				System.out.println("stuck in while-loop" + " Index = " + indexStateArray +
 //						" Open = " + openSet.size() + " Close = " + closed.size());
->>>>>>> whatamidoing
 				return getRootState(state);
 			}
 
@@ -433,6 +409,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 //			 addSuccessor(state.moveNW());
 //			 addSuccessor(state.still());
 		}
+		System.out.println("DISASTER: OPEN-SET IS EMPTY");
+		// This should never happen. If it does, it fucks up so much with the previous value arrays, etc.
 		return null;
 	}
 
@@ -460,9 +438,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		validatePrevArr();
 //		print(); 
-
 		bestState = solve();
-
 		if (bestState == null) {
 			return createAction(false, false, false, false);
 		}
@@ -478,12 +454,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (bestState != null) {
 			prevEnemyFacingArr = new int[enemiesFloatPos.length / 3];
 			prevEnemyYaArr = new float[enemiesFloatPos.length / 3];
+
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				for (int j = 0; j < bestState.enemyList.size(); j++) {
 					Enemy e = bestState.enemyList.get(j);
 					if (e.x == (enemiesFloatPos[i + 1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
 						prevEnemyFacingArr[i / 3] = e.facing;
 						prevEnemyYaArr[i / 3] = e.ya;
+
 						bestState.enemyList.remove(e);
 						break;
 					}

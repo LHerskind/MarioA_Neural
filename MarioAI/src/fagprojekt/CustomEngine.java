@@ -1,5 +1,6 @@
 package fagprojekt;
 
+import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 import fagprojekt.Enemy;
@@ -213,14 +214,15 @@ public class CustomEngine {
 			return false;
 		}
 		// CHEATER COLLISION!
-		/*
-		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
-		 * ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0; blocking |= (ya
-		 * > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
-		 * BIT_BLOCK_LOWER) > 0; return blocking;
-		 */
+		
+		  byte block = LevelScene.level.getBlock(x, y);
+		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		  blocking |= (ya> 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		  return blocking;
+		 
 		// CORRECT COLLISION
+		  /*
 		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			boolean blocking = block < 0;
@@ -234,7 +236,7 @@ public class CustomEngine {
 		} else {
 			return false;
 		}
-
+		*/
 	}
 
 	public void stomp(State state, final Enemy enemy) {

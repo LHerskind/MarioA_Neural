@@ -27,6 +27,7 @@
 
 package fagprojekt;
 
+import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 
@@ -63,12 +64,16 @@ public abstract class Enemy {
 
 	public int facing;
 
-	public boolean avoidCliffs = true;
+	public boolean avoidCliffs = false;
 
 	public boolean winged;
 
-	public boolean noFireballDeath;
+	public boolean noFireballDeath = false;
 	public boolean dead;
+	// Fields only relevant for some of the enemies: (Not sure how to do this):
+	public int jumpTime = 0;
+	public float yStart = 0;
+
 	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
 	public static final int BIT_BLOCK_UPPER = 1 << 0;
@@ -89,10 +94,11 @@ public abstract class Enemy {
 		this.y = y;
 		this.ya = ya;
 		
-		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED || kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED)
+		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED ||
+				kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_WAVE_GOOMBA)
 			this.winged = true;
 		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY ||
-				kind == KIND_SPIKY_WINGED || kind == KIND_BULLET_BILL || kind == KIND_WAVE_GOOMBA) 
+				kind == KIND_SPIKY_WINGED) 
 			this.height = 12;
 		else this.height = 24;
 		
@@ -103,7 +109,6 @@ public abstract class Enemy {
 	}
 
 	public void collideCheck(State state) {
-
 		float xMarioD = state.x - this.x;
 		float yMarioD = state.y - this.y;
 		// float w = 16;
@@ -123,8 +128,13 @@ public abstract class Enemy {
 				} else {
 					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
 					if(state.invulnerable <= 0) {
-						state.penalty(500);
-						state.invulnerable = 32;
+						if(state.height != 12) {
+							state.invulnerable = 32;
+							state.penalty(500);
+							
+						} else {
+							state.penalty(2000);
+						}
 					}
 				}
 			}
@@ -227,11 +237,16 @@ public abstract class Enemy {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
 		if (x == (int) (this.x / 16) && y == (int) (this.y / 16)){
-
 			return false;
 		}
-
+		// CHEATER COLLISION
+		 byte block = LevelScene.level.getBlock(x, y);
+		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		  blocking |= (ya> 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		  return blocking;
 		  // CORRECT COLLISION!
+		/*
 		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
 			if (ya <= 0) {
@@ -243,7 +258,7 @@ public abstract class Enemy {
 		} else {
 			return false;
 		}
-		
+		*/
 	}
 /* TODO - SHELLS
 	public boolean shellCollideCheck(Shell shell) {

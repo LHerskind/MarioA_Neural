@@ -88,10 +88,7 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 	}
 
 	public boolean[] getAction() {
-<<<<<<< HEAD
-		print();
- 		return Action;
-=======
+
 		if (initial) {
 			setScene(mergedObservation);
 			initial = false;
@@ -100,7 +97,6 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 		}
 		print();
 		return Action;
->>>>>>> whatamidoing
 	}
 
 	public void setScene(byte[][] levelScene) {
@@ -175,12 +171,10 @@ public class HumanKeyboardAgent extends KeyAdapter implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-<<<<<<< HEAD
-		levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2, (int) marioFloatPos[1] / 16);
-=======
+
+
 		// levelScene = environment.getLevelSceneObservationZ(zLevelScene, 2,
 		// (int) marioFloatPos[1] / 16);
->>>>>>> whatamidoing
 
 		// It also possible to use direct methods from Environment interface.
 		//
