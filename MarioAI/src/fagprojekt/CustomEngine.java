@@ -49,19 +49,37 @@ public class CustomEngine {
 			state.invulnerable--;
 		state.wasOnGround = state.onGround;
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
+		if (state.xa > 2) {
+			state.facing = 1;
+		}
+		if (state.xa < -2) {
+			state.facing = -1;
+		}
 		if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding)) {
 
 			if (state.jumpTime < 0) {
+				state.xa = state.xJumpSpeed;
 				state.ya = -state.jumpTime * state.yJumpSpeed;
 				state.jumpTime++;
 			} else if (state.onGround && state.mayJump) {
+				state.xJumpSpeed = 0;
 				state.yJumpSpeed = -1.9f;
 				state.jumpTime = 7;
 				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.onGround = false;
 				state.sliding = false;
 
+			}else if (state.sliding && state.mayJump) {
+				state.xJumpSpeed = -state.facing * 6.0f;
+				state.yJumpSpeed = -2.0f;
+				state.jumpTime = -6;
+				state.xa = state.xJumpSpeed;
+				state.ya = -state.jumpTime * state.yJumpSpeed;
+				state.onGround = false;
+				state.sliding = false;
+				state.facing = -state.facing;
 			} else if (state.jumpTime > 0) {
+				state.xa+=state.xJumpSpeed;
 				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.jumpTime--;
 
@@ -74,13 +92,23 @@ public class CustomEngine {
 		}
 
 		if (state.action[Mario.KEY_LEFT]/* && !ducking */) {
+			if (state.facing == 1)
+				state.sliding = false;
 			state.xa -= sideWaysSpeed;
+			if (state.jumpTime >= 0)
+				state.facing = -1;
 		}
 
 		if (state.action[Mario.KEY_RIGHT] /* && !ducking */) {
+			if (state.facing == -1)
+				state.sliding = false;
 			state.xa += sideWaysSpeed;
+			if (state.jumpTime >= 0)
+				state.facing = 1;
 		}
-
+		if ((!state.action[Mario.KEY_LEFT] && !state.action[Mario.KEY_RIGHT]) || state.ya < 0 || state.onGround) {
+			state.sliding = false;
+		}
 		/*
 		 * if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire
 		 * && fireBallsOnScreen < 2) { fireBallsOnScreen++; // MAKE FIREBALL
@@ -89,6 +117,7 @@ public class CustomEngine {
 
 		state.ableToShoot = !state.action[Mario.KEY_SPEED];
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
+		if(state.sliding) state.ya *=0.5f;
 		state.onGround = false;
 		move(state, state.xa, 0); // marioMove
 		move(state, 0, state.ya); // marioMove
@@ -242,13 +271,14 @@ public class CustomEngine {
 	public void stomp(State state, final Enemy enemy) {
 		float targetY = enemy.y - enemy.height / 2;
 		move(state, 0, targetY - state.y);
-
+		state.xJumpSpeed = 0;
 		state.yJumpSpeed = -1.9f;
 
 		state.jumpTime = 8;
 		state.ya = state.jumpTime * state.yJumpSpeed;
 		state.invulnerable = 1;
 		state.onGround = false;
+		state.sliding = false;
 		state.stomp = false;
 	}
 

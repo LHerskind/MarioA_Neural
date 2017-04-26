@@ -70,9 +70,6 @@ public abstract class Enemy {
 
 	public boolean noFireballDeath = false;
 	public boolean dead;
-	// Fields only relevant for some of the enemies: (Not sure how to do this):
-	public int jumpTime = 0;
-	public float yStart = 0;
 
 	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
@@ -189,8 +186,8 @@ public abstract class Enemy {
 //					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
 //				collide = true;
 
-	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
-	            collide = true;
+	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1)) 
+	        	collide = true;
 	    }
 	    if (xa < 0)
 	    {
@@ -201,8 +198,8 @@ public abstract class Enemy {
 //	        if (avoidCliffs && onGround
 //					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
 //				collide = true;
-	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
-	            collide = true;
+	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1)) 
+	        	collide = true;
 	    }
 
 	    if (collide)

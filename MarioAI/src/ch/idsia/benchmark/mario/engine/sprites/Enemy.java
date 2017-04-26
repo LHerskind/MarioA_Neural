@@ -220,7 +220,6 @@ public void move()
     {
         runFrame = 1;
     }
-
     if (!move(xa, 0)) facing = -facing;
     onGround = false;
     move(0, ya);
@@ -300,8 +299,9 @@ public boolean move(float xa, float ya)
         if (isBlocking(x + xa + width, y + ya - height / 2, xa, ya)) collide = true;
         if (isBlocking(x + xa + width, y + ya, xa, ya)) collide = true;
 
-        if (avoidCliffs && onGround && !levelScene.level.isBlocking((int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1))
-            collide = true;
+        if (avoidCliffs && onGround && !levelScene.level.isBlocking((int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1)) {
+        	collide = true;
+        }
     }
     if (xa < 0)
     {
@@ -309,8 +309,9 @@ public boolean move(float xa, float ya)
         if (isBlocking(x + xa - width, y + ya - height / 2, xa, ya)) collide = true;
         if (isBlocking(x + xa - width, y + ya, xa, ya)) collide = true;
 
-        if (avoidCliffs && onGround && !levelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
-            collide = true;
+        if (avoidCliffs && onGround && !levelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1)) {
+        	collide = true;
+        }
     }
 
     if (collide)

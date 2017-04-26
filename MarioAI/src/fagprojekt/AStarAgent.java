@@ -37,12 +37,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private CustomEngine ce;
 
 	// Need-to-know states persisting for each tick
-	State bestState;
+	public State bestState;
 	public int prevJumpTime;
 	public float prevXa;
 	public float prevYa;
 	public int prevInvulnerable;
 	public float prevYJumpSpeed;
+	public float prevXJumpSpeed;
+	public int prevFacing;
+	public boolean prevSliding;
 	// Same but for enemies
 	public float[] prevEnemyXArr;
 	public float[] prevEnemyYaArr;
@@ -92,12 +95,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public float x;
 		public float y;
 		public float xa;
-
+		public int facing;
 		public int marioHeight;
 
 		public float ya;
 		public int jumpTime;
 		public float yJumpSpeed;
+		public float xJumpSpeed;
 		public int height;
 
 		public boolean onGround;
@@ -138,10 +142,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.jumpTime = prevJumpTime;
 			this.xa = prevXa;
 			this.ya = prevYa;
+			this.sliding = prevSliding;
+			this.facing = prevFacing;
+			this.xJumpSpeed = prevXJumpSpeed;
 			this.invulnerable = prevInvulnerable;
+			// For the first tick, ya value is 3.0f. Its a small detail
 			if (prevYa == 0)
 				this.ya = 3.0f; 
-			// For the first tick, ya value is 3.0f. Its a small detail
 			this.yJumpSpeed = prevYJumpSpeed;
 			this.height = marioMode > 0 ? 24 : 12;
 
@@ -169,10 +176,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
 				}
-				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0 ) {
+				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0) {
 					EnemyYa = prevEnemyYaArr[i / 3];
 				}
-				if(prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3] != false) {
+				if(prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3]) {
 					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
 				}
 
@@ -184,9 +191,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				} else if (kind == 91) {
 					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				} else if(kind == 82) {
-					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false, EnemyOnGround));
+					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false, EnemyOnGround));
 				} else {
-					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, (byte) enemiesFloatPos[i], EnemyYa, facing, false));
+					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				}
 
 			}
@@ -212,9 +219,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public State getNextState(State parent, boolean[] action) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
+				nextState.parent = parent;
 
 				nextState.action = action;
-				nextState.parent = parent;
 				nextState.marioHeight = parent.marioHeight;
 				nextState.onGround = parent.onGround;
 				nextState.invulnerable = parent.invulnerable;
@@ -222,9 +229,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.xa = parent.xa;
 				nextState.ya = parent.ya;
 				nextState.yJumpSpeed = parent.yJumpSpeed;
+				nextState.xJumpSpeed = parent.xJumpSpeed;
 				nextState.x = parent.x;
 				nextState.y = parent.y;
 				nextState.jumpTime = parent.jumpTime;
+				nextState.sliding = parent.sliding;
+				nextState.height = parent.height;
+				nextState.facing = parent.facing;
+				nextState.g = parent.g + (int) speedPriority;
 				nextState.penalty = parent.penalty;
 
 				nextState.enemyList = new ArrayList<Enemy>();
@@ -244,8 +256,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 
-				nextState.height = parent.height;
-				nextState.g = parent.g + (int) speedPriority;
 				ce.predictFuture(nextState);
 
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
@@ -455,7 +465,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevXa = bestState.xa;
 		prevYa = bestState.ya;
 		prevYJumpSpeed = bestState.yJumpSpeed;
+		prevXJumpSpeed = bestState.xJumpSpeed;
 		prevInvulnerable = bestState.invulnerable;
+		prevSliding = bestState.sliding;
+		prevFacing = bestState.facing;
 		return bestState.action;
 	}
 
@@ -463,6 +476,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (bestState != null) {
 			prevEnemyFacingArr = new int[enemiesFloatPos.length / 3];
 			prevEnemyYaArr = new float[enemiesFloatPos.length / 3];
+			prevEnemyOnGroundArr = new boolean[enemiesFloatPos.length / 3];
 
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				for (int j = 0; j < bestState.enemyList.size(); j++) {
@@ -470,7 +484,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					if (e.x == (enemiesFloatPos[i + 1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
 						prevEnemyFacingArr[i / 3] = e.facing;
 						prevEnemyYaArr[i / 3] = e.ya;
-
+						if(e.kind == 82)
+							prevEnemyOnGroundArr[i / 3] = e.onGround;
 						bestState.enemyList.remove(e);
 						break;
 					}

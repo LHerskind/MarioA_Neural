@@ -75,16 +75,16 @@ public final class Play {
 				manyMaps(50, 7, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-			marioAIOptions.setFPS(20);
+			marioAIOptions.setFPS(24);
 			// marioAIOptions.setTimeLimit(-1);
 			// marioAIOptions.setLevelType(2);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(0);
-			marioAIOptions.setMarioMode(0);
-			 marioAIOptions.setEnemies("off");
-			marioAIOptions.setEnemies("rk");
+			marioAIOptions.setLevelDifficulty(8);
+//			marioAIOptions.setMarioMode(0);
+//			marioAIOptions.setEnemies("off");
+
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 			// REMEMBER 270

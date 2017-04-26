@@ -18,7 +18,6 @@ public class NormalEnemy extends Enemy {
 		else if (xa < -2)
 			facing = -1;
 		xa = facing * sideWaysSpeed;
-
 		if (!move(map, xa, 0))
 			facing = -facing;
 		onGround = false;
@@ -35,7 +34,6 @@ public class NormalEnemy extends Enemy {
 		} else if (winged) {
 			ya = -10;
 		}
-		
 	}
 
 }
