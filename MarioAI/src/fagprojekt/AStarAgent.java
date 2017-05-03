@@ -21,7 +21,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int maxRight = 16 * 11;
 	public final int searchDepth = maxRight;
 	public boolean firstScene;
-
+	boolean cheatMap = true;
 	private double speedPriority = 9;
 
 	private int numberOfStates = 4000;
@@ -449,11 +449,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		if (firstScene) {
-			ce.setScene(levelScene);
+			if(cheatMap) ce.setCheatScene(levelScene);
+			else ce.setScene(levelScene);
 			firstScene = false;
 		} else {
+			if(cheatMap){
+				ce.setCheatLevelScene(levelScene);
+				ce.toCheatScene(marioFloatPos[0]);
+			}else{
 			ce.setLevelScene(levelScene);
 			ce.toScene(marioFloatPos[0],marioFloatPos[1]);
+			}
 //			ce.print();
 		}
 		validatePrevArr();
@@ -544,8 +550,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		 levelScene = environment.getLevelSceneObservationZ(1); // The normal
-//		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
+		levelScene = environment.getLevelSceneObservationZ(1); // The normal
+		if(cheatMap)
+		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 
