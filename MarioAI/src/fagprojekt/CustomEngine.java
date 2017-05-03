@@ -292,6 +292,7 @@ public class CustomEngine {
 				mapX++;
 				for (int i = 0; i < 19; i++) {
 					if ((int) (y / 16) + i - 9 >= 0 && ((int) (y / 16) + i - 9) < 19) {
+						System.out.println((int) (y / 16) + i - 9);
 						map[(int) (y / 16) + i - 9][mapX] = levelScene[i][18];
 					}
 				}
@@ -321,19 +322,5 @@ public class CustomEngine {
 				}
 			}
 		}
-	}
-	void print() {
-
-		// System.out.println(marioFloatPos[1]+" : "+marioFloatPos[0]);
-		// System.out.println(mapX);
-		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < mapX; j++) {
-
-				System.out.print(map[i][j] + "\t");
-
-			}
-			System.out.println();
-		}
-		System.out.println();
 	}
 }

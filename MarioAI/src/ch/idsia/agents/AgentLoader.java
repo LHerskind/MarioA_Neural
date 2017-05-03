@@ -31,7 +31,7 @@ public final class AgentLoader {
 			if (name.endsWith(".py"))
 				agent = new AmiCoAgent(name);
 			else {
-				name = AStarAgent.class.getName();
+				name = HumanKeyboardAgent.class.getName();
 				agent = (Agent) Class.forName(name).newInstance();
 			}
 		} catch (ClassNotFoundException e) {

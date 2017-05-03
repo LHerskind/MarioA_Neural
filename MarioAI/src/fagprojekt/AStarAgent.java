@@ -269,7 +269,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (state.parent.parent != null) {
 			if (debugPos < 400) {
 				//ENEMY DEBUG
-				
 				if(!state.enemyList.isEmpty()) {
 					for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 						if(state.enemyList.size() > i) {
@@ -278,7 +277,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 						}
 					}
 				}
-				
 				//MARIO DEBUG
 				GlobalOptions.marioPos[debugPos][0] = (int) state.x;
 				GlobalOptions.marioPos[debugPos][1] = (int) state.y;
@@ -309,7 +307,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 			GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
 		}
-		
 		for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 			for(int j = 0; j < 400; j++) {
 				if(initial.enemyList.size() > i) {
@@ -318,7 +315,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 			}
 		}
-		
 		debugPos = 0;
 
 		while (!openSet.isEmpty()) {
@@ -330,8 +326,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			// Debugging for being stuck in loop
 			if (System.currentTimeMillis() - startTime > 28 || indexStateArray >= numberOfStates) {
-//				System.out.println("stuck in while-loop" + " Index = " + indexStateArray +
-//						" Open = " + openSet.size() + " Close = " + closed.size());
+				System.out.println("stuck in while-loop" + " Index = " + indexStateArray +
+						" Open = " + openSet.size() + " Close = " + closed.size());
 				return getRootState(state);
 			}
 			
@@ -363,7 +359,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		} else {
 			ce.setLevelScene(levelScene);
 			ce.toScene(marioFloatPos[0],marioFloatPos[1]);
-//			ce.print();
 		}
 		validatePrevArr();
 		
@@ -406,8 +401,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		 levelScene = environment.getLevelSceneObservationZ(1); // The normal
-//		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
+		// levelScene = environment.getLevelSceneObservationZ(1); // The normal
+		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 
@@ -433,5 +428,4 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void setName(String Name) {
 		this.name = Name;
 	}
-	
 }
