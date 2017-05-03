@@ -20,7 +20,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int cellSize = LevelScene.cellSize;
 	public final int maxRight = 16 * 11;
 	public final int searchDepth = maxRight;
-	public boolean firstScene = true;
+	public boolean firstScene;
 
 	private double speedPriority = 9;
 
@@ -51,6 +51,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public float[] prevEnemyYaArr;
 	public int[] prevEnemyFacingArr;
 	public boolean[] prevEnemyOnGroundArr;
+	public ArrayList<Float> prevEnemiesX;
 
 	private HashMap<Long, State> closed = new HashMap<>();
 
@@ -222,7 +223,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.parent = parent;
 
 				nextState.action = action;
-				nextState.marioHeight = parent.marioHeight;
+				nextState.height = parent.height;
 				nextState.onGround = parent.onGround;
 				nextState.invulnerable = parent.invulnerable;
 				nextState.mayJump = parent.mayJump;
@@ -234,7 +235,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.y = parent.y;
 				nextState.jumpTime = parent.jumpTime;
 				nextState.sliding = parent.sliding;
-				nextState.height = parent.height;
 				nextState.facing = parent.facing;
 				nextState.g = parent.g + (int) speedPriority;
 				nextState.penalty = parent.penalty;
@@ -385,18 +385,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		closed.put(initial.superHashCode(), initial);
 
 		// FOR DEBUGGING
-
+		// MARIO DEBUG
 		for (int i = 0; i < 400; i++) {
-			// MARIO DEBUG
 			GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 			GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
 		}
-
+		// ENEMY DEBUG
 		for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 			for(int j = 0; j < 400; j++) {
-				if(initial.enemyList.size() > i) {
-					GlobalOptions.enemyPos[i][j][0] = (int) initial.enemyList.get(i).x;
-					GlobalOptions.enemyPos[i][j][1] = (int) initial.enemyList.get(i).y;
+				if(enemiesFloatPos.length/3 > i) {
+					GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i*3+1] + marioFloatPos[0]);
+					GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i*3+2] + marioFloatPos[1]);
 				}
 			}
 		}
@@ -437,6 +436,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		for (int i = 0; i < action.length; ++i)
 			action[i] = false;
 		ce = new CustomEngine();
+		firstScene = true;
+		resetValues();
 	}
 
 	public boolean[] getAction() {
@@ -444,7 +445,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		
 		// If mario position is 32, it means we have started a new map in GamePlayTrack, and firstScene should be set true
 		if(marioFloatPos[0] == 32) {
-			firstScene = true;
+			reset();
 		}
 
 		if (firstScene) {
@@ -456,6 +457,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 //			ce.print();
 		}
 		validatePrevArr();
+		
+		if(checkFrozen()) ce.frozenEnemies = checkFrozen();
 //		print(); 
 		bestState = solve();
 		if (bestState == null) {
@@ -469,6 +472,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevInvulnerable = bestState.invulnerable;
 		prevSliding = bestState.sliding;
 		prevFacing = bestState.facing;
+
+		prevEnemiesX = new ArrayList<Float>();
+		for(int i = 0; i < enemiesFloatPos.length; i+=3) {
+			prevEnemiesX.add(enemiesFloatPos[i+1] + marioFloatPos[0]);
+		}
 		return bestState.action;
 	}
 
@@ -477,13 +485,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			prevEnemyFacingArr = new int[enemiesFloatPos.length / 3];
 			prevEnemyYaArr = new float[enemiesFloatPos.length / 3];
 			prevEnemyOnGroundArr = new boolean[enemiesFloatPos.length / 3];
-
+			
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				for (int j = 0; j < bestState.enemyList.size(); j++) {
 					Enemy e = bestState.enemyList.get(j);
 					if (e.x == (enemiesFloatPos[i + 1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
 						prevEnemyFacingArr[i / 3] = e.facing;
 						prevEnemyYaArr[i / 3] = e.ya;
+						
 						if(e.kind == 82)
 							prevEnemyOnGroundArr[i / 3] = e.onGround;
 						bestState.enemyList.remove(e);
@@ -494,7 +503,27 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 		}
 	}
-
+	public boolean checkFrozen() {
+		if(prevEnemiesX != null && prevEnemiesX.size() == enemiesFloatPos.length/3 && prevEnemiesX.size() != 0) {
+			int frozenNo = 0;
+			
+			ArrayList<Float> tempList = new ArrayList<Float>();
+			for(int i = 0; i < prevEnemiesX.size(); i++) {
+				tempList.add(prevEnemiesX.get(i));
+			}
+			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
+				for(int j = 0; j < tempList.size(); j++) {
+					if(tempList.get(j) == enemiesFloatPos[i+1] + marioFloatPos[0]) {
+						if(enemiesFloatPos[i] != 91) frozenNo++;
+						tempList.remove(j);
+						break;
+					}
+				}
+			}
+			if(frozenNo == prevEnemiesX.size()) return true;
+		} 
+		return false;
+	}
 	public int getBlock(int x, int y) {
 		return levelScene[y][x];
 	}
@@ -541,6 +570,20 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	public void setName(String Name) {
 		this.name = Name;
+	}
+	public void resetValues() {
+		prevEnemyFacingArr = null;
+		prevEnemyYaArr = null;
+		prevEnemyOnGroundArr = null;
+		prevEnemiesX = null;
+		prevJumpTime = 0;
+		prevXa = 0;
+		prevYa = 0;
+		prevYJumpSpeed = 0;
+		prevXJumpSpeed = 0;
+		prevInvulnerable = 0;
+		prevSliding = false;
+		prevFacing = 0;
 	}
 	
 }
