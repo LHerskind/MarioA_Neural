@@ -355,32 +355,6 @@ public class CustomEngine {
 			}
 		}
 	}
-
-	public void setCheatLevelScene(byte[][] levelScene) {
-		this.levelScene = levelScene;
-	}
-
-	public void setCheatScene(byte[][] levelScene) {
-		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < 19; j++) {
-				this.map[i][j] = levelScene[i][j];
-			}
-		}
-		mapX = 18;
-	}
-
-	public void toCheatScene(float x) {
-		if (x > highestX) {
-			highestX = x;
-			if ((int) ((highestX) / 16) > mapX - 15) {
-				mapX++;
-				for (int i = 0; i < 19; i++) {
-					map[i][mapX] = levelScene[i][17];
-				}
-			}
-		}
-	}
-	
 	void print() {
 
 		// System.out.println(marioFloatPos[1]+" : "+marioFloatPos[0]);

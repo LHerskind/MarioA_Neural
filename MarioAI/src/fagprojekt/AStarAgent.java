@@ -51,8 +51,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public float[] prevEnemyYaArr;
 	public int[] prevEnemyFacingArr;
 	public boolean[] prevEnemyOnGroundArr;
-	boolean cheatMap = true;
-	
+
 	private HashMap<Long, State> closed = new HashMap<>();
 
 	private PriorityQueue<State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -449,14 +448,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		if (firstScene) {
-			if(cheatMap) ce.setCheatScene(levelScene); 
-			else ce.setScene(levelScene);
+			ce.setScene(levelScene);
 			firstScene = false;
 		} else {
-			if(cheatMap) {
-				ce.setCheatLevelScene(levelScene);
-				ce.toCheatScene(marioFloatPos[0]);
-			}
 			ce.setLevelScene(levelScene);
 			ce.toScene(marioFloatPos[0],marioFloatPos[1]);
 //			ce.print();
@@ -522,9 +516,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
 		 levelScene = environment.getLevelSceneObservationZ(1); // The normal
-
-		if(cheatMap) 
-			 levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
+//		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 
