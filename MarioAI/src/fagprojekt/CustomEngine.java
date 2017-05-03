@@ -1,5 +1,6 @@
 package fagprojekt;
 
+import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
@@ -9,6 +10,7 @@ import ch.idsia.benchmark.mario.engine.sprites.Mario;
 public class CustomEngine {
 	// shooting
 	// private int fireBallsOnScreen = 0;
+	boolean frozenEnemies = false;
 
 	// Gravity and friction
 	public final float marioGravity = 1.0f;
@@ -39,10 +41,13 @@ public class CustomEngine {
 	public static final int BIT_ANIMATED = 1 << 7;
 
 	public void predictFuture(State state) {
-		for (int i = 0; i < state.enemyList.size(); i++) {
-			Enemy e = state.enemyList.get(i);
-			if (!e.dead) {
-				e.move(map);
+		
+		if(!frozenEnemies /*GlobalOptions.areFrozenCreatures*/) {
+			for (int i = 0; i < state.enemyList.size(); i++) {
+				Enemy e = state.enemyList.get(i);
+				if (!e.dead) {
+					e.move(map);
+				}
 			}
 		}
 		if (state.invulnerable > 0)
