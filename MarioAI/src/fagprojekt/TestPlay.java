@@ -25,7 +25,7 @@ s * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.idsia.scenarios;
+package fagprojekt;
 
 import java.util.Random;
 
@@ -53,7 +53,7 @@ import ch.idsia.tools.MarioAIOptions;
  * @version 1.0, May 5, 2009
  */
 
-public final class Play {
+public final class TestPlay {
 	/**
 	 * <p>
 	 * An entry point of the class.
@@ -67,30 +67,21 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
-
 	public static void main(String[] args) {
 
-		if (all) {
-				manyMaps(50, 7, true);
-		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
 			// marioAIOptions.setTimeLimit(-1);
 			// marioAIOptions.setLevelType(2);
-			final BasicTask basicTask = new BasicTask(marioAIOptions);
+			final TestTask basicTask = new TestTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
 			marioAIOptions.setLevelDifficulty(0);
-//			marioAIOptions.setMarioMode(0);
 //			marioAIOptions.setEnemies("off");
-		    marioAIOptions.setArgs("-lf on -lg on");
+//		    marioAIOptions.setArgs("-lf on -lg on");
 
 			int seed = new Random().nextInt(400);
-			System.out.println(seed);
-			// REMEMBER 270
-
-//			marioAIOptions.setLevelRandSeed(seed);
+			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -98,48 +89,6 @@ public final class Play {
 			System.out.println(
 					"\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
 			System.exit(0);
-		}
-	}
-
-	public static void manyMaps(int howMany, int difficulty, boolean visualize) {
-		int lost = 0;
-		int[] lostMaps = new int[howMany];
-		String[] lostReason = new String[howMany];
-
-		for (int i = 0; i < howMany; i++) {
-			final MarioAIOptions marioAIOptions = new MarioAIOptions();
-			marioAIOptions.setVisualization(visualize);
-			// marioAIOptions.setTimeLimit(-1);
-			if (marioAIOptions.isVisualization()) {
-				marioAIOptions.setFPS(24);
-			}
-			final BasicTask basicTask = new BasicTask(marioAIOptions);
-			if (!GlobalOptions.isScale2x) {
-				GlobalOptions.changeScale2x();
-			}
-			marioAIOptions.setLevelDifficulty(difficulty);
-//			 marioAIOptions.setEnemies("off");
-			marioAIOptions.setMarioMode(2);
-			marioAIOptions.setLevelRandSeed(i);
-			basicTask.runSingleEpisode(1);
-			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
-				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
-					lostMaps[lost] = i;
-					lostReason[lost++] = basicTask.getEvaluationInfo().Memo;
-				}
-			}
-			if (i % 10 == 0) {
-				System.out.print(i + " , " + lost + " : ");
-			}
-		}
-		System.out.println();
-		if (lost == 0) {
-			System.out.println("Wins all the way");
-		}
-		for (int i = 0; i < lost; i++) {
-			System.out.println("LOST: " + lostMaps[i] + " " + lostReason[i]);
-		}
-		System.exit(0);
 	}
 
 }

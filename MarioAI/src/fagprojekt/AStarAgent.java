@@ -18,11 +18,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	public final int maxRight = 16 * 11;
+	public final int maxRight = 16 * 17;
 	public final int searchDepth = maxRight;
 	public boolean firstScene;
 	boolean cheatMap = true;
 	private double speedPriority = 9;
+	private State testState;
 
 	private int numberOfStates = 4000;
 	private State[] stateArray = new State[numberOfStates];
@@ -243,7 +244,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.jumpTime = parent.jumpTime;
 				nextState.sliding = parent.sliding;
 				nextState.facing = parent.facing;
-				nextState.g = parent.g + (int) speedPriority;
 				nextState.penalty = parent.penalty;
 
 				nextState.enemyList = new ArrayList<Enemy>();
@@ -263,7 +263,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 
 				ce.predictFuture(nextState);
-
+				nextState.g = parent.g  + (int) speedPriority;
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
 
 				return nextState;
@@ -349,6 +349,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		action[Mario.KEY_SPEED] = speed;
 		return action;
 	}
+	
+	public State getTestState(){
+		return testState;
+	}
 
 	public State getRootState(State state) {
 		if (state.parent == null) {
@@ -412,6 +416,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
+				testState = state;
 				return getRootState(state);
 			}
 
@@ -471,7 +476,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			} else {
 				ce.toScene(marioFloatPos[0], marioFloatPos[1]);
 			}
-			ce.print();
+//			ce.print();
 		}
 		validatePrevArr();
 
