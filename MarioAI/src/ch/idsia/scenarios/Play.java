@@ -67,7 +67,7 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all =true;
 
 	public static void main(String[] args) {
 
@@ -90,7 +90,7 @@ public final class Play {
 			System.out.println(seed);
 			// REMEMBER 270
 
-//			marioAIOptions.setLevelRandSeed(seed);
+			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -98,6 +98,7 @@ public final class Play {
 			System.out.println(
 					"\nCustom : \n" + basicTask.getEnvironment().getEvaluationInfo().computeWeightedFitness(m));
 			System.exit(0);
+
 		}
 	}
 
