@@ -25,25 +25,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.idsia.benchmark.tasks;
+package fagprojekt;
+
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Vector;
 
 import ch.idsia.agents.Agent;
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.environments.Environment;
 import ch.idsia.benchmark.mario.environments.MarioEnvironment;
+import ch.idsia.benchmark.tasks.Task;
 import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.MarioAIOptions;
-import ch.idsia.tools.punj.PunctualJudge;
 import ch.idsia.utils.statistics.StatisticalSummary;
-
-import java.util.Vector;
+import fagprojekt.AStarAgent.State;
 
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy, sergey@idsia.ch Date: Mar
  * 14, 2010 Time: 4:47:33 PM
  */
 
-public class BasicTask implements Task {
+public class TestTask implements Task {
 	protected final static Environment environment = MarioEnvironment.getInstance();
 	private Agent agent;
 	protected MarioAIOptions options;
@@ -53,7 +56,7 @@ public class BasicTask implements Task {
 
 	private Vector<StatisticalSummary> statistics = new Vector<StatisticalSummary>();
 
-	public BasicTask(MarioAIOptions marioAIOptions) {
+	public TestTask(MarioAIOptions marioAIOptions) {
 		this.setOptionsAndReset(marioAIOptions);
 	}
 
@@ -65,6 +68,12 @@ public class BasicTask implements Task {
 		long c = System.currentTimeMillis();
 		for (int r = 0; r < repetitionsOfSingleEpisode; ++r) {
 			this.reset();
+			AStarAgent aStarAgent = (AStarAgent) agent;
+			int tickNumber = 0;
+			int counterFalse = -1;
+			ArrayList<Float> testStatesX = new ArrayList<Float>();
+			ArrayList<Float> testStatesY = new ArrayList<Float>();
+
 			while (!environment.isLevelFinished()) {
 				environment.tick();
 				if (!GlobalOptions.isGameplayStopped) {
@@ -72,15 +81,44 @@ public class BasicTask implements Task {
 					agent.integrateObservation(environment);
 					agent.giveIntermediateReward(environment.getIntermediateReward());
 
+					if (tickNumber % 10 == 0) {
+						State testState = aStarAgent.getTestState();
+						testStatesX.clear();
+						testStatesY.clear();
+						if (testState != null) {
+							while (testState.parent != null) {
+								testStatesX.add(testState.x);
+								testStatesY.add(testState.y);
+								testState = testState.parent;
+							}
+							while (testStatesX.size() > 10) {
+								testStatesX.remove(0);
+								testStatesY.remove(0);
+							}
+						}
+					}
+					tickNumber++;
+
+					if (!testStatesX.isEmpty()) {
+						if(!(environment.getMarioFloatPos()[0] == testStatesX.get(testStatesX.size() - 1) && environment.getMarioFloatPos()[1] == testStatesY.get(testStatesY.size() - 1))){
+							System.out.println(environment.getMarioFloatPos()[0] + " " + testStatesX.get(testStatesX.size()-1));
+							counterFalse++;
+						}
+						testStatesX.remove(testStatesX.size() - 1);
+						testStatesY.remove(testStatesY.size() - 1);
+					}
+
 					boolean[] action = agent.getAction();
 					if (System.currentTimeMillis() - c > COMPUTATION_TIME_BOUND)
 						return false;
 					// System.out.println("action = " +
 					// Arrays.toString(action));
 					// environment.setRecording(GlobalOptions.isRecording);
+
 					environment.performAction(action);
 				}
 			}
+			System.out.println(counterFalse + " / " + tickNumber);
 			environment.closeRecorder(); // recorder initialized in
 											// environment.reset
 			environment.getEvaluationInfo().setTaskName(name);

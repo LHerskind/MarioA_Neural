@@ -70,7 +70,7 @@ public class BasicMarioAIAgent implements Agent {
 	// Use them to get more detailed or less detailed description of the level.
 	// for information see documentation for the benchmark <link:
 	// marioai.org/marioaibenchmark/zLevels
-	int zLevelScene = 1;
+	int zLevelScene = 0;
 	int zLevelEnemies = 0;
 
 	public BasicMarioAIAgent(String s) {

@@ -196,8 +196,8 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void draw(float x, float y) {
 		if (debug) {
-			GlobalOptions.Pos[debugPos][0] = (int) (x);
-			GlobalOptions.Pos[debugPos][1] = (int) (y);
+			GlobalOptions.marioPos[debugPos][0] = (int) (x);
+			GlobalOptions.marioPos[debugPos][1] = (int) (y);
 			debugPos++;
 			if (debugPos >= 600) {
 				debugPos = 0;
@@ -207,7 +207,7 @@ public class PFAgent extends BasicMarioAIAgent {
 
 	private void getBestMove() {
 		debugPos = 0;
-		GlobalOptions.Pos = new int[600][2];
+		GlobalOptions.marioPos = new int[600][2];
 		while (bestMove.getParent().getParent() != null) {
 			draw(bestMove.getState().getX(), bestMove.getState().getY());
 			bestMove = bestMove.getParent();

@@ -3,35 +3,33 @@ package fagprojekt;
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
-import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import fagprojekt.AStarAgent.State;
+import fagprojekt.Enemy;
+import ch.idsia.benchmark.mario.engine.sprites.Mario;
 
 public class CustomEngine {
-	// Jumping
-	public final int jumpPower = 7;
-	public int jumpTime = jumpPower;
-	public float xJumpSpeed;
-	public float yJumpSpeed;
+	// shooting
+	// private int fireBallsOnScreen = 0;
+	boolean frozenEnemies = false;
+
 	// Gravity and friction
 	public final float marioGravity = 1.0f;
 	public final float GROUND_INERTIA = 0.89f; // Need this?
 	public final float AIR_INERTIA = 0.89f; // Need this?
 	// Mario dimensions
 	public final int marioWidth = 4;
-	// Make small mario and ducking mario compatible with height
-	public final int marioHeight = 24;
+
 	// General dimensions
-	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
-	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
-	public final int cellSize = LevelScene.cellSize;
+	public final int cellSize = 16;
 	// Map
-	public byte[][] mergedObservation;
+
 	private byte[][] map = new byte[19][600];
 	private int mapX = 0;
 	private float highestX = 0;
-	// DEBUG
+	// UTILITIES
 	public boolean debug = true;
-	// TEMPORARY
+
+	// CHEATER-COLLISION
 	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
 	public static final int BIT_BLOCK_UPPER = 1 << 0;
 	public static final int BIT_BLOCK_ALL = 1 << 1;
@@ -42,34 +40,52 @@ public class CustomEngine {
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
 
-	public void updateMap(byte[][] mergedObservation) {
-		this.mergedObservation = mergedObservation;
-	}
-
 	public void predictFuture(State state) {
+		
+		if(!frozenEnemies /*GlobalOptions.areFrozenCreatures*/) {
+			for (int i = 0; i < state.enemyList.size(); i++) {
+				Enemy e = state.enemyList.get(i);
+				if (!e.dead) {
+					e.move(map);
+				}
+			}
+		}
+		if (state.invulnerable > 0)
+			state.invulnerable--;
+		state.wasOnGround = state.onGround;
 		float sideWaysSpeed = state.action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
-		/*
-		 * // FOR DUCKING if (state.onGround) { ducking = keys[KEY_DOWN] &&
-		 * large; }
-		 */
-
+		if (state.xa > 2) {
+			state.facing = 1;
+		}
+		if (state.xa < -2) {
+			state.facing = -1;
+		}
 		if (state.action[Mario.KEY_JUMP] || (state.jumpTime < 0 && !state.onGround && !state.sliding)) {
 
 			if (state.jumpTime < 0) {
-				state.xa = xJumpSpeed;
-				state.ya = -state.jumpTime * yJumpSpeed;
+				state.xa = state.xJumpSpeed;
+				state.ya = -state.jumpTime * state.yJumpSpeed;
 				state.jumpTime++;
 			} else if (state.onGround && state.mayJump) {
-				xJumpSpeed = 0;
-				yJumpSpeed = -1.9f;
+				state.xJumpSpeed = 0;
+				state.yJumpSpeed = -1.9f;
 				state.jumpTime = 7;
-				state.ya = state.jumpTime * yJumpSpeed;
+				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.onGround = false;
 				state.sliding = false;
 
+			}else if (state.sliding && state.mayJump) {
+				state.xJumpSpeed = -state.facing * 6.0f;
+				state.yJumpSpeed = -2.0f;
+				state.jumpTime = -6;
+				state.xa = state.xJumpSpeed;
+				state.ya = -state.jumpTime * state.yJumpSpeed;
+				state.onGround = false;
+				state.sliding = false;
+				state.facing = -state.facing;
 			} else if (state.jumpTime > 0) {
-				state.xa += xJumpSpeed;
-				state.ya = state.jumpTime * yJumpSpeed;
+				state.xa+=state.xJumpSpeed;
+				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.jumpTime--;
 
 			} else if (state.jumpTime == 0) { // SELF-MADE
@@ -81,32 +97,38 @@ public class CustomEngine {
 		}
 
 		if (state.action[Mario.KEY_LEFT]/* && !ducking */) {
+			if (state.facing == 1)
+				state.sliding = false;
 			state.xa -= sideWaysSpeed;
+			if (state.jumpTime >= 0)
+				state.facing = -1;
 		}
 
 		if (state.action[Mario.KEY_RIGHT] /* && !ducking */) {
+			if (state.facing == -1)
+				state.sliding = false;
 			state.xa += sideWaysSpeed;
+			if (state.jumpTime >= 0)
+				state.facing = 1;
 		}
-
+		if ((!state.action[Mario.KEY_LEFT] && !state.action[Mario.KEY_RIGHT]) || state.ya < 0 || state.onGround) {
+			state.sliding = false;
+		}
 		/*
-		 * //FIREBALLS if (keys[KEY_SPEED] && ableToShoot && Mario.fire &&
-		 * levelScene.fireballsOnScreen < 2) { levelScene.addSprite(new
-		 * Fireball(levelScene, x + facing * 6, y - 20, facing)); } ableToShoot
-		 * = !keys[KEY_SPEED];
+		 * if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire
+		 * && fireBallsOnScreen < 2) { fireBallsOnScreen++; // MAKE FIREBALL
+		 * CLASS AND CREATE FIREBALL OBJECT HERE }
 		 */
 
+		state.ableToShoot = !state.action[Mario.KEY_SPEED];
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
-		/*
-		 * // WHAT IS RUNTIME?! runTime += (Math.abs(state.xa)) + 5; if
-		 * (Math.abs(state.xa) < 0.5f) { // runTime = 0; state.xa = 0; }
-		 */
+		if(state.sliding) state.ya *=0.5f;
 		state.onGround = false;
-		move(state, state.xa, 0);
-		move(state, 0, state.ya);
+		move(state, state.xa, 0); // marioMove
+		move(state, 0, state.ya); // marioMove
 
-		// GAPS - VERY IMPORTANT!
-		if (state.y > LevelScene.level.height * LevelScene.cellSize + LevelScene.cellSize)
-			state.penalty(1000);
+		if (state.y >= 15 * cellSize + cellSize)
+			state.penalty(2000);
 
 		if (state.x < 0) {
 			state.x = 0;
@@ -122,6 +144,15 @@ public class CustomEngine {
 		if (!state.onGround) {
 			state.ya += 3;
 		}
+		for (int i = 0; i < state.enemyList.size(); i++) {
+			Enemy e = state.enemyList.get(i);
+			if (!e.dead) {
+				e.collideCheck(state);
+				if (state.stomp)
+					stomp(state, e);
+			}
+		}
+		
 	}
 
 	private boolean move(State state, float xa, float ya) {
@@ -158,25 +189,25 @@ public class CustomEngine {
 				collide = true;
 		}
 		if (ya < 0) {
-			if (isBlocking(state, state.x + xa, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa, state.y + ya - state.height, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state, state.x + xa - marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
-			else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			else if (collide || isBlocking(state, state.x + xa + marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
 		}
 		if (xa > 0) {
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya - state.height / 2, xa, ya))
 				collide = true;
 			if (isBlocking(state, state.x + xa + marioWidth, state.y + ya, xa, ya))
 				collide = true;
 		}
 		if (xa < 0) {
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - state.height, xa, ya))
 				collide = true;
-			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - marioHeight / 2, xa, ya))
+			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya - state.height / 2, xa, ya))
 				collide = true;
 			if (isBlocking(state, state.x + xa - marioWidth, state.y + ya, xa, ya))
 				collide = true;
@@ -193,8 +224,8 @@ public class CustomEngine {
 			}
 			if (ya < 0) {
 
-				state.y = (int) ((state.y - marioHeight) / 16) * 16 + marioHeight;
-				jumpTime = 0;
+				state.y = (int) ((state.y - state.height) / 16) * 16 + state.height;
+				state.jumpTime = 0;
 				state.ya = 0;
 			}
 			if (ya > 0) {
@@ -210,32 +241,50 @@ public class CustomEngine {
 	}
 
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
-		int x = (int) (_x / 16);
+		int x = (int) (_x / 16); // TODO: Lidt gl her
 		int y = (int) (_y / 16);
-		if (x == (int) (state.x / 16) && y == (int) (state.y / 16))
+
+		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) {
 			return false;
-
+		}
 		// CHEATER COLLISION!
-		/*
-		 * byte block = LevelScene.level.getBlock(x, y); boolean blocking =
-		 * ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0; blocking |= (ya
-		 * > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		 * blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) &
-		 * BIT_BLOCK_LOWER) > 0; return blocking;
-		 */
-
+		
+		  byte block = LevelScene.level.getBlock(x, y);
+		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		  blocking |= (ya> 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		  return blocking;
+		 
+		// CORRECT COLLISION
+		  /*
 		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
 			byte block = map[y][x];
+			boolean blocking = block < 0;
 			if (ya <= 0) {
 				if (block == -62) {
 					return false;
 				}
 			}
-			return block < 0;
+
+			return blocking;
 		} else {
 			return false;
 		}
+		*/
+	}
 
+	public void stomp(State state, final Enemy enemy) {
+		float targetY = enemy.y - enemy.height / 2;
+		move(state, 0, targetY - state.y);
+		state.xJumpSpeed = 0;
+		state.yJumpSpeed = -1.9f;
+
+		state.jumpTime = 8;
+		state.ya = state.jumpTime * state.yJumpSpeed;
+		state.invulnerable = 1;
+		state.onGround = false;
+		state.sliding = false;
+		state.stomp = false;
 	}
 
 	public void printOnGoing(float x, float y) {
@@ -258,12 +307,65 @@ public class CustomEngine {
 	}
 
 	private byte[][] levelScene;
+	private int currY;
 
 	public void setLevelScene(byte[][] levelScene) {
 		this.levelScene = levelScene;
 	}
 
 	public void setScene(byte[][] levelScene) {
+		for (int i = 7; i < 19; i++) {
+			for (int j = 7; j < 19; j++) {
+				this.map[i - 7][j - 7] = levelScene[i][j];
+			}
+		}
+		mapX = 18 - 7;
+		currY = 2;
+	}
+
+	public void toScene(float x, float y) {
+		if (x > highestX) {
+			highestX = x;
+			if ((int) ((highestX) / 16) > mapX - 9) {
+				mapX++;
+				for (int i = 0; i < 19; i++) {
+					if ((int) (y / 16) + i - 9 >= 0 && ((int) (y / 16) + i - 9) < 19) {
+						map[(int) (y / 16) + i - 9][mapX] = levelScene[i][18];
+					}
+				}
+			}
+		}
+
+		if ((int) y / 16 > currY) {
+			currY = (int) y / 16;
+			if ((int) y / 16 + 9 < 19) {
+
+				for (int i = 0; i < 19; i++) {
+					if ((int) (x / 16) - (9 - i) >= 0) {
+						map[(int) (y / 16) + 9][i + (int) (x / 16) - 9] = levelScene[18][i];
+					}
+				}
+			}
+
+		} else if ((int) y / 16 < currY) {
+			currY = (int) y / 16;
+			if ((int) (y / 16) - 9 >= 0) {
+
+				for (int i = 0; i < 19; i++) {
+					if ((int) (x / 16) - (9 - i) >= 0) {
+						map[(int) (y / 16) - 9][i + (int) (x / 16) - 9] = levelScene[0][i];
+
+					}
+				}
+			}
+		}
+	}
+
+	public void setCheatLevelScene(byte[][] levelScene) {
+		this.levelScene = levelScene;
+	}
+
+	public void setCheatScene(byte[][] levelScene) {
 		for (int i = 0; i < 19; i++) {
 			for (int j = 0; j < 19; j++) {
 				this.map[i][j] = levelScene[i][j];
@@ -272,7 +374,7 @@ public class CustomEngine {
 		mapX = 18;
 	}
 
-	public void toScene(float x) {
+	public void toCheatScene(float x) {
 		if (x > highestX) {
 			highestX = x;
 			if ((int) ((highestX) / 16) > mapX - 15) {
@@ -283,5 +385,18 @@ public class CustomEngine {
 			}
 		}
 	}
+	void print() {
 
+		// System.out.println(marioFloatPos[1]+" : "+marioFloatPos[0]);
+		// System.out.println(mapX);
+		for (int i = 0; i < 19; i++) {
+			for (int j = 0; j < mapX; j++) {
+
+				System.out.print(map[i][j] + "\t");
+
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
 }
