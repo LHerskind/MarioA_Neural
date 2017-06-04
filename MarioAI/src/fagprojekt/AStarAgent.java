@@ -54,7 +54,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public boolean[] prevEnemyOnGroundArr;
 	public ArrayList<Float> prevEnemiesX;
 	public ArrayList<Enemy> enemyList;
-
+	
+	
 	private HashMap<Long, State> closed = new HashMap<>();
 
 	private PriorityQueue<State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -451,7 +452,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		closed.put(initial.superHashCode(), initial);
 
 		
-		updateEnemyList(initial); // import enemyVarList into enemyList
+//		updateEnemyList(initial); // import enemyVarList into enemyList
 		
 		// FOR DEBUGGING
 		// MARIO DEBUG
@@ -561,6 +562,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 			prevEnemiesX.add(enemiesFloatPos[i + 1] + marioFloatPos[0]);
 		}
+		updateEnemyList(bestState);
 		return bestState.action;
 	}
 
