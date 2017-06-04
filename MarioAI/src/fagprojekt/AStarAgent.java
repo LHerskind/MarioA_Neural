@@ -146,6 +146,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public boolean stomp;
 
 		public State() {
+			enemyVarList = new ArrayList<Float>();
 		}
 
 		public State(boolean lala) {
@@ -179,8 +180,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.height = marioMode > 0 ? 24 : 12;
 
 			//this.enemyList = new ArrayList<Enemy>();
-			
-			
+
 			
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i + 1]);
@@ -216,7 +216,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
 				}
 
-				
 				if (kind == 98) {
 					// Blue enemies ya value is set according to x, so it doesnt
 					// matter at all, thus set to 0
@@ -270,6 +269,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 
 			}
+
 		}
 
 		public long superHashCode() {
@@ -309,7 +309,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.facing = parent.facing;
 				nextState.penalty = parent.penalty;
 				
-				nextState.enemyVarList = (ArrayList<Float>) parent.enemyVarList.clone();
+				
+				nextState.enemyVarList.addAll(parent.enemyVarList);
+				
 /*
 				//nextState.enemyList = new ArrayList<Enemy>();
 				for (int i = 0; i < parent.enemyVarList.length; i=+7) {
@@ -334,11 +336,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 */
-
+				
 				updateEnemyList(nextState);				// import enemyVarList into enemyList
 				ce.predictFuture(nextState, enemyList);
+				System.out.println("----------");
+				System.out.println("1 :"+nextState.enemyVarList.size()+"  "+parent.enemyVarList.size());
 				updateEnemyVarList(nextState); 			// import enemyList into enemyVarList
-				
+				System.out.println("2 :"+nextState.enemyVarList.size()+"  "+parent.enemyVarList.size());
 				nextState.g = parent.g  + (int) speedPriority;
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
 
@@ -564,6 +568,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 //		if (checkFrozen())
 //			ce.frozenEnemies = checkFrozen();
 		// print();
+		
 		bestState = solve();
 		if (bestState == null) {
 			return createAction(false, false, false, false);
@@ -639,7 +644,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	public void updateEnemyList(State state){
 		
-		if(enemyList.size()!=0) enemyList.clear();
+		enemyList.clear();
 		
 		int blueBeetleCount=0;
 		int bulletCount=0;
@@ -647,18 +652,19 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		int normalEnemyCount=0;
 		
 		for (int i = 0; i < state.enemyVarList.size(); i+=7) {
-
+			
 			if(state.enemyVarList.get(i+2)==0)return; //Stops when there's not more enemies.
 			
 			boolean dead = (state.enemyVarList.get(i+5)==1) ? true : false;
 			if (Math.round(state.enemyVarList.get(i+2)) == 98) {
-				try{
+//				try{
+
 					blueBeetleArray[blueBeetleCount].setVariables(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), 0,Math.round(state.enemyVarList.get(i+4)),dead);
 					enemyList.add(blueBeetleArray[blueBeetleCount]);
 					blueBeetleCount++;
-				} catch (IndexOutOfBoundsException e) {
-				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
-				} 
+//				} catch (IndexOutOfBoundsException e) {
+//				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
+//				} 
 				
 			} else if (Math.round(state.enemyVarList.get(i+2)) == 84) {
 				try{
