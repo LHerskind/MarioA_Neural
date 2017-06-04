@@ -1,5 +1,7 @@
 package fagprojekt;
 
+import java.util.ArrayList;
+
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
@@ -40,11 +42,11 @@ public class CustomEngine {
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
 
-	public void predictFuture(State state) {
+	public void predictFuture(State state, ArrayList<Enemy> enemyList) {
 		
 		if(!frozenEnemies /*GlobalOptions.areFrozenCreatures*/) {
-			for (int i = 0; i < state.enemyList.size(); i++) {
-				Enemy e = state.enemyList.get(i);
+			for (int i = 0; i < enemyList.size(); i++) {
+				Enemy e = enemyList.get(i);
 				if (!e.dead) {
 					e.move(map);
 				}
@@ -144,8 +146,8 @@ public class CustomEngine {
 		if (!state.onGround) {
 			state.ya += 3;
 		}
-		for (int i = 0; i < state.enemyList.size(); i++) {
-			Enemy e = state.enemyList.get(i);
+		for (int i = 0; i < enemyList.size(); i++) {
+			Enemy e = enemyList.get(i);
 			if (!e.dead) {
 				e.collideCheck(state);
 				if (state.stomp)

@@ -83,7 +83,7 @@ public final class Play {
 			marioAIOptions.setVisualization(true);
 			marioAIOptions.setLevelDifficulty(0);
 //			marioAIOptions.setMarioMode(0);
-//			marioAIOptions.setEnemies("off");
+			marioAIOptions.setEnemies("off");
 		    marioAIOptions.setArgs("-lf on -lg on");
 
 			int seed = new Random().nextInt(400);
