@@ -35,5 +35,9 @@ public class NormalEnemy extends Enemy {
 			ya = -10;
 		}
 	}
+	public void setVariables(float x, float y, byte kind, float ya, int facing, boolean dead, boolean onGround){
+		super.setVariables(x, y, kind, ya, facing, dead);
+		this.onGround = onGround;
+	}
 
 }

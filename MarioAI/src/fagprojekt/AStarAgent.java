@@ -54,7 +54,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public boolean[] prevEnemyOnGroundArr;
 	public ArrayList<Float> prevEnemiesX;
 	public ArrayList<Enemy> enemyList;
-	
+	private int numberOfEnemies = 20;
+	private BlueBeetle[] blueBeetleArray = new BlueBeetle[numberOfEnemies];
+	private Bullet[] bulletArray = new Bullet[numberOfEnemies];
+	private Flower[] flowerArray = new Flower[numberOfEnemies];
+	private NormalEnemy[] normalEnemyArray = new NormalEnemy[numberOfEnemies*4];
 	
 	private HashMap<Long, State> closed = new HashMap<>();
 
@@ -75,6 +79,21 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			 */
 			stateArray[i] = state;
 		}
+		for (int i = 0; i < numberOfEnemies; i++) {
+			BlueBeetle blueBeetle = new BlueBeetle(0, 0, (byte)0, 0, 0, false);
+			Bullet bullet = new Bullet(0, 0, (byte)0, 0, 0, false);
+			Flower flower = new Flower(0, 0, (byte)0, 0, 0, false);
+			
+			blueBeetleArray[i] = blueBeetle;
+			bulletArray[i] = bullet;
+			flowerArray[i] = flower;
+		}
+		for (int i = 0; i < numberOfEnemies*4; i++) {
+			NormalEnemy normalEnemy= new NormalEnemy(0, 0, (byte)0, 0, 0, false);
+			
+			normalEnemyArray[i] = normalEnemy;
+		}
+		
 		enemyList = new ArrayList<Enemy>();
 		reset();
 	}
@@ -622,26 +641,64 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		
 		if(enemyList.size()!=0) enemyList.clear();
 		
+		int blueBeetleCount=0;
+		int bulletCount=0;
+		int flowerCount=0;
+		int normalEnemyCount=0;
+		
 		for (int i = 0; i < state.enemyVarList.size(); i+=7) {
 
 			if(state.enemyVarList.get(i+2)==0)return; //Stops when there's not more enemies.
 			
 			boolean dead = (state.enemyVarList.get(i+5)==1) ? true : false;
 			if (Math.round(state.enemyVarList.get(i+2)) == 98) {
-				enemyList.add(new BlueBeetle(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), 0,Math.round(state.enemyVarList.get(i+4)),dead));
+				try{
+					blueBeetleArray[blueBeetleCount].setVariables(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), 0,Math.round(state.enemyVarList.get(i+4)),dead);
+					enemyList.add(blueBeetleArray[blueBeetleCount]);
+					blueBeetleCount++;
+				} catch (IndexOutOfBoundsException e) {
+				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
+				} 
+				
 			} else if (Math.round(state.enemyVarList.get(i+2)) == 84) {
-				enemyList.add(new Bullet(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3),Math.round(state.enemyVarList.get(i+4)),dead));
+				try{
+					bulletArray[bulletCount].setVariables(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3),Math.round(state.enemyVarList.get(i+4)),dead);
+					enemyList.add(bulletArray[bulletCount]);
+					bulletCount++;
+				} catch (IndexOutOfBoundsException e) {
+				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
+				} 
+				
 			} else if (Math.round(state.enemyVarList.get(i+2)) == 91) {
-				enemyList.add(new Flower(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3),Math.round(state.enemyVarList.get(i+4)),dead));
+				try{
+					flowerArray[flowerCount].setVariables(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3),Math.round(state.enemyVarList.get(i+4)),dead);
+					enemyList.add(flowerArray[flowerCount]);
+					flowerCount++;
+				} catch (IndexOutOfBoundsException e) {
+				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
+				} 
+				
 			} else if (Math.round(state.enemyVarList.get(i+2)) == 82) {
 				boolean onGround = (state.enemyVarList.get(i+6)==1) ? true : false;
-				enemyList.add(new NormalEnemy(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3),Math.round(state.enemyVarList.get(i+4)) ,dead,onGround));
+				try{
+					normalEnemyArray[normalEnemyCount].setVariables(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3),Math.round(state.enemyVarList.get(i+4)),dead,onGround);
+					enemyList.add(normalEnemyArray[normalEnemyCount]);
+					normalEnemyCount++;
+				} catch (IndexOutOfBoundsException e) {
+				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
+				} 
 			} else {
-				enemyList.add(new NormalEnemy(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3), Math.round(state.enemyVarList.get(i+4)),dead));
+				try{
+					normalEnemyArray[normalEnemyCount].setVariables(state.enemyVarList.get(i), state.enemyVarList.get(i+1),(byte) Math.round(state.enemyVarList.get(i+2)), state.enemyVarList.get(i+3), Math.round(state.enemyVarList.get(i+4)),dead);
+					enemyList.add(normalEnemyArray[normalEnemyCount]);
+					normalEnemyCount++;
+				} catch (IndexOutOfBoundsException e) {
+				    System.err.println("IndexOutOfBoundsException: " + e.getMessage());
+				} 
 			}
 		}
 	}
-	
+
 	public void updateEnemyVarList(State state){
 		state.enemyVarList.clear();
 		for (int i = 0; i < enemyList.size(); i++) {

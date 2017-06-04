@@ -236,6 +236,28 @@ public abstract class Enemy {
 	    
 	}
 
+	public void setVariables(float x, float y, byte kind, float ya, int facing, boolean dead){
+		this.dead = dead;
+		this.facing = facing;
+		this.kind = kind;
+		this.x = x;
+		this.y = y;
+		this.ya = ya;
+		
+		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED ||
+				kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_WAVE_GOOMBA)
+			this.winged = true;
+		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY ||
+				kind == KIND_SPIKY_WINGED) 
+			this.height = 12;
+		else this.height = 24;
+		
+		yaa = 2;
+
+		avoidCliffs = kind == KIND_RED_KOOPA;
+		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
+	}
+	
 	public boolean isBlocking(byte[][] map, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
