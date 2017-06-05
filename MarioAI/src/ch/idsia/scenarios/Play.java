@@ -72,7 +72,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-				manyMaps(50, 7, true);
+				manyMaps(50, 0, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -112,7 +112,7 @@ public final class Play {
 			marioAIOptions.setVisualization(visualize);
 			// marioAIOptions.setTimeLimit(-1);
 			if (marioAIOptions.isVisualization()) {
-				marioAIOptions.setFPS(24);
+				marioAIOptions.setFPS(12);
 			}
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			if (!GlobalOptions.isScale2x) {
