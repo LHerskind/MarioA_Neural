@@ -133,7 +133,7 @@ public class CustomEngine {
 			for(int i = 1; i < 15; i++){
 				if(current.parent != null){
 					current = current.parent;
-					current.penalty( (int)Math.round(2000 / (Math.pow(i*2, 2))));
+					current.penalty( (int)Math.round(2000 / (Math.pow(i*2, 3))));
 				}
 			}
 		}

@@ -178,11 +178,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
 				}
-				if (prevEnemyYaArr != null && prevEnemyXArr.length >= i / 3 && prevEnemyYaArr[i / 3] != 0) {
+				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0) {
 					EnemyYa = prevEnemyYaArr[i / 3];
 				}
-				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr.length >= i / 3
-						&& prevEnemyOnGroundArr[i / 3]) {
+				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3]) {
 					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
 				}
 
@@ -327,7 +326,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				// if (successor.penalty < 2000) {// + marioMode * 500) {
+				// if (successor.penalty < 00) {// + marioMode * 500) {
 				openSet.add(successor);
 				// }
 				closed.put(successor.superHashCode(), successor);
@@ -398,6 +397,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
+				// System.out.println("SHIT " + indexStateArray);
 				return getRootState(state);
 			}
 
