@@ -337,12 +337,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 */
-				System.out.println("-----");
-				System.out.println(nextState.enemyVarList[3]);
+
 				updateEnemyList(nextState);				// import enemyVarList into enemyList
 				ce.predictFuture(nextState, enemyList);
 				updateEnemyVarList(nextState); 			// import enemyList into enemyVarList
-				System.out.println(nextState.enemyVarList[3]);
+				
 				nextState.g = parent.g  + (int) speedPriority;
 				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
 
@@ -590,7 +589,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 			prevEnemiesX.add(enemiesFloatPos[i + 1] + marioFloatPos[0]);
 		}
-//		updateEnemyList(bestState);
+		updateEnemyList(bestState);
 		return bestState.action;
 	}
 
@@ -711,7 +710,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	public void updateEnemyVarList(State state){
 		state.enemyVarIndex = 0;
-		for (int i = 0; i < enemyList.size(); i++) {
+		for (int i = 0; i < enemyList.size(); i++) { 
+			
 			float dead = enemyList.get(i).dead ? 1 : 0;
 			float onGround = enemyList.get(i).onGround ? 1 : 0;
 			state.enemyVarList[i*7]=enemyList.get(i).x;
@@ -723,6 +723,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			state.enemyVarList[i*7+6]=onGround;
 			state.enemyVarIndex+=7;
 		}
+
 	}
 	
 	/*
