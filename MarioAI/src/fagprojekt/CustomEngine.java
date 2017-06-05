@@ -127,8 +127,16 @@ public class CustomEngine {
 		move(state, state.xa, 0); // marioMove
 		move(state, 0, state.ya); // marioMove
 
-		if (state.y >= 15 * cellSize + cellSize)
-			state.penalty(2000);
+		if (state.y >= 15 * cellSize + cellSize){
+			State current = state;
+			current.penalty(2000);
+			for(int i = 1; i < 15; i++){
+				if(current.parent != null){
+					current = current.parent;
+					current.penalty( (int)Math.round(2000 / (Math.pow(i*2, 3))));
+				}
+			}
+		}
 
 		if (state.x < 0) {
 			state.x = 0;
@@ -248,29 +256,21 @@ public class CustomEngine {
 			return false;
 		}
 		// CHEATER COLLISION!
-		
-		  byte block = LevelScene.level.getBlock(x, y);
-		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
-		  blocking |= (ya> 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
-		  return blocking;
-		 
-		// CORRECT COLLISION
-		  /*
-		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
-			byte block = map[y][x];
-			boolean blocking = block < 0;
-			if (ya <= 0) {
-				if (block == -62) {
-					return false;
-				}
-			}
 
-			return blocking;
-		} else {
-			return false;
-		}
-		*/
+		byte block = LevelScene.level.getBlock(x, y);
+		boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		return blocking;
+
+		// CORRECT COLLISION
+		/*
+		 * if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) { byte
+		 * block = map[y][x]; boolean blocking = block < 0; if (ya <= 0) { if
+		 * (block == -62) { return false; } }
+		 * 
+		 * return blocking; } else { return false; }
+		 */
 	}
 
 	public void stomp(State state, final Enemy enemy) {
@@ -361,6 +361,32 @@ public class CustomEngine {
 			}
 		}
 	}
+
+	public void setCheatLevelScene(byte[][] levelScene) {
+		this.levelScene = levelScene;
+	}
+
+	public void setCheatScene(byte[][] levelScene) {
+		for (int i = 0; i < 19; i++) {
+			for (int j = 0; j < 19; j++) {
+				this.map[i][j] = levelScene[i][j];
+			}
+		}
+		mapX = 18;
+	}
+
+	public void toCheatScene(float x) {
+		if (x > highestX) {
+			highestX = x;
+			if ((int) ((highestX) / 16) > mapX - 15) {
+				mapX++;
+				for (int i = 0; i < 19; i++) {
+					map[i][mapX] = levelScene[i][17];
+				}
+			}
+		}
+	}
+
 	void print() {
 
 		// System.out.println(marioFloatPos[1]+" : "+marioFloatPos[0]);
