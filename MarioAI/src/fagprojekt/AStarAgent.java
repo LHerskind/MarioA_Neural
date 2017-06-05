@@ -25,7 +25,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private double speedPriority = 9;
 	private State testState;
 
-	private int numberOfStates = 4000;
+	private int numberOfStates = 10000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
 
@@ -178,10 +178,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
 				}
-				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0) {
+				if (prevEnemyYaArr != null && prevEnemyXArr.length >= i / 3 && prevEnemyYaArr[i / 3] != 0) {
 					EnemyYa = prevEnemyYaArr[i / 3];
 				}
-				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3]) {
+				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr.length >= i / 3
+						&& prevEnemyOnGroundArr[i / 3]) {
 					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
 				}
 
@@ -382,8 +383,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		openSet.add(initial);
 		closed.put(initial.superHashCode(), initial);
 
-		// FOR DEBUGGING
-		// MARIO DEBUG
 		for (int i = 0; i < 400; i++) {
 			GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 			GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
@@ -398,11 +397,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				return getRootState(state);
 			}
 
-			// Debugging for being stuck in loop
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				// System.out.println("stuck in while-loop" + " Index = " +
-				// indexStateArray +
-				// " Open = " + openSet.size() + " Close = " + closed.size());
 				return getRootState(state);
 			}
 
@@ -410,10 +405,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-			// addSuccessor(state.moveE());
-			// addSuccessor(state.moveNE());
-			// addSuccessor(state.moveW());
-			// addSuccessor(state.moveNW());
 			// addSuccessor(state.still());
 		}
 		System.out.println("DISASTER: OPEN-SET IS EMPTY");
