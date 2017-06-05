@@ -67,12 +67,12 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all = true;
 
 	public static void main(String[] args) {
 
 		if (all) {
-				manyMaps(50, 7, true);
+			manyMaps(500, 2, false);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -81,16 +81,16 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(0);
-//			marioAIOptions.setMarioMode(0);
-//			marioAIOptions.setEnemies("off");
-		    marioAIOptions.setArgs("-lf on -lg on");
+			marioAIOptions.setLevelDifficulty(1);
+			// marioAIOptions.setMarioMode(0);
+			// marioAIOptions.setEnemies("off");
+			// marioAIOptions.setArgs("-lf on -lg on");
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			// REMEMBER 270
+			// REMEMBER 358
 
-//			marioAIOptions.setLevelRandSeed(seed);
+			marioAIOptions.setLevelRandSeed(358);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -118,14 +118,16 @@ public final class Play {
 				GlobalOptions.changeScale2x();
 			}
 			marioAIOptions.setLevelDifficulty(difficulty);
-//			 marioAIOptions.setEnemies("off");
+			// marioAIOptions.setEnemies("off");
 			marioAIOptions.setMarioMode(2);
 			marioAIOptions.setLevelRandSeed(i);
 			basicTask.runSingleEpisode(1);
 			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
 				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
-					lostMaps[lost] = i;
-					lostReason[lost++] = basicTask.getEvaluationInfo().Memo;
+					if (basicTask.getEvaluationInfo().distancePassedCells < basicTask.getEvaluationInfo().levelLength) {
+						lostMaps[lost] = i;
+						lostReason[lost++] = basicTask.getEvaluationInfo().Memo;
+					}
 				}
 			}
 			if (i % 10 == 0) {

@@ -19,7 +19,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
 	public final int maxRight = 16 * 17;
-	public final int searchDepth = maxRight;
+	public int searchDepth = maxRight;
 	public boolean firstScene;
 	boolean cheatMap = true;
 	private double speedPriority = 9;
@@ -28,11 +28,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private int numberOfStates = 4000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
-	// enemies
-	// private int estimatedMaxSearchDepth = 100;
-	// private int maxNumberOfEnemies = 35;
-	// private Enemy[][] enemyArray = new
-	// Enemy[numberOfStates][maxNumberOfEnemies];
 
 	public int debugPos;
 	private CustomEngine ce;
@@ -131,7 +126,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			penalty = 0;
 			parent = null;
 			action = null;
-			heuristic = (int) ((searchDepth + 10) - (x - marioFloatPos[0]));
+			heuristic = (int) (searchDepth - x);
 		}
 
 		public void initValues() {
@@ -263,8 +258,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 
 				ce.predictFuture(nextState);
-				nextState.g = parent.g  + (int) speedPriority;
-				nextState.heuristic = ((searchDepth) - (int) (nextState.x - marioFloatPos[0]));
+				nextState.g = parent.g + (int) speedPriority;
+				nextState.heuristic = (int) (searchDepth - nextState.x);
 
 				return nextState;
 			}
@@ -272,7 +267,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		public int priority() {
-			return heuristic + g + penalty;
+			return heuristic + g + penalty + (int) y / 16;
 		}
 
 		public void penalty(int amount) {
@@ -280,7 +275,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		public boolean isGoal() {
-			return x >= (marioFloatPos[0] + searchDepth);
+			return x >= searchDepth;
 		}
 
 		State moveNE() {
@@ -349,8 +344,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		action[Mario.KEY_SPEED] = speed;
 		return action;
 	}
-	
-	public State getTestState(){
+
+	public State getTestState() {
 		return testState;
 	}
 
@@ -360,17 +355,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		if (state.parent.parent != null) {
 			if (debugPos < 400) {
-				// ENEMY DEBUG
-				if (!state.enemyList.isEmpty()) {
-					for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-						if (state.enemyList.size() > i) {
-							GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyList.get(i).x;
-							GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyList.get(i).y;
-						}
-					}
-				}
-
-				// MARIO DEBUG
 				GlobalOptions.marioPos[debugPos][0] = (int) state.x;
 				GlobalOptions.marioPos[debugPos][1] = (int) state.y;
 				debugPos++;
@@ -383,6 +367,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 	public State solve() {
 		long startTime = System.currentTimeMillis();
+
+		if ((int) marioFloatPos[0] + maxRight > searchDepth) {
+			searchDepth = (int) marioFloatPos[0] + maxRight;
+		}
 
 		openSet.clear();
 		closed.clear();
@@ -400,16 +388,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 			GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
 		}
-		// ENEMY DEBUG
-		for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-			for (int j = 0; j < 400; j++) {
-				if (enemiesFloatPos.length / 3 > i) {
-					GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i * 3 + 1] + marioFloatPos[0]);
-					GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i * 3 + 2] + marioFloatPos[1]);
-				}
-			}
-		}
-
 		debugPos = 0;
 
 		while (!openSet.isEmpty()) {
@@ -421,7 +399,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 
 			// Debugging for being stuck in loop
-			if (System.currentTimeMillis() - startTime > 28 || indexStateArray >= numberOfStates) {
+			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
 				// System.out.println("stuck in while-loop" + " Index = " +
 				// indexStateArray +
 				// " Open = " + openSet.size() + " Close = " + closed.size());
@@ -476,12 +454,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			} else {
 				ce.toScene(marioFloatPos[0], marioFloatPos[1]);
 			}
-//			ce.print();
+			// ce.print();
 		}
 		validatePrevArr();
 
-//		if (checkFrozen())
-//			ce.frozenEnemies = checkFrozen();
+		// if (checkFrozen())
+		// ce.frozenEnemies = checkFrozen();
 		// print();
 		bestState = solve();
 		if (bestState == null) {
@@ -527,29 +505,30 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 	}
 
-//	public boolean checkFrozen() {
-//		if (prevEnemiesX != null && prevEnemiesX.size() == enemiesFloatPos.length / 3 && prevEnemiesX.size() != 0) {
-//			int frozenNo = 0;
-//
-//			ArrayList<Float> tempList = new ArrayList<Float>();
-//			for (int i = 0; i < prevEnemiesX.size(); i++) {
-//				tempList.add(prevEnemiesX.get(i));
-//			}
-//			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
-//				for (int j = 0; j < tempList.size(); j++) {
-//					if (tempList.get(j) == enemiesFloatPos[i + 1] + marioFloatPos[0]) {
-//						if (enemiesFloatPos[i] != 91)
-//							frozenNo++;
-//						tempList.remove(j);
-//						break;
-//					}
-//				}
-//			}
-//			if (frozenNo == prevEnemiesX.size())
-//				return true;
-//		}
-//		return false;
-//	}
+	// public boolean checkFrozen() {
+	// if (prevEnemiesX != null && prevEnemiesX.size() == enemiesFloatPos.length
+	// / 3 && prevEnemiesX.size() != 0) {
+	// int frozenNo = 0;
+	//
+	// ArrayList<Float> tempList = new ArrayList<Float>();
+	// for (int i = 0; i < prevEnemiesX.size(); i++) {
+	// tempList.add(prevEnemiesX.get(i));
+	// }
+	// for (int i = 0; i < enemiesFloatPos.length; i += 3) {
+	// for (int j = 0; j < tempList.size(); j++) {
+	// if (tempList.get(j) == enemiesFloatPos[i + 1] + marioFloatPos[0]) {
+	// if (enemiesFloatPos[i] != 91)
+	// frozenNo++;
+	// tempList.remove(j);
+	// break;
+	// }
+	// }
+	// }
+	// if (frozenNo == prevEnemiesX.size())
+	// return true;
+	// }
+	// return false;
+	// }
 
 	public int getBlock(int x, int y) {
 		return levelScene[y][x];
