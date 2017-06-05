@@ -82,7 +82,6 @@ public abstract class Enemy {
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
 	
-//	public Enemy() {}
 	public Enemy(float x, float y, byte kind, float ya, int facing, boolean dead /* ,boolean winged, int mapX, int mapY */) {
 		this.dead = dead;
 		this.facing = facing;
@@ -94,10 +93,9 @@ public abstract class Enemy {
 		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED ||
 				kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_WAVE_GOOMBA)
 			this.winged = true;
-		if(kind == KIND_GOOMBA || kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY ||
-				kind == KIND_SPIKY_WINGED) 
-			this.height = 12;
-		else this.height = 24;
+		if(kind == KIND_GREEN_KOOPA || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_RED_KOOPA || kind == KIND_RED_KOOPA_WINGED) 
+			this.height = 24;
+		else this.height = 12;
 		
 		yaa = 2;
 
@@ -108,7 +106,6 @@ public abstract class Enemy {
 	public void collideCheck(State state) {
 		float xMarioD = state.x - this.x;
 		float yMarioD = state.y - this.y;
-		// float w = 16;
 		if (xMarioD > -width * 2 - 4 && xMarioD < width * 2 + 4) {
 			if (yMarioD > -height && yMarioD < state.height) {
 				if ((kind != KIND_SPIKY && kind != KIND_SPIKY_WINGED && kind != KIND_ENEMY_FLOWER)
@@ -123,14 +120,13 @@ public abstract class Enemy {
 						winged = false;
 					}
 				} else {
-					//levelScene.mario.getHurt(this.kind); TODO - Mario Damage!
 					if(state.invulnerable <= 0) {
 						if(state.height != 12) {
 							state.invulnerable = 32;
-							state.penalty(500);
+							state.penalty(1000); // Can be changed
 							
 						} else {
-							state.penalty(2000);
+							state.penalty(2000); // Can be changed
 						}
 					}
 				}
@@ -217,7 +213,6 @@ public abstract class Enemy {
 	        if (ya < 0)
 	        {
 	            y = (int) ((y - height) / 16) * 16 + height;
-//	                jumpTime = 0;
 	            this.ya = 0;
 	        }
 	        if (ya > 0)
@@ -243,11 +238,13 @@ public abstract class Enemy {
 			return false;
 		}
 		// CHEATER COLLISION
+		
 		 byte block = LevelScene.level.getBlock(x, y);
 		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
 		  blocking |= (ya> 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
 		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
 		  return blocking;
+		  
 		  // CORRECT COLLISION!
 		/*
 		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {

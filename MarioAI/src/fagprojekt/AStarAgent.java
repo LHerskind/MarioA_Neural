@@ -18,7 +18,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public final int screenWidth = GlobalOptions.VISUAL_COMPONENT_WIDTH;
 	public final int screenHeight = GlobalOptions.VISUAL_COMPONENT_HEIGHT;
 	public final int cellSize = LevelScene.cellSize;
-	public final int maxRight = 16 * 11;
+	public final int maxRight = 16 * 17;
 	public final int searchDepth = maxRight;
 	public boolean firstScene;
 
@@ -107,7 +107,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		public boolean onGround;
 		public boolean wasOnGround;
-		public boolean sliding; // Not needed
+		public boolean sliding;
 		public boolean mayJump;
 		public boolean ableToShoot;
 		public int invulnerable;
@@ -174,6 +174,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					EnemyYa = -4.31441f;
 
 				int facing = -1;
+				if(kind == 84) {
+					if (currEnemyX > this.x) 
+						facing = -1;
+					else if (currEnemyX < this.x) 
+						facing = 1;
+				}
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
 				}
@@ -186,14 +192,16 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 				if (kind == 98) {
 					// Blue enemies ya value is set according to x, so it doesnt matter at all, thus set to 0
-					this.enemyList.add(new BlueBeetle(currEnemyX, currEnemyY, kind, 0, facing, false));
+					this.enemyList.add(new BlueGoomba(currEnemyX, currEnemyY, kind, 0, facing, false));
 				} else if (kind == 84) {
 					this.enemyList.add(new Bullet(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				} else if (kind == 91) {
 					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
+				} else if(kind == 13) {
+					this.enemyList.add(new Shell(currEnemyX, currEnemyY, kind, 0, 0, false));
 				} else if(kind == 82) {
 					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false, EnemyOnGround));
-				} else {
+				 } else {
 					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				}
 
@@ -221,7 +229,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
 				nextState.parent = parent;
-
+				
 				nextState.action = action;
 				nextState.height = parent.height;
 				nextState.onGround = parent.onGround;
@@ -243,11 +251,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				for (int i = 0; i < parent.enemyList.size(); i++) {
 					Enemy e = parent.enemyList.get(i);
 					if (e.kind == 98) {
-						nextState.enemyList.add(new BlueBeetle(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+						nextState.enemyList.add(new BlueGoomba(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 					} else if (e.kind == 84) {
 						nextState.enemyList.add(new Bullet(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 					} else if (e.kind == 91) {
 						nextState.enemyList.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+					} else if (e.kind == 13) {
+						nextState.enemyList.add(new Shell(e.x, e.y, e.kind, 0, 0, e.dead));
 					} else if (e.kind == 82) {
 						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
 					}
@@ -325,7 +335,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-//				if (successor.penalty < 2000) {// + marioMode * 500) {
+//				if (successor.penalty < 2000) { // + marioMode * 500) {
 					openSet.add(successor);
 //				}
 				closed.put(successor.superHashCode(), successor);
@@ -350,20 +360,22 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		if (state.parent.parent != null) {
 			if (debugPos < 400) {
-				//ENEMY DEBUG
-				if(!state.enemyList.isEmpty()) {
-					for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-						if(state.enemyList.size() > i) {
-							GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyList.get(i).x;
-							GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyList.get(i).y;
+				if(GlobalOptions.enemyDebug) {
+					if(!state.enemyList.isEmpty()) {
+						for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
+							if(state.enemyList.size() > i) {
+								GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyList.get(i).x;
+								GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyList.get(i).y;
+							}
 						}
 					}
 				}
 				
-				//MARIO DEBUG
-				GlobalOptions.marioPos[debugPos][0] = (int) state.x;
-				GlobalOptions.marioPos[debugPos][1] = (int) state.y;
-				debugPos++;
+				if(GlobalOptions.marioDebug) {
+					GlobalOptions.marioPos[debugPos][0] = (int) state.x;
+					GlobalOptions.marioPos[debugPos][1] = (int) state.y;
+					debugPos++;
+				}
 			}
 			return getRootState(state.parent);
 		} else {
@@ -385,22 +397,24 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		closed.put(initial.superHashCode(), initial);
 
 		// FOR DEBUGGING
-		// MARIO DEBUG
-		for (int i = 0; i < 400; i++) {
-			GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
-			GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
-		}
-		// ENEMY DEBUG
-		for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-			for(int j = 0; j < 400; j++) {
-				if(enemiesFloatPos.length/3 > i) {
-					GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i*3+1] + marioFloatPos[0]);
-					GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i*3+2] + marioFloatPos[1]);
+		if(GlobalOptions.enemyDebug) {
+			for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
+				for(int j = 0; j < 400; j++) {
+					if(enemiesFloatPos.length/3 > i) {
+						GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i*3+1] + marioFloatPos[0]);
+						GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i*3+2] + marioFloatPos[1]);
+					}
 				}
 			}
+			
 		}
-		
-		debugPos = 0;
+		if(GlobalOptions.marioDebug) {
+			for (int i = 0; i < 400; i++) {
+				GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
+				GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
+				debugPos = 0;
+			}
+		}
 
 		while (!openSet.isEmpty()) {
 			State state = openSet.poll();
@@ -420,10 +434,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-//			 addSuccessor(state.moveE());
-//			 addSuccessor(state.moveNE());
-//			 addSuccessor(state.moveW());
-//			 addSuccessor(state.moveNW());
 //			 addSuccessor(state.still());
 		}
 		System.out.println("DISASTER: OPEN-SET IS EMPTY");
@@ -458,7 +468,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		validatePrevArr();
 		
-		if(checkFrozen()) ce.frozenEnemies = checkFrozen();
 //		print(); 
 		bestState = solve();
 		if (bestState == null) {
@@ -503,27 +512,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 		}
 	}
-	public boolean checkFrozen() {
-		if(prevEnemiesX != null && prevEnemiesX.size() == enemiesFloatPos.length/3 && prevEnemiesX.size() != 0) {
-			int frozenNo = 0;
-			
-			ArrayList<Float> tempList = new ArrayList<Float>();
-			for(int i = 0; i < prevEnemiesX.size(); i++) {
-				tempList.add(prevEnemiesX.get(i));
-			}
-			for(int i = 0; i < enemiesFloatPos.length; i+=3) {
-				for(int j = 0; j < tempList.size(); j++) {
-					if(tempList.get(j) == enemiesFloatPos[i+1] + marioFloatPos[0]) {
-						if(enemiesFloatPos[i] != 91) frozenNo++;
-						tempList.remove(j);
-						break;
-					}
-				}
-			}
-			if(frozenNo == prevEnemiesX.size()) return true;
-		} 
-		return false;
-	}
 	public int getBlock(int x, int y) {
 		return levelScene[y][x];
 	}
@@ -544,8 +532,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		this.marioFloatPos = environment.getMarioFloatPos();
 		this.enemiesFloatPos = environment.getEnemiesFloatPos();
 		this.marioState = environment.getMarioState();
-		 levelScene = environment.getLevelSceneObservationZ(1); // The normal
-//		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
+//		 levelScene = environment.getLevelSceneObservationZ(1); // The normal
+		levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
 

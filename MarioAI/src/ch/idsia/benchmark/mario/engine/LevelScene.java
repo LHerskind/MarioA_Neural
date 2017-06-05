@@ -116,7 +116,7 @@ public final class LevelScene implements SpriteContext {
 	}
 
 	// TODO: !H!: Move to MarioEnvironment !!
-	// TODO: Vi tilføjede her de sidste fjender da det ikke giver mening ikke at have alle fjenderne med
+	// TODO: Vi tilfï¿½jede her de sidste fjender da det ikke giver mening ikke at have alle fjenderne med
 	public float[] getEnemiesFloatPos() {
 		enemiesFloatsList.clear();
 		for (Sprite sprite : sprites) {

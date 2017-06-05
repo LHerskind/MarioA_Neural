@@ -84,11 +84,10 @@ public final class Play {
 			marioAIOptions.setLevelDifficulty(8);
 //			marioAIOptions.setMarioMode(0);
 //			marioAIOptions.setEnemies("off");
+			marioAIOptions.setEnemies("rk");
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			// REMEMBER 270
-
 			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();

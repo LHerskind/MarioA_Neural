@@ -1,10 +1,10 @@
 package fagprojekt;
 
-public class BlueBeetle extends Enemy {
+public class BlueGoomba extends Enemy {
 
 	private float amplitude = 10f;
 	private float lastSin;
-	public BlueBeetle(float x, float y, byte kind, float ya, int facing, boolean dead) {
+	public BlueGoomba(float x, float y, byte kind, float ya, int facing, boolean dead) {
 		super(x, y, kind, ya, facing, dead);
 		this.height = 12;
 	}

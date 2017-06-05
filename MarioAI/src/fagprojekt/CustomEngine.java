@@ -6,11 +6,11 @@ import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 import fagprojekt.Enemy;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 
 public class CustomEngine {
 	// shooting
 	// private int fireBallsOnScreen = 0;
-	boolean frozenEnemies = false;
 
 	// Gravity and friction
 	public final float marioGravity = 1.0f;
@@ -42,7 +42,7 @@ public class CustomEngine {
 
 	public void predictFuture(State state) {
 		
-		if(!frozenEnemies /*GlobalOptions.areFrozenCreatures*/) {
+		if(!GlobalOptions.areFrozenCreatures) {
 			for (int i = 0; i < state.enemyList.size(); i++) {
 				Enemy e = state.enemyList.get(i);
 				if (!e.dead) {
@@ -274,6 +274,7 @@ public class CustomEngine {
 	}
 
 	public void stomp(State state, final Enemy enemy) {
+		if (enemy.kind != 13  || !state.action[Mario.KEY_SPEED] || enemy.facing != 0) { // CASE FOR SHELLS
 		float targetY = enemy.y - enemy.height / 2;
 		move(state, 0, targetY - state.y);
 		state.xJumpSpeed = 0;
@@ -284,9 +285,9 @@ public class CustomEngine {
 		state.invulnerable = 1;
 		state.onGround = false;
 		state.sliding = false;
+		}
 		state.stomp = false;
 	}
-
 	public void printOnGoing(float x, float y) {
 		if (debug) {
 			int __x = (int) x / 16;
