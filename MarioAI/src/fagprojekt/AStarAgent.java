@@ -462,7 +462,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
 		}
-		System.out.println("DISASTER: OPEN-SET IS EMPTY");
+//		System.out.println("DISASTER: OPEN-SET IS EMPTY");
 		return stateArray[0];
 	}
 

@@ -68,13 +68,17 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
-	static boolean visualize = true;
+	static boolean all = true;
+	static boolean visualize = !all;
 
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(50, 15, visualize);
+//			for (int i = 6; i < 16; i++) {
+				manyMaps(500, 12, visualize);
+//			}
+			System.exit(0);
+
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -83,15 +87,12 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(20);
-			// marioAIOptions.setMarioMode(0);
-			// marioAIOptions.setEnemies("off");
-			// marioAIOptions.setEnemies("rk");
+			marioAIOptions.setLevelDifficulty(2);
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 
-			marioAIOptions.setLevelRandSeed(172);
+			marioAIOptions.setLevelRandSeed(166);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -156,7 +157,6 @@ public final class Play {
 		}
 
 		System.out.println("Done, lost: " + lost);
-		System.exit(0);
 	}
 
 }
