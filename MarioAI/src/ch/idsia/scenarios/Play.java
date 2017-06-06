@@ -67,12 +67,12 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all = true;
 
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(500, 2, false);
+			manyMaps(20, 9, false);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -88,17 +88,7 @@ public final class Play {
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			
-//			LOST: 97 Reason of death: Gap
-//			LOST: 172 Reason of death: Gap
-//			LOST: 191 Reason of death: Gap
-//			LOST: 192 Reason of death: Gap
-//			LOST: 219 Reason of death: Gap
-//			LOST: 355 Reason of death: Gap
-//			LOST: 429 Reason of death: Gap
-//			LOST: 461 Reason of death: Gap
-//			LOST: 464 Reason of death: Gap
-			
+
 			marioAIOptions.setLevelRandSeed(172);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
