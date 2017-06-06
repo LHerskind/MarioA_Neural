@@ -71,16 +71,13 @@ public static boolean isShowReceptiveField = false;
 public static boolean isScale2x = false;
 public static boolean isRecording = false;
 public static boolean isReplaying = false;
+
 public static int[][] marioPos = new int[400][2];
 public static int enemyNo = 15;
 public static int[][][] enemyPos = new int[enemyNo][400][2];
-/*
-public static int[][] enemyPos1 = new int[400][2];
-public static int[][] enemyPos2 = new int[400][2];
-public static int[][] enemyPos3 = new int[400][2];
-public static int[][] enemyPos4 = new int[400][2];
-public static int[][] enemyPos5 = new int[400][2];
-*/
+public static boolean marioDebug = true;
+public static boolean enemyDebug = false;
+
 public static int getPrimaryVersionUID()
 {
     return primaryVerionUID;
