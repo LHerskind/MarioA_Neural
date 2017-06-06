@@ -68,8 +68,8 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = true;
-	static boolean visualize = false;
+	static boolean all = false;
+	static boolean visualize = true;
 
 	public static void main(String[] args) {
 
@@ -83,7 +83,7 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(2);
+			marioAIOptions.setLevelDifficulty(20);
 			// marioAIOptions.setMarioMode(0);
 			// marioAIOptions.setEnemies("off");
 			// marioAIOptions.setEnemies("rk");
