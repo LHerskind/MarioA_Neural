@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import java.util.PriorityQueue;
+import java.util.function.Predicate;
 
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.controllers.BasicMarioAIAgent;
@@ -12,6 +13,7 @@ import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.mario.environments.Environment;
+import fagprojekt.AStarAgent.State;
 
 public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	// General dimensions
@@ -26,7 +28,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private double speedPriority = 9;
 	private State testState;
 
-	private int numberOfStates = 10000;
+	private int numberOfStates = 50000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
 
@@ -53,6 +55,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private HashMap<Long, State> closed = new HashMap<>();
 
 	private PriorityQueue<State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
+		@Override
+		public int compare(State a, State b) {
+			return a.priority() - b.priority();
+		}
+	});
+
+	private PriorityQueue<State> openSet2 = new PriorityQueue<State>(100, new Comparator<State>() {
 		@Override
 		public int compare(State a, State b) {
 			return a.priority() - b.priority();
@@ -182,13 +191,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					else if (currEnemyX < this.x)
 						facing = 1;
 				}
-				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
+				if (prevEnemyFacingArr != null && prevEnemyFacingArr.length >= i / 3
+						&& prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
 				}
-				if (prevEnemyYaArr != null && prevEnemyYaArr[i / 3] != 0) {
+				if (prevEnemyYaArr != null && prevEnemyYaArr.length >= i / 3 && prevEnemyYaArr[i / 3] != 0) {
 					EnemyYa = prevEnemyYaArr[i / 3];
 				}
-				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3]) {
+				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr.length >= i / 3
+						&& prevEnemyOnGroundArr[i / 3]) {
 					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
 				}
 
@@ -209,9 +220,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				} else {
 					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				}
-
 			}
-
 		}
 
 		public long superHashCode() {
@@ -222,11 +231,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				z = actionInt(this.action);
 			}
 			String superHashCode = x + "" + y + "" + z;
-
 			while (superHashCode.length() < 10) {
 				superHashCode += 0;
 			}
-
 			return Long.parseLong(superHashCode);
 		}
 
@@ -280,7 +287,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		public int priority() {
 			int lala = this.onGround ? 0 : 15;
-			return heuristic + g + penalty + (int) y / 16 + lala;
+			// return heuristic + g + penalty + (int) y / 16 + lala;
+			return heuristic + g + penalty + lala;
 		}
 
 		public void penalty(int amount) {
@@ -347,10 +355,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				// if (successor.penalty < 2000) { // + marioMode * 500) {
 				openSet.add(successor);
-				// }
-
 				closed.put(successor.superHashCode(), successor);
 			} else {
 				indexStateArray--;
@@ -393,7 +398,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 						}
 					}
 				}
-
 				if (GlobalOptions.marioDebug) {
 					GlobalOptions.marioPos[debugPos][0] = (int) state.x;
 					GlobalOptions.marioPos[debugPos][1] = (int) state.y;
@@ -406,26 +410,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 	}
 
-	public State solve() {
-		long startTime = System.currentTimeMillis();
-
-		if ((int) marioFloatPos[0] + maxRight > searchDepth) {
-			searchDepth = (int) marioFloatPos[0] + maxRight;
-		}
-
-		openSet.clear();
-		closed.clear();
-		indexStateArray = 1;
-
-		// Add initial state to queue.
-		State initial = new State(true);
-		stateArray[indexStateArray++] = initial;
-		openSet.add(initial);
-		closed.put(initial.superHashCode(), initial);
-
-		stateArray[0] = initial.duck();
-
-		// FOR DEBUGGING
+	private void debug() {
 		if (GlobalOptions.enemyDebug) {
 			for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 				for (int j = 0; j < 400; j++) {
@@ -435,8 +420,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 			}
-
 		}
+
 		if (GlobalOptions.marioDebug) {
 			for (int i = 0; i < 400; i++) {
 				GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
@@ -444,27 +429,85 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				debugPos = 0;
 			}
 		}
+	}
+
+	private void setRoute(State goal) {
+		route.clear();
+
+		State current = goal;
+		debug();
+
+		while (current.parent != null) {
+			route.add(current);
+			if (GlobalOptions.marioDebug) {
+				if (debugPos < 400) {
+					GlobalOptions.marioPos[debugPos][0] = (int) current.x;
+					GlobalOptions.marioPos[debugPos][1] = (int) current.y;
+					debugPos++;
+				}
+			}
+			current = current.parent;
+		}
+	}
+
+	private State getLastInRoute() {
+		return route.remove(route.size() - 1);
+	}
+
+	private ArrayList<State> route = new ArrayList<>();
+
+	private int tickLimit = 2;
+	private int tick = 0;
+	private boolean routeFound = false;
+
+	public State solve() {
+		long startTime = System.currentTimeMillis();
+
+		if (tick > 0 && tick >= tickLimit) {
+			tick = 0;
+		}
+
+		if ((int) marioFloatPos[0] + maxRight > searchDepth) {
+			searchDepth = (int) marioFloatPos[0] + maxRight;
+			tick = 0;
+			routeFound = false;
+		}
+
+		if (tick == 0) {
+			closed.clear();
+			openSet.clear();
+			indexStateArray = 0;
+			State initial = new State(true);
+			stateArray[indexStateArray++] = initial;
+			openSet.add(initial);
+			closed.put(initial.superHashCode(), initial);
+		}
+
+		tick++;
 
 		while (!openSet.isEmpty()) {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
-				testState = state;
-				return getRootState(state);
+				routeFound = true;
+				setRoute(state);
+				tick = 0;
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				// System.out.println("SHIT " + indexStateArray);
-				return getRootState(state);
+				break;
 			}
-
 			addSuccessor(state.SmoveE());
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
 		}
+
+		if (!route.isEmpty()) {
+			return getLastInRoute();
+		}
 		System.out.println("DISASTER: OPEN-SET IS EMPTY");
-		return stateArray[0];
+		return stateArray[0].still();
 	}
 
 	@Override

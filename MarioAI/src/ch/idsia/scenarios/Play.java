@@ -67,39 +67,25 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all = true;
 
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(500, 2, false);
+			manyMaps(500, 15, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
-			// marioAIOptions.setTimeLimit(-1);
-			// marioAIOptions.setLevelType(2);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(2);
-			// marioAIOptions.setMarioMode(0);
+			marioAIOptions.setLevelDifficulty(0);
 			// marioAIOptions.setEnemies("off");
-			// marioAIOptions.setEnemies("rk");
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			
-//			LOST: 97 Reason of death: Gap
-//			LOST: 172 Reason of death: Gap
-//			LOST: 191 Reason of death: Gap
-//			LOST: 192 Reason of death: Gap
-//			LOST: 219 Reason of death: Gap
-//			LOST: 355 Reason of death: Gap
-//			LOST: 429 Reason of death: Gap
-//			LOST: 461 Reason of death: Gap
-//			LOST: 464 Reason of death: Gap
-			
-			marioAIOptions.setLevelRandSeed(172);
+
+			marioAIOptions.setLevelRandSeed(73);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
