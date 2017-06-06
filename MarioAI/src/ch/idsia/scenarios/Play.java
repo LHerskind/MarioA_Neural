@@ -81,7 +81,7 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(8);
+			marioAIOptions.setLevelDifficulty(0);
 //			marioAIOptions.setMarioMode(0);
 //			marioAIOptions.setEnemies("off");
 //			marioAIOptions.setEnemies("rk");

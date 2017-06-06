@@ -49,6 +49,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public int[] prevEnemyFacingArr;
 	public boolean[] prevEnemyOnGroundArr;
 	public ArrayList<Float> prevEnemiesX;
+	public ArrayList<Enemy> enemyList;
 
 	private HashMap<Long, State> closed = new HashMap<>();
 
@@ -69,6 +70,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			 */
 			stateArray[i] = state;
 		}
+		enemyList = new ArrayList<Enemy>();
 		reset();
 	}
 
@@ -116,7 +118,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public int g;
 
 		// enemy stuff
-		public ArrayList<Enemy> enemyList;
+		public float[] enemyVarList = new float[140*7];
+		public int enemyVarIndex;
 		public boolean stomp;
 
 		public State() {
@@ -150,12 +153,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.yJumpSpeed = prevYJumpSpeed;
 			this.height = marioMode > 0 ? 24 : 12;
 
-			this.enemyList = new ArrayList<Enemy>();
+			this.enemyVarIndex=0;
 
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i + 1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i + 2]);
-				byte kind = (byte) enemiesFloatPos[i];
+				float kind = enemiesFloatPos[i];
 				boolean EnemyOnGround = false;
 				// Check facing & Ya
 				// 2.0 is the value all new enemies WITHOUT wings are assigned
@@ -175,12 +178,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				else if (kind == 91)
 					EnemyYa = -4.31441f;
 
-				int facing = -1;
+				float facing = -1.0f;
 				if(kind == 84) {
 					if (currEnemyX > this.x) 
-						facing = -1;
+						facing = -1.0f;
 					else if (currEnemyX < this.x) 
-						facing = 1;
+						facing = 1.0f;
 				}
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
@@ -194,18 +197,32 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 				if (kind == 98) {
 					// Blue enemies ya value is set according to x, so it doesnt matter at all, thus set to 0
-					this.enemyList.add(new BlueGoomba(currEnemyX, currEnemyY, kind, 0, facing, false));
-
-				} else if (kind == 84) {
-					this.enemyList.add(new Bullet(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
-				} else if (kind == 91) {
-					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
-				} else if(kind == 13) {
-					this.enemyList.add(new Shell(currEnemyX, currEnemyY, kind, 0, 0, false));
-				} else if(kind == 82) {
-					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false, EnemyOnGround));
+					enemyVarList[i/3*7]=currEnemyX;
+					enemyVarList[i/3*7+1]=currEnemyY;
+					enemyVarList[i/3*7+2]=kind;
+					enemyVarList[i/3*7+3]=0f;
+					enemyVarList[i/3*7+4]=facing;
+					enemyVarList[i/3*7+5]=0f;
+					enemyVarList[i/3*7+6]=0f;
+					enemyVarIndex+=7;
+				} else if (kind == 82) {
+					enemyVarList[i/3*7]=currEnemyX;
+					enemyVarList[i/3*7+1]=currEnemyY;
+					enemyVarList[i/3*7+2]=kind;
+					enemyVarList[i/3*7+3]=EnemyYa;
+					enemyVarList[i/3*7+4]=facing;
+					enemyVarList[i/3*7+5]=0f;
+					enemyVarList[i/3*7+6]=EnemyOnGround ? 1f : 0f;
+					enemyVarIndex+=7;
 				 } else {
-					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
+					enemyVarList[i/3*7]=currEnemyX;
+					enemyVarList[i/3*7+1]=currEnemyY;
+					enemyVarList[i/3*7+2]=kind;
+					enemyVarList[i/3*7+3]=EnemyYa;
+					enemyVarList[i/3*7+4]=facing;
+					enemyVarList[i/3*7+5]=0f;
+					enemyVarList[i/3*7+6]=0f;
+					enemyVarIndex+=7;
 				}
 
 			}
@@ -248,26 +265,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.sliding = parent.sliding;
 				nextState.facing = parent.facing;
 				nextState.penalty = parent.penalty;
+				
+				nextState.enemyVarIndex = parent.enemyVarIndex;
 
-				nextState.enemyList = new ArrayList<Enemy>();
-				for (int i = 0; i < parent.enemyList.size(); i++) {
-					Enemy e = parent.enemyList.get(i);
-					if (e.kind == 98) {
-						nextState.enemyList.add(new BlueGoomba(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else if (e.kind == 84) {
-						nextState.enemyList.add(new Bullet(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else if (e.kind == 91) {
-						nextState.enemyList.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else if (e.kind == 13) {
-						nextState.enemyList.add(new Shell(e.x, e.y, e.kind, 0, 0, e.dead));
-					} else if (e.kind == 82) {
-						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
-					} else {
-						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					}
+				for(int i = 0; i < parent.enemyVarIndex; i++){
+					nextState.enemyVarList[i]=parent.enemyVarList[i];
 				}
-
-				ce.predictFuture(nextState);
+				
+				varListToEnemyList();
+				ce.predictFuture(nextState,enemyList);
+				enemyListToVarList();
+				
 				nextState.g = parent.g + (int) speedPriority;
 				nextState.heuristic = (int) (searchDepth - nextState.x);
 
@@ -275,6 +283,43 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			return null;
 		}
+
+
+		private void varListToEnemyList() {
+			
+			enemyList.clear();
+			
+			for(int i = 0 ; i < enemyVarIndex; i+=7){
+				if(enemyVarList[i+5]==0){
+					if(enemyVarList[i+2]==98)
+						enemyList.add(new BlueGoomba(enemyVarList[i],enemyVarList[i+1],(byte)enemyVarList[i+2],enemyVarList[i+3],(int)enemyVarList[i+4],enemyVarList[i+5]==0));
+					else if(enemyVarList[i+2]==84.0f)
+						enemyList.add(new Bullet(enemyVarList[i],enemyVarList[i+1],(byte)enemyVarList[i+2],enemyVarList[i+3],(int)enemyVarList[i+4],enemyVarList[i+5]==0));
+					else if(enemyVarList[i+2]==91.0f)
+						enemyList.add(new Flower(enemyVarList[i],enemyVarList[i+1],(byte)enemyVarList[i+2],enemyVarList[i+3],(int)enemyVarList[i+4],enemyVarList[i+5]==0));
+					else if(enemyVarList[i+2]==13.0f)
+						enemyList.add(new Shell(enemyVarList[i],enemyVarList[i+1],(byte)enemyVarList[i+2],enemyVarList[i+3],(int)enemyVarList[i+4],enemyVarList[i+5]==0));
+					else if(enemyVarList[i+2]==82.0f)
+						enemyList.add(new NormalEnemy(enemyVarList[i],enemyVarList[i+1],(byte)enemyVarList[i+2],enemyVarList[i+3],(int)enemyVarList[i+4],enemyVarList[i+5]==0,enemyVarList[i+6]==1));
+					else 
+						enemyList.add(new NormalEnemy(enemyVarList[i],enemyVarList[i+1],(byte)enemyVarList[i+2],enemyVarList[i+3],(int)enemyVarList[i+4],enemyVarList[i+5]==0));
+			}}
+		}
+		
+		private void enemyListToVarList() {
+			for(int i = 0; i < enemyList.size(); i++){
+				enemyVarList[i*7  ]=enemyList.get(i).x;
+				enemyVarList[i*7+1]=enemyList.get(i).y;
+				enemyVarList[i*7+2]=enemyList.get(i).kind;
+				enemyVarList[i*7+3]=enemyList.get(i).ya;
+				enemyVarList[i*7+4]=enemyList.get(i).facing;
+				enemyVarList[i*7+5]=enemyList.get(i).dead ? 1 : 0;
+				enemyVarList[i*7+6]=enemyList.get(i).onGround ? 1 : 0;
+				
+			}
+			
+		}
+
 
 		public int priority() {
 			return heuristic + g + penalty + (int) y / 16;
@@ -367,11 +412,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (state.parent.parent != null) {
 			if (debugPos < 400) {
 				if(GlobalOptions.enemyDebug) {
-					if(!state.enemyList.isEmpty()) {
+					if(!(state.enemyVarIndex==0)) {
 						for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-							if(state.enemyList.size() > i) {
-								GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyList.get(i).x;
-								GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyList.get(i).y;
+							if(state.enemyVarIndex/7 > i) {
+								GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyVarList[i*7];
+								GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyVarList[i*7+1];
 							}
 						}
 					}
@@ -517,15 +562,16 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			prevEnemyOnGroundArr = new boolean[enemiesFloatPos.length / 3];
 
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
-				for (int j = 0; j < bestState.enemyList.size(); j++) {
-					Enemy e = bestState.enemyList.get(j);
-					if (e.x == (enemiesFloatPos[i + 1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
-						prevEnemyFacingArr[i / 3] = e.facing;
-						prevEnemyYaArr[i / 3] = e.ya;
+				for (int j = 0; j < bestState.enemyVarIndex; j+=7) {
+					if (bestState.enemyVarList[i] == (enemiesFloatPos[i + 1] + marioFloatPos[0]) && bestState.enemyVarList[i+2] == (enemiesFloatPos[i])) {
+						prevEnemyFacingArr[i / 3] = (int) bestState.enemyVarList[i+4];
+						prevEnemyYaArr[i / 3] = bestState.enemyVarList[i+3];
 
-						if (e.kind == 82)
-							prevEnemyOnGroundArr[i / 3] = e.onGround;
-						bestState.enemyList.remove(e);
+						if (bestState.enemyVarList[i+2] == 82f)
+							prevEnemyOnGroundArr[i / 3] = bestState.enemyVarList[i+6]==1;
+						for(int h = 0; h < 7; h++)
+							bestState.enemyVarList[j] = 0;
+						
 						break;
 					}
 
