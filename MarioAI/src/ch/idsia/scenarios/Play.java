@@ -72,7 +72,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(500, 15, true);
+			manyMaps(500, 2, false);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -81,15 +81,25 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(8);
-//			marioAIOptions.setMarioMode(0);
-//			marioAIOptions.setEnemies("off");
-//			marioAIOptions.setEnemies("rk");
+			marioAIOptions.setLevelDifficulty(2);
+			// marioAIOptions.setMarioMode(0);
+			// marioAIOptions.setEnemies("off");
+			// marioAIOptions.setEnemies("rk");
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			marioAIOptions.setLevelRandSeed(seed);
-
+			
+//			LOST: 97 Reason of death: Gap
+//			LOST: 172 Reason of death: Gap
+//			LOST: 191 Reason of death: Gap
+//			LOST: 192 Reason of death: Gap
+//			LOST: 219 Reason of death: Gap
+//			LOST: 355 Reason of death: Gap
+//			LOST: 429 Reason of death: Gap
+//			LOST: 461 Reason of death: Gap
+//			LOST: 464 Reason of death: Gap
+			
+			marioAIOptions.setLevelRandSeed(172);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -102,9 +112,6 @@ public final class Play {
 
 	public static void manyMaps(int howMany, int difficulty, boolean visualize) {
 		int lost = 0;
-		int[] lostMaps = new int[howMany];
-		String[] lostReason = new String[howMany];
-
 		for (int i = 0; i < howMany; i++) {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions();
 			marioAIOptions.setVisualization(visualize);
@@ -124,22 +131,13 @@ public final class Play {
 			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
 				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
 					if (basicTask.getEvaluationInfo().distancePassedCells < basicTask.getEvaluationInfo().levelLength) {
-						lostMaps[lost] = i;
-						lostReason[lost++] = basicTask.getEvaluationInfo().Memo;
+						System.out.println("LOST: " + i + " " + basicTask.getEvaluationInfo().Memo);
+						lost++;
 					}
 				}
 			}
-			if (i % 10 == 0) {
-				System.out.print(i + " , " + lost + " : ");
-			}
 		}
-		System.out.println();
-		if (lost == 0) {
-			System.out.println("Wins all the way");
-		}
-		for (int i = 0; i < lost; i++) {
-			System.out.println("LOST: " + lostMaps[i] + " " + lostReason[i]);
-		}
+		System.out.println("Done, lost: " + lost);
 		System.exit(0);
 	}
 

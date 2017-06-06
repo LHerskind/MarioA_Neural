@@ -176,10 +176,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					EnemyYa = -4.31441f;
 
 				int facing = -1;
-				if(kind == 84) {
-					if (currEnemyX > this.x) 
+				if (kind == 84) {
+					if (currEnemyX > this.x)
 						facing = -1;
-					else if (currEnemyX < this.x) 
+					else if (currEnemyX < this.x)
 						facing = 1;
 				}
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
@@ -193,18 +193,20 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 
 				if (kind == 98) {
-					// Blue enemies ya value is set according to x, so it doesnt matter at all, thus set to 0
+					// Blue enemies ya value is set according to x, so it doesnt
+					// matter at all, thus set to 0
 					this.enemyList.add(new BlueGoomba(currEnemyX, currEnemyY, kind, 0, facing, false));
 
 				} else if (kind == 84) {
 					this.enemyList.add(new Bullet(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				} else if (kind == 91) {
 					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
-				} else if(kind == 13) {
+				} else if (kind == 13) {
 					this.enemyList.add(new Shell(currEnemyX, currEnemyY, kind, 0, 0, false));
-				} else if(kind == 82) {
-					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false, EnemyOnGround));
-				 } else {
+				} else if (kind == 82) {
+					this.enemyList
+							.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false, EnemyOnGround));
+				} else {
 					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				}
 
@@ -232,7 +234,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
 				nextState.parent = parent;
-				
+
 				nextState.action = action;
 				nextState.height = parent.height;
 				nextState.onGround = parent.onGround;
@@ -277,7 +279,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		public int priority() {
-			return heuristic + g + penalty + (int) y / 16;
+			int lala = this.onGround ? 0 : 15;
+			return heuristic + g + penalty + (int) y / 16 + lala;
 		}
 
 		public void penalty(int amount) {
@@ -331,20 +334,34 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		State still() {
 			return getNextState(this, createAction(false, false, false, false));
 		}
+
+		State duck() {
+			State togo = getNextState(this, duckAction());
+			if (togo != null) {
+				togo.marioHeight = 12;
+			}
+			return togo;
+		}
 	}
 
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-//				if (successor.penalty < 2000) { // + marioMode * 500) {
-					openSet.add(successor);
-//				}
+				// if (successor.penalty < 2000) { // + marioMode * 500) {
+				openSet.add(successor);
+				// }
 
 				closed.put(successor.superHashCode(), successor);
 			} else {
 				indexStateArray--;
 			}
 		}
+	}
+
+	private boolean[] duckAction() {
+		boolean[] action = new boolean[6];
+		action[Mario.KEY_DOWN] = true;
+		return action;
 	}
 
 	private boolean[] createAction(boolean left, boolean right, boolean jump, boolean speed) {
@@ -366,18 +383,18 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		if (state.parent.parent != null) {
 			if (debugPos < 400) {
-				if(GlobalOptions.enemyDebug) {
-					if(!state.enemyList.isEmpty()) {
-						for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-							if(state.enemyList.size() > i) {
+				if (GlobalOptions.enemyDebug) {
+					if (!state.enemyList.isEmpty()) {
+						for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
+							if (state.enemyList.size() > i) {
 								GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyList.get(i).x;
 								GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyList.get(i).y;
 							}
 						}
 					}
 				}
-				
-				if(GlobalOptions.marioDebug) {
+
+				if (GlobalOptions.marioDebug) {
 					GlobalOptions.marioPos[debugPos][0] = (int) state.x;
 					GlobalOptions.marioPos[debugPos][1] = (int) state.y;
 				}
@@ -406,19 +423,21 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		openSet.add(initial);
 		closed.put(initial.superHashCode(), initial);
 
+		stateArray[0] = initial.duck();
+
 		// FOR DEBUGGING
-		if(GlobalOptions.enemyDebug) {
-			for(int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-				for(int j = 0; j < 400; j++) {
-					if(enemiesFloatPos.length/3 > i) {
-						GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i*3+1] + marioFloatPos[0]);
-						GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i*3+2] + marioFloatPos[1]);
+		if (GlobalOptions.enemyDebug) {
+			for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
+				for (int j = 0; j < 400; j++) {
+					if (enemiesFloatPos.length / 3 > i) {
+						GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i * 3 + 1] + marioFloatPos[0]);
+						GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i * 3 + 2] + marioFloatPos[1]);
 					}
 				}
 			}
-			
+
 		}
-		if(GlobalOptions.marioDebug) {
+		if (GlobalOptions.marioDebug) {
 			for (int i = 0; i < 400; i++) {
 				GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 				GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
@@ -443,13 +462,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-//			 addSuccessor(state.still());
-
 		}
 		System.out.println("DISASTER: OPEN-SET IS EMPTY");
-		// This should never happen. If it does, it fucks up so much with the
-		// previous value arrays, etc.
-		return null;
+		return stateArray[0];
 	}
 
 	@Override
@@ -487,8 +502,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// ce.print();
 		}
 		validatePrevArr();
-		
-//		print(); 
+
+		// print();
 
 		bestState = solve();
 		if (bestState == null) {
