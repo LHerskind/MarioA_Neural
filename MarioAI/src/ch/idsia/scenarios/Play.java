@@ -75,7 +75,7 @@ public final class Play {
 			manyMaps(500, 15, true);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-			marioAIOptions.setFPS(24);
+			marioAIOptions.setFPS(4);
 			// marioAIOptions.setTimeLimit(-1);
 			// marioAIOptions.setLevelType(2);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
@@ -88,7 +88,7 @@ public final class Play {
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			marioAIOptions.setLevelRandSeed(seed);
+			marioAIOptions.setLevelRandSeed(339);
 
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();

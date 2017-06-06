@@ -228,6 +228,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 
 			}
+			
 
 		}
 
@@ -275,7 +276,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 				
 				varListToEnemyList(nextState);
-				System.out.println(enemyList.get(0).dead);
 				ce.predictFuture(nextState,enemyList);
 				enemyListToVarList(nextState);
 				
@@ -296,17 +296,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			for(int i = 0 ; i < enemyVarIndex; i+=7){
 //				if(state.enemyVarList[i+5]==0){
 					if(state.enemyVarList[i+2]==98)
-						enemyList.add(new BlueGoomba(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==0));
+						enemyList.add(new BlueGoomba(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==1));
 					else if(state.enemyVarList[i+2]==84)
-						enemyList.add(new Bullet(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==0));
+						enemyList.add(new Bullet(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==1));
 					else if(state.enemyVarList[i+2]==91)
-						enemyList.add(new Flower(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==0));
+						enemyList.add(new Flower(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==1));
 					else if(state.enemyVarList[i+2]==13)
-						enemyList.add(new Shell(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==0));
+						enemyList.add(new Shell(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==1));
 					else if(state.enemyVarList[i+2]==82)
-						enemyList.add(new NormalEnemy(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==0,state.enemyVarList[i+6]==1));
+						enemyList.add(new NormalEnemy(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==1,state.enemyVarList[i+6]==1));
 					else 
-						enemyList.add(new NormalEnemy(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==0));
+						enemyList.add(new NormalEnemy(state.enemyVarList[i],state.enemyVarList[i+1],(byte)state.enemyVarList[i+2],state.enemyVarList[i+3],(int)state.enemyVarList[i+4],state.enemyVarList[i+5]==1));
 //					}
 			}
 			
@@ -578,7 +578,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 							prevEnemyOnGroundArr[i / 3] = bestState.enemyVarList[i+6]==1;
 						for(int h = 0; h < 7; h++)
 							bestState.enemyVarList[j+h] = 0;
-						
+						bestState.enemyVarList[j+5] = 1;
 						break;
 					}
 
