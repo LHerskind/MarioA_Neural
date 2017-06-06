@@ -74,7 +74,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(50, 4, visualize);
+			manyMaps(50, 15, visualize);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
