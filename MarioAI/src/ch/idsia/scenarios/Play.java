@@ -70,15 +70,15 @@ public final class Play {
 
 	static boolean all = true;
 	static boolean visualize = !all;
+	static boolean enemies = true;
 
 	public static void main(String[] args) {
 
 		if (all) {
-//			for (int i = 6; i < 16; i++) {
-				manyMaps(500, 12, visualize);
-//			}
+			// for (int i = 6; i < 16; i++) {
+			manyMaps(500, 15);
+			// }
 			System.exit(0);
-
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -87,12 +87,15 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(2);
+			marioAIOptions.setLevelDifficulty(12);
+			if (!enemies) {
+				marioAIOptions.setEnemies("off");
+			}
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 
-			marioAIOptions.setLevelRandSeed(166);
+			marioAIOptions.setLevelRandSeed(0);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -103,7 +106,7 @@ public final class Play {
 		}
 	}
 
-	public static void manyMaps(int howMany, int difficulty, boolean visualize) {
+	public static void manyMaps(int howMany, int difficulty) {
 		int lost = 0;
 		ArrayList<Integer> listOfLost = new ArrayList<>();
 		for (int i = 0; i < howMany; i++) {
@@ -115,6 +118,9 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			if (!GlobalOptions.isScale2x) {
 				GlobalOptions.changeScale2x();
+			}
+			if (!enemies) {
+				marioAIOptions.setEnemies("off");
 			}
 			marioAIOptions.setLevelDifficulty(difficulty);
 			marioAIOptions.setMarioMode(2);
@@ -129,10 +135,41 @@ public final class Play {
 				}
 			}
 			if (i > 0 && i % 10 == 0) {
-				System.out.print(".");
+				System.out.print(lost + "-");
 			}
 		}
 		System.out.println();
+		System.out.println("Lost: " + lost);
+//		lost = 0;
+//		ArrayList<Integer> listOfLost2 = new ArrayList<>();
+//		for (Integer i : listOfLost) {
+//			final MarioAIOptions marioAIOptions = new MarioAIOptions();
+//			marioAIOptions.setVisualization(visualize);
+//			if (marioAIOptions.isVisualization()) {
+//				marioAIOptions.setFPS(24);
+//			}
+//			final BasicTask basicTask = new BasicTask(marioAIOptions);
+//			if (!GlobalOptions.isScale2x) {
+//				GlobalOptions.changeScale2x();
+//			}
+//			if (!enemies) {
+//				marioAIOptions.setEnemies("off");
+//			}
+//			marioAIOptions.setLevelDifficulty(difficulty);
+//			marioAIOptions.setMarioMode(2);
+//			marioAIOptions.setLevelRandSeed(i);
+//			basicTask.runSingleEpisode(1);
+//			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
+//				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
+//					if (basicTask.getEvaluationInfo().distancePassedCells < basicTask.getEvaluationInfo().levelLength) {
+//						listOfLost2.add(i);
+//						lost++;
+//					}
+//				}
+//			}
+//		}
+//		System.out.println("Lost: " + lost);
+//		System.out.println();
 		lost = 0;
 		for (Integer i : listOfLost) {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions();
@@ -141,6 +178,9 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			if (!GlobalOptions.isScale2x) {
 				GlobalOptions.changeScale2x();
+			}
+			if (!enemies) {
+				marioAIOptions.setEnemies("off");
 			}
 			marioAIOptions.setLevelDifficulty(difficulty);
 			marioAIOptions.setMarioMode(2);

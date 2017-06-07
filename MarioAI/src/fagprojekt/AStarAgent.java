@@ -26,7 +26,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private double speedPriority = 9;
 	private State testState;
 
-	private int numberOfStates = 10000;
+	private int numberOfStates = 15000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
 
@@ -230,7 +230,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return Long.parseLong(superHashCode);
 		}
 
-		public State getNextState(State parent, boolean[] action) {
+		public State getNextState(State parent, boolean[] action, ArrayList<Enemy> enemies) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
 				nextState.parent = parent;
@@ -251,23 +251,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.facing = parent.facing;
 				nextState.penalty = parent.penalty;
 
-				nextState.enemyList = new ArrayList<Enemy>();
-				for (int i = 0; i < parent.enemyList.size(); i++) {
-					Enemy e = parent.enemyList.get(i);
-					if (e.kind == 98) {
-						nextState.enemyList.add(new BlueGoomba(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else if (e.kind == 84) {
-						nextState.enemyList.add(new Bullet(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else if (e.kind == 91) {
-						nextState.enemyList.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					} else if (e.kind == 13) {
-						nextState.enemyList.add(new Shell(e.x, e.y, e.kind, 0, 0, e.dead));
-					} else if (e.kind == 82) {
-						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
-					} else {
-						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
-					}
-				}
+				nextState.enemyList = enemies;
 
 				ce.predictFuture(nextState);
 				nextState.g = parent.g + (int) speedPriority;
@@ -280,7 +264,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		public int priority() {
 			int lala = this.onGround ? 0 : 15;
-			return heuristic + g + penalty + (int) y / 16 + lala;
+			return heuristic + g + penalty + lala + (int) y / 16;
 		}
 
 		public void penalty(int amount) {
@@ -291,52 +275,53 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return x >= searchDepth;
 		}
 
-		State moveNE() {
-			return getNextState(this, createAction(false, true, true, false));
+		State moveNE(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, true, true, false), enemies);
 		}
 
-		State SmoveNE() {
-			return getNextState(this, createAction(false, true, true, true));
+		State SmoveNE(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, true, true, true), enemies);
 		}
 
-		State moveE() {
-			return getNextState(this, createAction(false, true, false, false));
+		State moveE(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, true, false, false), enemies);
 		}
 
-		State SmoveE() {
-			return getNextState(this, createAction(false, true, false, true));
+		State SmoveE(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, true, false, true), enemies);
 		}
 
-		State moveN() {
-			return getNextState(this, createAction(false, false, true, false));
+		State moveN(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, false, true, false), enemies);
 		}
 
-		State SmoveN() {
-			return getNextState(this, createAction(false, false, true, true));
+		State SmoveN(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, false, true, true), enemies);
 		}
 
-		State moveNW() {
-			return getNextState(this, createAction(true, false, true, false));
+		State moveNW(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(true, false, true, false), enemies);
 		}
 
-		State SmoveNW() {
-			return getNextState(this, createAction(true, false, true, true));
+		State SmoveNW(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(true, false, true, true), enemies);
 		}
 
-		State moveW() {
-			return getNextState(this, createAction(true, false, false, false));
+		State moveW(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(true, false, false, false), enemies);
 		}
 
-		State SmoveW() {
-			return getNextState(this, createAction(true, false, false, true));
+		State SmoveW(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(true, false, false, true), enemies);
 		}
 
-		State still() {
-			return getNextState(this, createAction(false, false, false, false));
+		State still(ArrayList<Enemy> enemies) {
+			return getNextState(this, createAction(false, false, false, false), enemies);
 		}
 
 		State duck() {
-			State togo = getNextState(this, duckAction());
+			ArrayList<Enemy> newList = new ArrayList<>();
+			State togo = getNextState(this, duckAction(), newList);
 			if (togo != null) {
 				togo.marioHeight = 12;
 			}
@@ -347,9 +332,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-//				if (successor.penalty < 500 + marioMode * 500) {
+				if (successor.penalty < 2000) {
 					openSet.add(successor);
-//				}
+				}
 				closed.put(successor.superHashCode(), successor);
 			} else {
 				indexStateArray--;
@@ -434,7 +419,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 			}
-
 		}
 		if (GlobalOptions.marioDebug) {
 			for (int i = 0; i < 400; i++) {
@@ -453,16 +437,20 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				// System.out.println("SHIT " + indexStateArray);
+				if(indexStateArray >= numberOfStates){
+					System.out.println("SHIT");
+				}
 				return getRootState(state);
 			}
 
-			addSuccessor(state.SmoveE());
-			addSuccessor(state.SmoveNE());
-			addSuccessor(state.SmoveNW());
-			addSuccessor(state.SmoveW());
+			ArrayList<Enemy> enemiesNextState = ce.predictEnemies(state.enemyList);
+			// System.out.println("New enemies predicted");
+			addSuccessor(state.SmoveE(enemiesNextState));
+			addSuccessor(state.SmoveNE(enemiesNextState));
+			addSuccessor(state.SmoveNW(enemiesNextState));
+			addSuccessor(state.SmoveW(enemiesNextState));
 		}
-//		System.out.println("DISASTER: OPEN-SET IS EMPTY");
+		// System.out.println("DISASTER: OPEN-SET IS EMPTY");
 		return stateArray[0];
 	}
 
