@@ -130,7 +130,7 @@ public class CustomEngine {
 		if (state.y >= 15 * cellSize + cellSize){
 			State current = state;
 			current.penalty(2000);
-			for(int i = 1; i < 15; i++){
+			for(int i = 1; i < 6; i++){
 				if(current.parent != null){
 					current = current.parent;
 					current.penalty( (int)Math.round(2000 / (Math.pow(i*2, 3))));

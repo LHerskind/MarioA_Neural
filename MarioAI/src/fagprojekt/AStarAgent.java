@@ -347,10 +347,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				// if (successor.penalty < 2000) { // + marioMode * 500) {
-				openSet.add(successor);
-				// }
-
+//				if (successor.penalty < 500 + marioMode * 500) {
+					openSet.add(successor);
+//				}
 				closed.put(successor.superHashCode(), successor);
 			} else {
 				indexStateArray--;
@@ -463,7 +462,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
 		}
-		System.out.println("DISASTER: OPEN-SET IS EMPTY");
+//		System.out.println("DISASTER: OPEN-SET IS EMPTY");
 		return stateArray[0];
 	}
 

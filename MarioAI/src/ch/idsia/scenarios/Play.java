@@ -27,6 +27,7 @@ s * Copsyright (c) 2009-2010, Sergey Karakovskiy and Julian Togelius
 
 package ch.idsia.scenarios;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
@@ -67,12 +68,17 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all = true;
+	static boolean visualize = !all;
 
 	public static void main(String[] args) {
 
 		if (all) {
-			manyMaps(500, 2, false);
+//			for (int i = 6; i < 16; i++) {
+				manyMaps(500, 12, visualize);
+//			}
+			System.exit(0);
+
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
@@ -82,24 +88,11 @@ public final class Play {
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
 			marioAIOptions.setLevelDifficulty(2);
-			// marioAIOptions.setMarioMode(0);
-			// marioAIOptions.setEnemies("off");
-			// marioAIOptions.setEnemies("rk");
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-			
-//			LOST: 97 Reason of death: Gap
-//			LOST: 172 Reason of death: Gap
-//			LOST: 191 Reason of death: Gap
-//			LOST: 192 Reason of death: Gap
-//			LOST: 219 Reason of death: Gap
-//			LOST: 355 Reason of death: Gap
-//			LOST: 429 Reason of death: Gap
-//			LOST: 461 Reason of death: Gap
-//			LOST: 464 Reason of death: Gap
-			
-			marioAIOptions.setLevelRandSeed(172);
+
+			marioAIOptions.setLevelRandSeed(166);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -112,10 +105,10 @@ public final class Play {
 
 	public static void manyMaps(int howMany, int difficulty, boolean visualize) {
 		int lost = 0;
+		ArrayList<Integer> listOfLost = new ArrayList<>();
 		for (int i = 0; i < howMany; i++) {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions();
 			marioAIOptions.setVisualization(visualize);
-			// marioAIOptions.setTimeLimit(-1);
 			if (marioAIOptions.isVisualization()) {
 				marioAIOptions.setFPS(24);
 			}
@@ -124,7 +117,32 @@ public final class Play {
 				GlobalOptions.changeScale2x();
 			}
 			marioAIOptions.setLevelDifficulty(difficulty);
-			// marioAIOptions.setEnemies("off");
+			marioAIOptions.setMarioMode(2);
+			marioAIOptions.setLevelRandSeed(i);
+			basicTask.runSingleEpisode(1);
+			if (basicTask != null && basicTask.getEvaluationInfo() != null) {
+				if (basicTask.getEvaluationInfo().marioStatus != Mario.STATUS_WIN) {
+					if (basicTask.getEvaluationInfo().distancePassedCells < basicTask.getEvaluationInfo().levelLength) {
+						listOfLost.add(i);
+						lost++;
+					}
+				}
+			}
+			if (i > 0 && i % 10 == 0) {
+				System.out.print(".");
+			}
+		}
+		System.out.println();
+		lost = 0;
+		for (Integer i : listOfLost) {
+			final MarioAIOptions marioAIOptions = new MarioAIOptions();
+			marioAIOptions.setVisualization(true);
+			marioAIOptions.setFPS(24);
+			final BasicTask basicTask = new BasicTask(marioAIOptions);
+			if (!GlobalOptions.isScale2x) {
+				GlobalOptions.changeScale2x();
+			}
+			marioAIOptions.setLevelDifficulty(difficulty);
 			marioAIOptions.setMarioMode(2);
 			marioAIOptions.setLevelRandSeed(i);
 			basicTask.runSingleEpisode(1);
@@ -137,8 +155,8 @@ public final class Play {
 				}
 			}
 		}
+
 		System.out.println("Done, lost: " + lost);
-		System.exit(0);
 	}
 
 }
