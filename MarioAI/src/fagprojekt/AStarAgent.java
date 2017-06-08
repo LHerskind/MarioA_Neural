@@ -26,7 +26,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private double speedPriority = 9;
 	private State testState;
 
-	private int numberOfStates = 15000;
+	private int numberOfStates = 20000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
 
