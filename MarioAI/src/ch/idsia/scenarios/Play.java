@@ -75,9 +75,9 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			// for (int i = 6; i < 16; i++) {
-			manyMaps(500, 15);
-			// }
+			for (int i = 0; i < 16; i++) {
+				manyMaps(500, i);
+			}
 			System.exit(0);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
@@ -87,7 +87,7 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(2);
+			marioAIOptions.setLevelDifficulty(9);
 			if (!enemies) {
 				marioAIOptions.setEnemies("off");
 			}
@@ -95,7 +95,7 @@ public final class Play {
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 
-			marioAIOptions.setLevelRandSeed(166);
+			marioAIOptions.setLevelRandSeed(0);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
@@ -107,7 +107,6 @@ public final class Play {
 	}
 
 	public static void manyMaps(int howMany, int difficulty) {
-		System.out.println("Difficulty: " + difficulty);
 		int lost = 0;
 		ArrayList<Integer> listOfLost = new ArrayList<>();
 		for (int i = 0; i < howMany; i++) {
@@ -135,15 +134,15 @@ public final class Play {
 					}
 				}
 			}
-			if (i > 0 && i % 10 == 0) {
-				System.out.print(lost + "-");
-				if (i > 0 && i % 100 == 0) {
-					System.out.print("!i!");
-				}
-			}
+			// if (i > 0 && i % 10 == 0) {
+			// System.out.print(lost + "-");
+			// if (i > 0 && i % 100 == 0) {
+			// System.out.print("!i!");
+			// }
+			// }
 		}
-		System.out.println();
-		System.out.println("Lost: " + lost);
+		// System.out.println();
+		// System.out.println("Lost: " + lost);
 		lost = 0;
 		ArrayList<Integer> listOfLost2 = new ArrayList<>();
 		for (Integer i : listOfLost) {
@@ -172,9 +171,10 @@ public final class Play {
 				}
 			}
 		}
-		System.out.println("Lost: " + lost);
-		System.out.println();
+		// System.out.println("Lost: " + lost);
+		// System.out.println();
 		lost = 0;
+		System.out.println("Difficulty: " + difficulty);
 		for (Integer i : listOfLost2) {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions();
 			marioAIOptions.setVisualization(true);
@@ -199,8 +199,8 @@ public final class Play {
 				}
 			}
 		}
-
 		System.out.println("Done, lost: " + lost);
+		System.out.println();
 	}
 
 }
