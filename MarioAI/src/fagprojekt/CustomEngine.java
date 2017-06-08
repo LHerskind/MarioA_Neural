@@ -183,25 +183,11 @@ public class CustomEngine {
 			state.ya += 3;
 		}
 		if (state.carried != null) {
-//		Shell carriedShell = null;
-//		if(state.carrying) {
-//			for(Enemy e: state.enemyList) {
-//				if(e.kind == 13 && e.carried) {
-//					carriedShell = (Shell) e;
-//				}
-//			}
-			
 			state.carried.x = state.x + state.facing * 8; 					
 			state.carried.y = state.y - 2;
-//			if(carriedShell != null) {
-//				carriedShell.x = state.x + state.facing * 8;
-//				carriedShell.y = state.y - 2;
-//			}
 			if (!state.action[Mario.KEY_SPEED]) {
 				state.carried.release(state);
-//				if(carriedShell != null) carriedShell.release(state);
 				state.carried = null;
-//				state.carrying = false;
 			}
 		}
 		for (int i = 0; i < state.enemyList.size(); i++) {
@@ -210,10 +196,6 @@ public class CustomEngine {
 				e.collideCheck(state, this);
 				if (state.stomp)
 					stomp(state, e);
-//				if(state.stompShell)
-//					stompShell(state, (Shell) e);
-//				if(state.kick)
-//					kick(state, (Shell) e);
 			}
 		}
 		// Check shell collision
@@ -223,7 +205,6 @@ public class CustomEngine {
 					if(e.shellCollideCheck(state, shell)) {
 						if (state.carried == shell && !shell.dead) {
 							state.carried = null;
-//							state.carrying = false;
 							shell.die();
 						}
 					}
@@ -369,7 +350,6 @@ public class CustomEngine {
 	public void stompShell(State state, final Shell shell) {
 		if (state.action[Mario.KEY_SPEED] && shell.facing == 0) {
 			state.carried = shell;
-//			state.carrying = true;
 			shell.carried = true;
 		} else {
 			float targetY = shell.y - shell.height / 2;
@@ -382,18 +362,17 @@ public class CustomEngine {
 			state.sliding = false;
 			state.invulnerable = 1;
 		}
-		state.stompShell = false;
+		
 	}
 	public void kick(State state, final Shell shell) {
 		if (state.action[Mario.KEY_SPEED]) {
 			state.carried = shell;
-//			state.carrying = true;
 			shell.carried = true;
 			
 		} else {
 			state.invulnerable = 1;
 		}
-		state.kick = false;
+		
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {
