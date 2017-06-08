@@ -332,7 +332,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				if (successor.penalty <= 000) {
+				if (successor.penalty < 2000) {
 					openSet.add(successor);
 				}
 				closed.put(successor.superHashCode(), successor);
@@ -437,7 +437,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				if(indexStateArray >= numberOfStates){
+				if (indexStateArray >= numberOfStates) {
 					System.out.println("SHIT");
 				}
 				return getRootState(state);
