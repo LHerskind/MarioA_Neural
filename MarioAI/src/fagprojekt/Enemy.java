@@ -45,6 +45,7 @@ public abstract class Enemy {
 	public static final int KIND_WAVE_GOOMBA = 98;
 	public static final int KIND_SHELL = 13;
 	public static final int KIND_FIRE_FLOWER = 3;
+	public static final int KIND_FIREBALL = 25; //SELF-MADE
 	
 	protected static float GROUND_INERTIA = 0.89f;
 	protected static float AIR_INERTIA = 0.89f;
@@ -52,11 +53,11 @@ public abstract class Enemy {
 	
 	public byte kind;
 	public boolean onGround = false;
+	public boolean carried;
 
 	public int width = 4;
 	public int height = 24;
-	public float yaa = 1;
-	public float yaw = 1;
+
 	public float x;
 	public float y;
 	public float ya;
@@ -96,14 +97,12 @@ public abstract class Enemy {
 		if(kind == KIND_GREEN_KOOPA || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_RED_KOOPA || kind == KIND_RED_KOOPA_WINGED) 
 			this.height = 24;
 		else this.height = 12;
-		
-		yaa = 2;
 
 		avoidCliffs = kind == KIND_RED_KOOPA;
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
 	}
 
-	public void collideCheck(State state) {
+	public void collideCheck(State state, CustomEngine ce) {
 		float xMarioD = state.x - this.x;
 		float yMarioD = state.y - this.y;
 		if (xMarioD > -width * 2 - 4 && xMarioD < width * 2 + 4) {
@@ -135,6 +134,7 @@ public abstract class Enemy {
 	}
 
 	public abstract void move(byte[][] map);
+	public void move(State state, byte[][] map) {}
 
 	public boolean move(byte[][] map, float xa, float ya) {
 		while (xa > 8) {
@@ -260,40 +260,24 @@ public abstract class Enemy {
 		}
 		*/
 	}
-/* TODO - SHELLS
-	public boolean shellCollideCheck(Shell shell) {
-		if (deadTime != 0)
-			return false;
 
+	public boolean shellCollideCheck(State state, Shell shell) {
+		if (dead)
+			return false;
 		float xD = shell.x - x;
 		float yD = shell.y - y;
 
 		if (xD > -16 && xD < 16) {
 			if (yD > -height && yD < shell.height) {
-				xa = shell.facing * 2;
-				ya = -5;
-				flyDeath = true;
-				if (spriteTemplate != null)
-					spriteTemplate.isDead = true;
-				deadTime = 100;
-				winged = false;
-				hPic = -hPic;
-				yPicO = -yPicO + 16;
-				// System.out.println("shellCollideCheck");
-				++LevelSmapne.killedCreaturesTotal;
-				++LevelSmapne.killedCreaturesByShell;
+				dead = true;
 				return true;
 			}
 		}
 		return false;
 	}
-*/
-// TODO - FIREBALLS
-	/*
 	public boolean fireballCollideCheck(Fireball fireball) {
-		if (deadTime != 0)
+		if(dead) 
 			return false;
-
 		float xD = fireball.x - x;
 		float yD = fireball.y - y;
 
@@ -301,20 +285,14 @@ public abstract class Enemy {
 			if (yD > -height && yD < fireball.height) {
 				if (noFireballDeath)
 					return true;
-
-				xa = fireball.facing * 2;
-				ya = -5;
-				flyDeath = true;
-				deadTime = 100;
-				winged = false;
-				// System.out.println("fireballCollideCheck");
-				
+				dead = true;
 				return true;
 			}
 		}
 		return false;
 	}
-	*/
+	public void release(State state){}
+	
 	
 /* TODO - BUMPCHECK?!
 	public void bumpCheck(int xTile, int yTile) {

@@ -27,9 +27,9 @@ public class NormalEnemy extends Enemy {
 
 		if (!onGround) {
 			if (winged) {
-				ya += 0.6f * yaw;
+				ya += 0.6f;
 			} else {
-				ya += yaa;
+				ya += 2;
 			}
 		} else if (winged) {
 			ya = -10;

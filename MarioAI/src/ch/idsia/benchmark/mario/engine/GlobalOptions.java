@@ -75,8 +75,10 @@ public static boolean isReplaying = false;
 public static int[][] marioPos = new int[400][2];
 public static int enemyNo = 15;
 public static int[][][] enemyPos = new int[enemyNo][400][2];
+public static int[][][] fireballPos = new int[2][400][2];
 public static boolean marioDebug = true;
-public static boolean enemyDebug = false;
+public static boolean enemyDebug = true;
+public static boolean fireballDebug = false;
 
 public static int getPrimaryVersionUID()
 {

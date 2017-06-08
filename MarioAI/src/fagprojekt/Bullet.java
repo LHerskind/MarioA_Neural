@@ -23,7 +23,7 @@ public class Bullet extends Enemy {
 		return true;
 	}
 	@Override
-	public void collideCheck(State state) {
+	public void collideCheck(State state, CustomEngine ce) {
 		float xMarioD = state.x - this.x;
 		float yMarioD = state.y - this.y;
 	    if (xMarioD > -16 && xMarioD < 16)

@@ -43,13 +43,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public float prevXJumpSpeed;
 	public int prevFacing;
 	public boolean prevSliding;
+	public Enemy prevCarried;
 	// Same but for enemies
 	public float[] prevEnemyXArr;
 	public float[] prevEnemyYaArr;
 	public int[] prevEnemyFacingArr;
 	public boolean[] prevEnemyOnGroundArr;
+	public boolean[] prevEnemyCarriedArr;
 	public ArrayList<Float> prevEnemiesX;
-
+	// Same but for fireballs
+	public ArrayList<Fireball> prevFireballs;
+	
 	private HashMap<Long, State> closed = new HashMap<>();
 
 	private PriorityQueue<State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -101,12 +105,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public float yJumpSpeed;
 		public float xJumpSpeed;
 		public int height;
-
 		public boolean onGround;
 		public boolean wasOnGround;
 		public boolean sliding;
 		public boolean mayJump;
 		public boolean ableToShoot;
+		public boolean carrying;
 		public int invulnerable;
 
 		public int penalty;
@@ -118,6 +122,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		// enemy stuff
 		public ArrayList<Enemy> enemyList;
 		public boolean stomp;
+		public boolean stompShell;
+		public boolean kick;
+		public Enemy carried = null;
+		// fireballs
+		public ArrayList<Fireball> fireballs;
+		public ArrayList<Fireball> fireballsToCheck;
+		public ArrayList<Shell> shellsToCheck;
+		public int fireballsOnScreen;
 
 		public State() {
 		}
@@ -133,6 +145,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public void initValues() {
 			this.onGround = isMarioOnGround;
 			this.mayJump = isMarioAbleToJump;
+			this.ableToShoot = isMarioAbleToShoot;
+			this.carrying = isMarioCarrying;
 			this.x = marioFloatPos[0];
 			this.y = marioFloatPos[1];
 			this.penalty = 0;
@@ -144,28 +158,38 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.facing = prevFacing;
 			this.xJumpSpeed = prevXJumpSpeed;
 			this.invulnerable = prevInvulnerable;
-			// For the first tick, ya value is 3.0f. Its a small detail
+			this.carried = null;
+//			if(prevCarried != null) {
+//				this.carried = new Shell(prevCarried.x,prevCarried.y,prevCarried.kind,
+//						prevCarried.ya,prevCarried.facing,prevCarried.carried,prevCarried.dead);
+//				this.carried = prevCarried;
+//			}
+//			 For the first tick, ya value is 3.0f. Its a small detail
 			if (prevYa == 0)
 				this.ya = 3.0f;
 			this.yJumpSpeed = prevYJumpSpeed;
 			this.height = marioMode > 0 ? 24 : 12;
 
-			this.enemyList = new ArrayList<Enemy>();
+			this.fireballs = new ArrayList<Fireball>();
+			if(prevFireballs != null) {
+				for(Fireball f: prevFireballs) {
+					this.fireballs.add(new Fireball(f.x,f.y,f.kind,f.ya,f.facing,f.dead));
 
+				}
+			}
+			this.enemyList = new ArrayList<Enemy>();
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				float currEnemyX = (marioFloatPos[0] + enemiesFloatPos[i + 1]);
 				float currEnemyY = (marioFloatPos[1] + enemiesFloatPos[i + 2]);
 				byte kind = (byte) enemiesFloatPos[i];
 				boolean EnemyOnGround = false;
+				boolean EnemyCarried = false;
 				// Check facing & Ya
-				// 2.0 is the value all new enemies WITHOUT wings are assigned
-				// for first tick, else it is 0.6.
+				// 2.0 is the value all new enemies WITHOUT wings are assigned for first tick, else it is 0.6.
 				// The reason this is not set to 0, is because when enemies
-				// spawn in the engine, they are put through one single tick for
-				// themselves,
+				// spawn in the engine, they are put through one single tick for themselves,
 				// giving them some custom values for xa, ya, etc, which
-				// (luckily) are the same for all enemies of same kind. Flowers
-				// are given 5 ticks
+				// (luckily) are the same for all enemies of same kind. Flowers are given 5 ticks
 				// upon spawning, because why the fuck not??
 				float EnemyYa = 2.0f;
 				// Following values are for winged enemies
@@ -174,13 +198,21 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				// This value is for flowerzzz
 				else if (kind == 91)
 					EnemyYa = -4.31441f;
-
+				// This value is for shells
+				else if (kind == 13) {
+					EnemyYa = -2.25f;
+				}
 				int facing = -1;
+				// This is for bullets
 				if(kind == 84) {
 					if (currEnemyX > this.x) 
 						facing = -1;
 					else if (currEnemyX < this.x) 
 						facing = 1;
+				}
+				// Shells
+				if(kind == 13) {
+					facing = 0;
 				}
 				if (prevEnemyFacingArr != null && prevEnemyFacingArr[i / 3] != 0) {
 					facing = prevEnemyFacingArr[i / 3];
@@ -190,6 +222,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 				if (prevEnemyOnGroundArr != null && prevEnemyOnGroundArr[i / 3]) {
 					EnemyOnGround = prevEnemyOnGroundArr[i / 3];
+				}
+				if(prevEnemyCarriedArr != null && prevEnemyCarriedArr[i / 3]) {
+					EnemyCarried = prevEnemyCarriedArr[i / 3];
 				}
 
 				if (kind == 98) {
@@ -201,7 +236,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				} else if (kind == 91) {
 					this.enemyList.add(new Flower(currEnemyX, currEnemyY, kind, EnemyYa, facing, false));
 				} else if(kind == 13) {
-					this.enemyList.add(new Shell(currEnemyX, currEnemyY, kind, 0, 0, false));
+					this.enemyList.add(new Shell(currEnemyX, currEnemyY, kind, EnemyYa, facing, EnemyCarried, false));
 				} else if(kind == 82) {
 					this.enemyList.add(new NormalEnemy(currEnemyX, currEnemyY, kind, EnemyYa, facing, false, EnemyOnGround));
 				 } else {
@@ -209,7 +244,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				}
 
 			}
-
 		}
 
 		public long superHashCode() {
@@ -236,6 +270,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.action = action;
 				nextState.height = parent.height;
 				nextState.onGround = parent.onGround;
+				nextState.ableToShoot = parent.ableToShoot;
 				nextState.invulnerable = parent.invulnerable;
 				nextState.mayJump = parent.mayJump;
 				nextState.xa = parent.xa;
@@ -247,6 +282,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				nextState.jumpTime = parent.jumpTime;
 				nextState.sliding = parent.sliding;
 				nextState.facing = parent.facing;
+				nextState.carrying = parent.carrying;
+				nextState.carried = null;
+				if(parent.carried != null) {
+					Enemy prevCar = parent.carried;
+					nextState.carried = new Shell(prevCar.x, prevCar.y, prevCar.kind,
+							prevCar.ya, prevCar.facing, prevCar.carried, prevCar.dead);	
+				}
 				nextState.penalty = parent.penalty;
 
 				nextState.enemyList = new ArrayList<Enemy>();
@@ -259,14 +301,19 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					} else if (e.kind == 91) {
 						nextState.enemyList.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 					} else if (e.kind == 13) {
-						nextState.enemyList.add(new Shell(e.x, e.y, e.kind, 0, 0, e.dead));
+						nextState.enemyList.add(new Shell(e.x, e.y, e.kind, e.ya, e.facing, e.carried, e.dead));
 					} else if (e.kind == 82) {
 						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
 					} else {
 						nextState.enemyList.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
 					}
 				}
-
+				nextState.fireballs = new ArrayList<Fireball>();
+				nextState.fireballsToCheck = new ArrayList<Fireball>();
+				nextState.shellsToCheck = new ArrayList<Shell>();
+				for(Fireball f: parent.fireballs) {
+					nextState.fireballs.add(new Fireball(f.x,f.y,f.kind,f.ya, f.facing, f.dead));
+				}
 				ce.predictFuture(nextState);
 				nextState.g = parent.g + (int) speedPriority;
 				nextState.heuristic = (int) (searchDepth - nextState.x);
@@ -336,10 +383,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-//				if (successor.penalty < 2000) { // + marioMode * 500) {
-					openSet.add(successor);
-//				}
-
+				openSet.add(successor);
 				closed.put(successor.superHashCode(), successor);
 			} else {
 				indexStateArray--;
@@ -372,6 +416,16 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 							if(state.enemyList.size() > i) {
 								GlobalOptions.enemyPos[i][debugPos][0] = (int) state.enemyList.get(i).x;
 								GlobalOptions.enemyPos[i][debugPos][1] = (int) state.enemyList.get(i).y;
+							}
+						}
+					}
+				}
+				if(GlobalOptions.fireballDebug) {
+					if(!state.fireballs.isEmpty()) {
+						for(int i = 0; i < GlobalOptions.fireballPos.length; i++) {
+							if(state.fireballs.size() > i) {
+								GlobalOptions.fireballPos[i][debugPos][0] = (int) state.fireballs.get(i).x;
+								GlobalOptions.fireballPos[i][debugPos][1] = (int) state.fireballs.get(i).y;
 							}
 						}
 					}
@@ -416,26 +470,38 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 			}
-			
 		}
+		
+		if(GlobalOptions.fireballDebug) {
+			for(int i = 0; i < GlobalOptions.fireballPos.length; i++) {
+				for(int j = 0; j < 400; j++) {
+					if(initial.fireballs.size() > i){
+						GlobalOptions.fireballPos[i][j][0] = (int) (initial.fireballs.get(i).x);
+						GlobalOptions.fireballPos[i][j][1] = (int) (initial.fireballs.get(i).y);
+					}
+				}
+			}
+		}
+		
 		if(GlobalOptions.marioDebug) {
 			for (int i = 0; i < 400; i++) {
 				GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
 				GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
-				debugPos = 0;
 			}
 		}
+		debugPos = 0;
 
 		while (!openSet.isEmpty()) {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
+
 				testState = state;
 				return getRootState(state);
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				// System.out.println("SHIT " + indexStateArray);
+//				 System.out.println("SHIT " + indexStateArray);
 				return getRootState(state);
 			}
 
@@ -443,7 +509,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE());
 			addSuccessor(state.SmoveNW());
 			addSuccessor(state.SmoveW());
-//			 addSuccessor(state.still());
+			addSuccessor(state.still());
 
 		}
 		System.out.println("DISASTER: OPEN-SET IS EMPTY");
@@ -462,7 +528,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	}
 
 	public boolean[] getAction() {
-		// System.out.println("NEW TICK!");
+//		System.out.println("NEW TICK");
 
 		// If mario position is 32, it means we have started a new map in
 		// GamePlayTrack, and firstScene should be set true
@@ -487,9 +553,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			// ce.print();
 		}
 		validatePrevArr();
-		
 //		print(); 
-
 		bestState = solve();
 		if (bestState == null) {
 			return createAction(false, false, false, false);
@@ -502,6 +566,12 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevInvulnerable = bestState.invulnerable;
 		prevSliding = bestState.sliding;
 		prevFacing = bestState.facing;
+		prevFireballs = new ArrayList<Fireball>();
+		for(Fireball f: bestState.fireballs) {
+			prevFireballs.add(f);
+		}
+		prevCarried = bestState.carried;
+
 
 		prevEnemiesX = new ArrayList<Float>();
 		for (int i = 0; i < enemiesFloatPos.length; i += 3) {
@@ -515,6 +585,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			prevEnemyFacingArr = new int[enemiesFloatPos.length / 3];
 			prevEnemyYaArr = new float[enemiesFloatPos.length / 3];
 			prevEnemyOnGroundArr = new boolean[enemiesFloatPos.length / 3];
+			prevEnemyCarriedArr = new boolean[enemiesFloatPos.length / 3];
+			
 
 			for (int i = 0; i < enemiesFloatPos.length; i += 3) {
 				for (int j = 0; j < bestState.enemyList.size(); j++) {
@@ -522,9 +594,14 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					if (e.x == (enemiesFloatPos[i + 1] + marioFloatPos[0]) && e.kind == (enemiesFloatPos[i])) {
 						prevEnemyFacingArr[i / 3] = e.facing;
 						prevEnemyYaArr[i / 3] = e.ya;
-
+						// Red Koopa is 82
 						if (e.kind == 82)
 							prevEnemyOnGroundArr[i / 3] = e.onGround;
+						// Shell is 13
+						if(e.kind == 13) {
+							prevEnemyCarriedArr[i / 3] = e.carried;
+							if(e.carried) System.out.println("getCarried scrubs");
+						}
 						bestState.enemyList.remove(e);
 						break;
 					}
@@ -585,6 +662,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		prevEnemyYaArr = null;
 		prevEnemyOnGroundArr = null;
 		prevEnemiesX = null;
+		prevFireballs = null;
+		prevCarried = null;
 		prevJumpTime = 0;
 		prevXa = 0;
 		prevYa = 0;

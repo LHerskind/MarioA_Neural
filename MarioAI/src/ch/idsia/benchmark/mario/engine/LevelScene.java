@@ -182,7 +182,6 @@ public final class LevelScene implements SpriteContext {
 		}
 
 		float targetXCam = mario.x - 160;
-
 		xCam = targetXCam;
 
 		if (xCam < 0)
@@ -191,7 +190,6 @@ public final class LevelScene implements SpriteContext {
 			xCam = level.length * cellSize - GlobalOptions.VISUAL_COMPONENT_WIDTH;
 
 		fireballsOnScreen = 0;
-
 		for (Sprite sprite : sprites) {
 			if (sprite != mario) {
 				float xd = sprite.x - xCam;
@@ -205,7 +203,6 @@ public final class LevelScene implements SpriteContext {
 				}
 			}
 		}
-
 		tickCount++;
 		level.tick();
 
@@ -256,9 +253,9 @@ public final class LevelScene implements SpriteContext {
 					}
 				}
 			}
-		for (Sprite sprite : sprites)
+		for (Sprite sprite : sprites) 
 			sprite.tick();
-
+			
 		byte levelElement = level.getBlock(mario.mapX, mario.mapY);
 		if (levelElement == (byte) (13 + 3 * 16) || levelElement == (byte) (13 + 5 * 16)) {
 			if (levelElement == (byte) (13 + 5 * 16))
@@ -271,7 +268,6 @@ public final class LevelScene implements SpriteContext {
 
 		for (Sprite sprite : sprites)
 			sprite.collideCheck();
-
 		for (Shell shell : shellsToCheck) {
 			for (Sprite sprite : sprites) {
 				if (sprite != shell && !shell.dead) {

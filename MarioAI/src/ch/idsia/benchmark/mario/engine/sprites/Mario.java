@@ -238,6 +238,7 @@ public final class Mario extends Sprite {
 	}
 
 	public void move() {
+
 		if (GlobalOptions.isFly) {
 			xa = ya = 0;
 			ya = keys[KEY_DOWN] ? 10 : ya;
@@ -366,7 +367,6 @@ public final class Mario extends Sprite {
 		if ((!keys[KEY_LEFT] && !keys[KEY_RIGHT]) || ducking || ya < 0 || onGround) {
 			sliding = false;
 		}
-
 		if (keys[KEY_SPEED] && ableToShoot && Mario.fire && levelScene.fireballsOnScreen < 2) {
 			levelScene.addSprite(new Fireball(levelScene, x + facing * 6, y - 20, facing));
 		}

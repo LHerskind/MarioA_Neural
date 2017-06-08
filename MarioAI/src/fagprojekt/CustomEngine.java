@@ -1,5 +1,7 @@
 package fagprojekt;
 
+import java.util.ArrayList;
+
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
@@ -9,13 +11,11 @@ import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 
 public class CustomEngine {
-	// shooting
-	// private int fireBallsOnScreen = 0;
 
 	// Gravity and friction
 	public final float marioGravity = 1.0f;
-	public final float GROUND_INERTIA = 0.89f; // Need this?
-	public final float AIR_INERTIA = 0.89f; // Need this?
+	public final float GROUND_INERTIA = 0.89f;
+	public final float AIR_INERTIA = 0.89f;
 	// Mario dimensions
 	public final int marioWidth = 4;
 
@@ -41,15 +41,44 @@ public class CustomEngine {
 	public static final int BIT_ANIMATED = 1 << 7;
 
 	public void predictFuture(State state) {
-		
+		state.fireballsOnScreen = state.fireballs.size();
+		// Remove dead fireballs
+		ArrayList<Fireball> fireballsToRemove = new ArrayList<Fireball>();
+		for(Fireball f: state.fireballs) {
+			if(f.dead)
+				fireballsToRemove.add(f);
+		}
+		state.fireballs.removeAll(fireballsToRemove);
+		// Check if fireballs are out of the screen
+		float xCam = state.x - 160f;
+		if (xCam < 0)
+			xCam = 0;
+		for(Fireball f: state.fireballs) {
+			float xd = f.x - xCam;
+			if (xd < -64 || xd > GlobalOptions.VISUAL_COMPONENT_WIDTH + 64 || f.y < -64
+					|| f.y > GlobalOptions.VISUAL_COMPONENT_HEIGHT + 64) {
+				f.dead = true;
+			}
+				}
+		// Enemy movement
 		if(!GlobalOptions.areFrozenCreatures) {
 			for (int i = 0; i < state.enemyList.size(); i++) {
 				Enemy e = state.enemyList.get(i);
 				if (!e.dead) {
 					e.move(map);
+					if(e.kind == 13) {
+						if(e.carried)
+							state.carried = (Shell) e;
+						e.move(state, map);
+					}
 				}
 			}
 		}
+		// Fireball movement
+		for(Fireball f: state.fireballs) {
+				f.move(state, map);
+		}
+		
 		if (state.invulnerable > 0)
 			state.invulnerable--;
 		state.wasOnGround = state.onGround;
@@ -114,11 +143,12 @@ public class CustomEngine {
 		if ((!state.action[Mario.KEY_LEFT] && !state.action[Mario.KEY_RIGHT]) || state.ya < 0 || state.onGround) {
 			state.sliding = false;
 		}
-		/*
-		 * if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire
-		 * && fireBallsOnScreen < 2) { fireBallsOnScreen++; // MAKE FIREBALL
-		 * CLASS AND CREATE FIREBALL OBJECT HERE }
-		 */
+		if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire && state.fireballs.size() < 2) {
+			Fireball f = new Fireball(state.x + state.facing * 6, state.y - 20, (byte) 25, 4.0f, state.facing, false);
+			f.move(state, map);
+			state.fireballs.add(f);	
+		}
+		 
 
 		state.ableToShoot = !state.action[Mario.KEY_SPEED];
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
@@ -152,17 +182,68 @@ public class CustomEngine {
 		if (!state.onGround) {
 			state.ya += 3;
 		}
+		if (state.carried != null) {
+//		Shell carriedShell = null;
+//		if(state.carrying) {
+//			for(Enemy e: state.enemyList) {
+//				if(e.kind == 13 && e.carried) {
+//					carriedShell = (Shell) e;
+//				}
+//			}
+			
+			state.carried.x = state.x + state.facing * 8; 					
+			state.carried.y = state.y - 2;
+//			if(carriedShell != null) {
+//				carriedShell.x = state.x + state.facing * 8;
+//				carriedShell.y = state.y - 2;
+//			}
+			if (!state.action[Mario.KEY_SPEED]) {
+				state.carried.release(state);
+//				if(carriedShell != null) carriedShell.release(state);
+				state.carried = null;
+//				state.carrying = false;
+			}
+		}
 		for (int i = 0; i < state.enemyList.size(); i++) {
 			Enemy e = state.enemyList.get(i);
 			if (!e.dead) {
-				e.collideCheck(state);
+				e.collideCheck(state, this);
 				if (state.stomp)
 					stomp(state, e);
+//				if(state.stompShell)
+//					stompShell(state, (Shell) e);
+//				if(state.kick)
+//					kick(state, (Shell) e);
 			}
 		}
-		
+		// Check shell collision
+		for(Shell shell: state.shellsToCheck) {
+			for(Enemy e: state.enemyList) {
+				if(e.kind != 13 && !shell.dead) {
+					if(e.shellCollideCheck(state, shell)) {
+						if (state.carried == shell && !shell.dead) {
+							state.carried = null;
+//							state.carrying = false;
+							shell.die();
+						}
+					}
+				}
+			}
+		}
+		state.shellsToCheck.clear();
+		// Check fireball collision
+		for (Fireball fireball : state.fireballsToCheck) {
+			for(Enemy e: state.enemyList) {
+				if (!fireball.dead) {
+					if (e.fireballCollideCheck(fireball)) {
+						fireball.dead = true;							
+					}
+				}
+			}
+		}
+		state.fireballsToCheck.clear();
 	}
-
+	
 	private boolean move(State state, float xa, float ya) {
 
 		while (xa > 8) {
@@ -273,20 +354,46 @@ public class CustomEngine {
 		 */
 	}
 
-	public void stomp(State state, final Enemy enemy) {
-		if (enemy.kind != 13  || !state.action[Mario.KEY_SPEED] || enemy.facing != 0) { // CASE FOR SHELLS
+	public void stomp(State state, final Enemy enemy) {	
 		float targetY = enemy.y - enemy.height / 2;
 		move(state, 0, targetY - state.y);
 		state.xJumpSpeed = 0;
 		state.yJumpSpeed = -1.9f;
-
 		state.jumpTime = 8;
 		state.ya = state.jumpTime * state.yJumpSpeed;
 		state.invulnerable = 1;
 		state.onGround = false;
 		state.sliding = false;
-		}
 		state.stomp = false;
+	}
+	public void stompShell(State state, final Shell shell) {
+		if (state.action[Mario.KEY_SPEED] && shell.facing == 0) {
+			state.carried = shell;
+//			state.carrying = true;
+			shell.carried = true;
+		} else {
+			float targetY = shell.y - shell.height / 2;
+			move(state, 0, targetY - state.y);
+			state.xJumpSpeed = 0;
+			state.yJumpSpeed = -1.9f;
+			state.jumpTime = 8;
+			state.ya = state.jumpTime * state.yJumpSpeed;
+			state.onGround = false;
+			state.sliding = false;
+			state.invulnerable = 1;
+		}
+		state.stompShell = false;
+	}
+	public void kick(State state, final Shell shell) {
+		if (state.action[Mario.KEY_SPEED]) {
+			state.carried = shell;
+//			state.carrying = true;
+			shell.carried = true;
+			
+		} else {
+			state.invulnerable = 1;
+		}
+		state.kick = false;
 	}
 	public void printOnGoing(float x, float y) {
 		if (debug) {

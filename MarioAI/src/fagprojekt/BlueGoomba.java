@@ -43,7 +43,7 @@ public class BlueGoomba extends Enemy {
 
 	    if (!onGround && !winged)
 	    {
-	        ya += yaa;
+	        ya += 2;
 	    }
 	}
 }

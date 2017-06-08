@@ -28,7 +28,6 @@
 package ch.idsia.benchmark.mario.engine;
 
 import ch.idsia.benchmark.mario.engine.level.Level;
-import ch.idsia.benchmark.mario.engine.sprites.Mario;
 
 import java.awt.*;
 import java.util.Random;
@@ -136,7 +135,14 @@ public void render(Graphics g, int tick)
     		}
     	}
     }
-
+    if(GlobalOptions.fireballDebug) {
+    	for(int i = 0; i < GlobalOptions.fireballPos.length; i++) {
+    		for(int j = 0; j < 399; j++) {
+    			g.drawLine(GlobalOptions.fireballPos[i][j][0] - xCam, GlobalOptions.fireballPos[i][j][1] - yCam, 
+    					GlobalOptions.fireballPos[i][j+1][0] - xCam, GlobalOptions.fireballPos[i][j+1][1] - yCam);
+    		}
+    	}
+    }
     for (int x = xCam / 16; x <= (xCam + width) / 16; x++)
         for (int y = yCam / 16; y <= (yCam + height) / 16; y++)
         {
