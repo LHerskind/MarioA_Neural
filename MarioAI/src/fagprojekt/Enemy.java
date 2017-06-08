@@ -45,12 +45,11 @@ public abstract class Enemy {
 	public static final int KIND_WAVE_GOOMBA = 98;
 	public static final int KIND_SHELL = 13;
 	public static final int KIND_FIRE_FLOWER = 3;
-	public static final int KIND_FIREBALL = 25; //SELF-MADE
-	
+	public static final int KIND_FIREBALL = 25; // SELF-MADE
+
 	protected static float GROUND_INERTIA = 0.89f;
 	protected static float AIR_INERTIA = 0.89f;
-	
-	
+
 	public byte kind;
 	public boolean onGround = false;
 	public boolean carried;
@@ -82,59 +81,71 @@ public abstract class Enemy {
 	public static final int BIT_BREAKABLE = 1 << 5;
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
-	
-	public Enemy(float x, float y, byte kind, float ya, int facing, boolean dead /* ,boolean winged, int mapX, int mapY */) {
+
+	public Enemy(float x, float y, byte kind, float ya, int facing,
+			boolean dead /* ,boolean winged, int mapX, int mapY */) {
 		this.dead = dead;
 		this.facing = facing;
 		this.kind = kind;
 		this.x = x;
 		this.y = y;
 		this.ya = ya;
-		
-		if(kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED ||
-				kind == KIND_RED_KOOPA_WINGED || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_WAVE_GOOMBA)
+
+		if (kind == KIND_GOOMBA_WINGED || kind == KIND_SPIKY_WINGED || kind == KIND_RED_KOOPA_WINGED
+				|| kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_WAVE_GOOMBA)
 			this.winged = true;
-		if(kind == KIND_GREEN_KOOPA || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_RED_KOOPA || kind == KIND_RED_KOOPA_WINGED) 
+		if (kind == KIND_GREEN_KOOPA || kind == KIND_GREEN_KOOPA_WINGED || kind == KIND_RED_KOOPA
+				|| kind == KIND_RED_KOOPA_WINGED)
 			this.height = 24;
-		else this.height = 12;
+		else
+			this.height = 12;
 
 		avoidCliffs = kind == KIND_RED_KOOPA;
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
 	}
 
-	public void collideCheck(State state, CustomEngine ce) {
+	public int collideCheck(State state, CustomEngine ce) {
 		float xMarioD = state.x - this.x;
 		float yMarioD = state.y - this.y;
 		if (xMarioD > -width * 2 - 4 && xMarioD < width * 2 + 4) {
 			if (yMarioD > -height && yMarioD < state.height) {
-				if ((kind != KIND_SPIKY && kind != KIND_SPIKY_WINGED && kind != KIND_ENEMY_FLOWER)
-						&& state.ya > 0 && yMarioD <= 0 && (!state.onGround || !state.wasOnGround)) {
-					state.stomp = true;
-					
-					if (winged) {
-						winged = false;
-						ya = 0;
-					} else {
-						dead = true;
-						winged = false;
-					}
+				if ((kind != KIND_SPIKY && kind != KIND_SPIKY_WINGED && kind != KIND_ENEMY_FLOWER) && state.ya > 0
+						&& yMarioD <= 0 && (!state.onGround || !state.wasOnGround)) {
+					return 1;
+					//
+					// state.stomp = true;
+					//
+					// if (winged) {
+					// winged = false;
+					// ya = 0;
+					// } else {
+					// dead = true;
+					// winged = false;
+					// }
 				} else {
-					if(state.invulnerable <= 0) {
-						if(state.height != 12) {
+					if (state.invulnerable <= 0) {
+						if (state.height != 12) {
 							state.invulnerable = 32;
-							state.penalty(1000); // Can be changed
-							
+							state.penalty(Values.penaltyLoseLife); // Can be changed
+							if(state.marioMode == 2){
+								state.penalty(Values.penaltyLoseLife);
+							}
+							state.marioMode--;
 						} else {
-							state.penalty(2000); // Can be changed
+							state.penalty(Values.penaltyDie); // Can be changed
+							state.marioMode = -1;
 						}
 					}
 				}
 			}
 		}
+		return 0;
 	}
 
 	public abstract void move(byte[][] map);
-	public void move(State state, byte[][] map) {}
+
+	public void move(State state, byte[][] map) {
+	}
 
 	public boolean move(byte[][] map, float xa, float ya) {
 		while (xa > 8) {
@@ -159,106 +170,103 @@ public abstract class Enemy {
 		}
 
 		boolean collide = false;
-		if (ya > 0)
-	    {
-	        if (isBlocking(map, x + xa - width, y + ya, xa, 0)) collide = true;
-	        else if (isBlocking(map, x + xa + width, y + ya, xa, 0)) collide = true;
-	        else if (isBlocking(map, x + xa - width, y + ya + 1, xa, ya)) collide = true;
-	        else if (isBlocking(map, x + xa + width, y + ya + 1, xa, ya)) collide = true;
-	    }
-	    if (ya < 0)
-	    {
-	        if (isBlocking(map, x + xa, y + ya - height, xa, ya)) collide = true;
-	        else if (collide || isBlocking(map, x + xa - width, y + ya - height, xa, ya)) collide = true;
-	        else if (collide || isBlocking(map, x + xa + width, y + ya - height, xa, ya)) collide = true;
-	    }
-	    if (xa > 0)
-	    {
-	        if (isBlocking(map, x + xa + width, y + ya - height, xa, ya)) collide = true;
-	        if (isBlocking(map, x + xa + width, y + ya - height / 2, xa, ya)) collide = true;
-	        if (isBlocking(map, x + xa + width, y + ya, xa, ya)) collide = true;
+		if (ya > 0) {
+			if (isBlocking(map, x + xa - width, y + ya, xa, 0))
+				collide = true;
+			else if (isBlocking(map, x + xa + width, y + ya, xa, 0))
+				collide = true;
+			else if (isBlocking(map, x + xa - width, y + ya + 1, xa, ya))
+				collide = true;
+			else if (isBlocking(map, x + xa + width, y + ya + 1, xa, ya))
+				collide = true;
+		}
+		if (ya < 0) {
+			if (isBlocking(map, x + xa, y + ya - height, xa, ya))
+				collide = true;
+			else if (collide || isBlocking(map, x + xa - width, y + ya - height, xa, ya))
+				collide = true;
+			else if (collide || isBlocking(map, x + xa + width, y + ya - height, xa, ya))
+				collide = true;
+		}
+		if (xa > 0) {
+			if (isBlocking(map, x + xa + width, y + ya - height, xa, ya))
+				collide = true;
+			if (isBlocking(map, x + xa + width, y + ya - height / 2, xa, ya))
+				collide = true;
+			if (isBlocking(map, x + xa + width, y + ya, xa, ya))
+				collide = true;
 
-//	        if (avoidCliffs && onGround
-//					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
-//				collide = true;
+			// if (avoidCliffs && onGround
+			// && map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
+			// collide = true;
 
-	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1)) 
-	        	collide = true;
-	    }
-	    if (xa < 0)
-	    {
-	        if (isBlocking(map, x + xa - width, y + ya - height, xa, ya)) collide = true;
-	        if (isBlocking(map, x + xa - width, y + ya - height / 2, xa, ya)) collide = true;
-	        if (isBlocking(map, x + xa - width, y + ya, xa, ya)) collide = true;
+			if (avoidCliffs && onGround
+					&& !LevelScene.level.isBlocking((int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1))
+				collide = true;
+		}
+		if (xa < 0) {
+			if (isBlocking(map, x + xa - width, y + ya - height, xa, ya))
+				collide = true;
+			if (isBlocking(map, x + xa - width, y + ya - height / 2, xa, ya))
+				collide = true;
+			if (isBlocking(map, x + xa - width, y + ya, xa, ya))
+				collide = true;
 
-//	        if (avoidCliffs && onGround
-//					&& map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
-//				collide = true;
-	        if (avoidCliffs && onGround && !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1)) 
-	        	collide = true;
-	    }
+			// if (avoidCliffs && onGround
+			// && map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
+			// collide = true;
+			if (avoidCliffs && onGround
+					&& !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
+				collide = true;
+		}
 
-	    if (collide)
-	    {
-	        if (xa < 0)
-	        {
-	            x = (int) ((x - width) / 16) * 16 + width;
-	            this.xa = 0;
-	        }
-	        if (xa > 0)
-	        {
-	            x = (int) ((x + width) / 16 + 1) * 16 - width - 1;
-	            this.xa = 0;
-	        }
-	        if (ya < 0)
-	        {
-	            y = (int) ((y - height) / 16) * 16 + height;
-	            this.ya = 0;
-	        }
-	        if (ya > 0)
-	        {
-	            y = (int) (y / 16 + 1) * 16 - 1;
-	            onGround = true;
-	        }
-	        return false;
-	    } else
-	    {
-	        x += xa;
-	        y += ya;
+		if (collide) {
+			if (xa < 0) {
+				x = (int) ((x - width) / 16) * 16 + width;
+				this.xa = 0;
+			}
+			if (xa > 0) {
+				x = (int) ((x + width) / 16 + 1) * 16 - width - 1;
+				this.xa = 0;
+			}
+			if (ya < 0) {
+				y = (int) ((y - height) / 16) * 16 + height;
+				this.ya = 0;
+			}
+			if (ya > 0) {
+				y = (int) (y / 16 + 1) * 16 - 1;
+				onGround = true;
+			}
+			return false;
+		} else {
+			x += xa;
+			y += ya;
 
-	        return true;
-	    }
-	    
+			return true;
+		}
+
 	}
 
 	public boolean isBlocking(byte[][] map, final float _x, final float _y, final float xa, final float ya) {
 		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
-		if (x == (int) (this.x / 16) && y == (int) (this.y / 16)){
+		if (x == (int) (this.x / 16) && y == (int) (this.y / 16)) {
 			return false;
 		}
 		// CHEATER COLLISION
-		
-		 byte block = LevelScene.level.getBlock(x, y);
-		  boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
-		  blocking |= (ya> 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		  blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
-		  return blocking;
-		  
-		  // CORRECT COLLISION!
+
+		byte block = LevelScene.level.getBlock(x, y);
+		boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
+		blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
+		blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
+		return blocking;
+
+		// CORRECT COLLISION!
 		/*
-		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {
-			byte block = map[y][x];
-			if (ya <= 0) {
-				if (block == -62) {
-					return false;
-				}
-			}
-			return block < 0;
-		} else {
-			return false;
-		}
-		*/
+		 * if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) { byte
+		 * block = map[y][x]; if (ya <= 0) { if (block == -62) { return false; }
+		 * } return block < 0; } else { return false; }
+		 */
 	}
 
 	public boolean shellCollideCheck(State state, Shell shell) {
@@ -269,49 +277,43 @@ public abstract class Enemy {
 
 		if (xD > -16 && xD < 16) {
 			if (yD > -height && yD < shell.height) {
-				dead = true;
+//				dead = true;
 				return true;
 			}
 		}
 		return false;
 	}
-	public boolean fireballCollideCheck(Fireball fireball) {
-		if(dead) 
-			return false;
+
+	public int fireballCollideCheck(Fireball fireball) {
+		if (dead) {
+			return 0;
+		}
 		float xD = fireball.x - x;
 		float yD = fireball.y - y;
 
 		if (xD > -16 && xD < 16) {
 			if (yD > -height && yD < fireball.height) {
 				if (noFireballDeath)
-					return true;
-				dead = true;
-				return true;
+					return 2;
+//				dead = true;
+				return 1;
 			}
 		}
-		return false;
+		return 0;
 	}
-	public void release(State state){}
-	
-	
-/* TODO - BUMPCHECK?!
-	public void bumpCheck(int xTile, int yTile) {
-		if (deadTime != 0)
-			return;
 
-		if (x + width > xTile * 16 && x - width < xTile * 16 + 16 && yTile == (int) ((y - 1) / 16)) {
-			xa = -levelScene.mario.facing * 2;
-			ya = -5;
-			flyDeath = true;
-			if (spriteTemplate != null)
-				spriteTemplate.isDead = true;
-			deadTime = 100;
-			winged = false;
-			hPic = -hPic;
-			yPicO = -yPicO + 16;
-			// System.out.println("bumpCheck: mostelikely shell killed other
-			// creature");
-		}
+	public void release(State state) {
 	}
-	*/
+
+	/*
+	 * TODO - BUMPCHECK?! public void bumpCheck(int xTile, int yTile) { if
+	 * (deadTime != 0) return;
+	 * 
+	 * if (x + width > xTile * 16 && x - width < xTile * 16 + 16 && yTile ==
+	 * (int) ((y - 1) / 16)) { xa = -levelScene.mario.facing * 2; ya = -5;
+	 * flyDeath = true; if (spriteTemplate != null) spriteTemplate.isDead =
+	 * true; deadTime = 100; winged = false; hPic = -hPic; yPicO = -yPicO + 16;
+	 * // System.out.println("bumpCheck: mostelikely shell killed other //
+	 * creature"); } }
+	 */
 }

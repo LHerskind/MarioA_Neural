@@ -1,6 +1,5 @@
 package fagprojekt;
 
-import ch.idsia.benchmark.mario.engine.LevelScene;
 import fagprojekt.AStarAgent.State;
 
 public class Bullet extends Enemy {
@@ -22,31 +21,5 @@ public class Bullet extends Enemy {
 		x += xa;
 		return true;
 	}
-	@Override
-	public void collideCheck(State state, CustomEngine ce) {
-		float xMarioD = state.x - this.x;
-		float yMarioD = state.y - this.y;
-	    if (xMarioD > -16 && xMarioD < 16)
-	    {
-	        if (yMarioD > -height && yMarioD < state.height)
-	        {
-	            if (state.ya > 0 && yMarioD <= 0 && (!state.onGround || !state.wasOnGround))
-	            {
-	                state.stomp = true;
-	                dead = true;
-	            } else{
-	            	if(state.invulnerable <= 0) {
-	            		if(state.height != 12) {
-							state.invulnerable = 32;
-							state.penalty(500);
-							
-						} else {
-							state.penalty(2000);
-						}
-	            	}
-	            }
-	        }
-	    }
 
-	}
 }

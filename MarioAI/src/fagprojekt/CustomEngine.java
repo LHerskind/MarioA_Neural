@@ -40,12 +40,55 @@ public class CustomEngine {
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
 
+	public ArrayList<Enemy> copyEnemies(ArrayList<Enemy> enemies) {
+		ArrayList<Enemy> copy = new ArrayList<>();
+		for (Enemy e : enemies) {
+			if (e.kind == 98) {
+				copy.add(new BlueGoomba(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			} else if (e.kind == 84) {
+				copy.add(new Bullet(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			} else if (e.kind == 91) {
+				copy.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			} else if (e.kind == 13) {
+				copy.add(new Shell(e.x, e.y, e.kind, 0, 0, e.carried, e.dead));
+			} else if (e.kind == 82) {
+				copy.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
+			} else {
+				copy.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			}
+		}
+		return copy;
+	}
+
+	public ArrayList<Enemy> predictEnemies(State state) {
+		ArrayList<Enemy> predictedEnemies = copyEnemies(state.enemyList);
+
+		if (!GlobalOptions.areFrozenCreatures) {
+			for (int i = 0; i < predictedEnemies.size(); i++) {
+				Enemy e = predictedEnemies.get(i);
+				if (e != null) {
+					if (!e.dead) {
+						if (e.kind == 13) {
+							if (e.carried) {
+								state.carried = (Shell) e;
+							}
+							e.move(state, map);
+						} else {
+							e.move(map);
+						}
+					}
+				}
+			}
+		}
+		return predictedEnemies;
+	}
+
 	public void predictFuture(State state) {
 		state.fireballsOnScreen = state.fireballs.size();
 		// Remove dead fireballs
 		ArrayList<Fireball> fireballsToRemove = new ArrayList<Fireball>();
-		for(Fireball f: state.fireballs) {
-			if(f.dead)
+		for (Fireball f : state.fireballs) {
+			if (f.dead)
 				fireballsToRemove.add(f);
 		}
 		state.fireballs.removeAll(fireballsToRemove);
@@ -53,32 +96,18 @@ public class CustomEngine {
 		float xCam = state.x - 160f;
 		if (xCam < 0)
 			xCam = 0;
-		for(Fireball f: state.fireballs) {
+		for (Fireball f : state.fireballs) {
 			float xd = f.x - xCam;
 			if (xd < -64 || xd > GlobalOptions.VISUAL_COMPONENT_WIDTH + 64 || f.y < -64
 					|| f.y > GlobalOptions.VISUAL_COMPONENT_HEIGHT + 64) {
 				f.dead = true;
 			}
-				}
-		// Enemy movement
-		if(!GlobalOptions.areFrozenCreatures) {
-			for (int i = 0; i < state.enemyList.size(); i++) {
-				Enemy e = state.enemyList.get(i);
-				if (!e.dead) {
-					e.move(map);
-					if(e.kind == 13) {
-						if(e.carried)
-							state.carried = (Shell) e;
-						e.move(state, map);
-					}
-				}
-			}
 		}
 		// Fireball movement
-		for(Fireball f: state.fireballs) {
-				f.move(state, map);
+		for (Fireball f : state.fireballs) {
+			f.move(state, map);
 		}
-		
+
 		if (state.invulnerable > 0)
 			state.invulnerable--;
 		state.wasOnGround = state.onGround;
@@ -103,7 +132,7 @@ public class CustomEngine {
 				state.onGround = false;
 				state.sliding = false;
 
-			}else if (state.sliding && state.mayJump) {
+			} else if (state.sliding && state.mayJump) {
 				state.xJumpSpeed = -state.facing * 6.0f;
 				state.yJumpSpeed = -2.0f;
 				state.jumpTime = -6;
@@ -113,7 +142,7 @@ public class CustomEngine {
 				state.sliding = false;
 				state.facing = -state.facing;
 			} else if (state.jumpTime > 0) {
-				state.xa+=state.xJumpSpeed;
+				state.xa += state.xJumpSpeed;
 				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.jumpTime--;
 
@@ -146,26 +175,20 @@ public class CustomEngine {
 		if (state.action[Mario.KEY_SPEED] && state.ableToShoot && Mario.fire && state.fireballs.size() < 2) {
 			Fireball f = new Fireball(state.x + state.facing * 6, state.y - 20, (byte) 25, 4.0f, state.facing, false);
 			f.move(state, map);
-			state.fireballs.add(f);	
+			state.fireballs.add(f);
 		}
-		 
 
 		state.ableToShoot = !state.action[Mario.KEY_SPEED];
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
-		if(state.sliding) state.ya *=0.5f;
+		if (state.sliding)
+			state.ya *= 0.5f;
 		state.onGround = false;
 		move(state, state.xa, 0); // marioMove
 		move(state, 0, state.ya); // marioMove
 
-		if (state.y >= 15 * cellSize + cellSize){
+		if (state.y >= 15 * cellSize + cellSize) {
 			State current = state;
-			current.penalty(2000);
-			for(int i = 1; i < 15; i++){
-				if(current.parent != null){
-					current = current.parent;
-					current.penalty( (int)Math.round(2000 / (Math.pow(i*2, 3))));
-				}
-			}
+			current.penalty(Values.penaltyDie);
 		}
 
 		if (state.x < 0) {
@@ -183,7 +206,7 @@ public class CustomEngine {
 			state.ya += 3;
 		}
 		if (state.carried != null) {
-			state.carried.x = state.x + state.facing * 8; 					
+			state.carried.x = state.x + state.facing * 8;
 			state.carried.y = state.y - 2;
 			if (!state.action[Mario.KEY_SPEED]) {
 				state.carried.release(state);
@@ -193,38 +216,88 @@ public class CustomEngine {
 		for (int i = 0; i < state.enemyList.size(); i++) {
 			Enemy e = state.enemyList.get(i);
 			if (!e.dead) {
-				e.collideCheck(state, this);
-				if (state.stomp)
+				int stomp = e.collideCheck(state, this);
+				if (stomp == 1) {
+					state.enemyList = copyEnemies(state.enemyList);
+					e = state.enemyList.get(i);
+
+					if (e.winged) {
+						e.winged = false;
+						e.ya = 0;
+					} else {
+						e.dead = true;
+						e.winged = false;
+					}
+					state.stomp = true;
 					stomp(state, e);
+				} else if (stomp == 2) { // Shell stomp
+					state.enemyList = copyEnemies(state.enemyList);
+					Shell s = (Shell) state.enemyList.get(i);
+					if (s.facing != 0) {
+						s.xa = 0;
+						s.facing = 0;
+					} else {
+						s.facing = state.facing;
+					}
+					stompShell(state, s);
+				} else if (stomp == 3) { // Shell kick
+					state.enemyList = copyEnemies(state.enemyList);
+					Shell s = (Shell) state.enemyList.get(i);
+					kick(state, s);
+					s.facing = state.facing;
+				}
+
 			}
 		}
 		// Check shell collision
-		for(Shell shell: state.shellsToCheck) {
-			for(Enemy e: state.enemyList) {
-				if(e.kind != 13 && !shell.dead) {
-					if(e.shellCollideCheck(state, shell)) {
+		for (Shell shell : state.shellsToCheck) {
+			int index = state.enemyList.indexOf(shell);
+			for (int i = 0; i < state.enemyList.size(); i++) {
+				Enemy e = state.enemyList.get(i);
+				if (e.kind != 13 && !shell.dead) {
+					if (e.shellCollideCheck(state, shell)) {
+						state.enemyList = copyEnemies(state.enemyList);
+						Shell s = (Shell) state.enemyList.get(index);
+						e = state.enemyList.get(i);
+						s.die();
+						e.dead = true;
 						if (state.carried == shell && !shell.dead) {
 							state.carried = null;
 							shell.die();
+							// s.die();
 						}
 					}
 				}
 			}
 		}
 		state.shellsToCheck.clear();
+
 		// Check fireball collision
 		for (Fireball fireball : state.fireballsToCheck) {
-			for(Enemy e: state.enemyList) {
+			for (int i = 0; i < state.enemyList.size(); i++) {
+				Enemy e = state.enemyList.get(i);
 				if (!fireball.dead) {
-					if (e.fireballCollideCheck(fireball)) {
-						fireball.dead = true;							
+					int result = e.fireballCollideCheck(fireball);
+					if (result == 1) {
+						state.enemyList = copyEnemies(state.enemyList);
+						e = state.enemyList.get(i);
+						e.dead = true;
+						fireball.dead = true;
+					} else if (result == 2) {
+						fireball.dead = true;
+					} else if (result == 3) {
+						state.enemyList = copyEnemies(state.enemyList);
+						e = state.enemyList.get(i);
+						e.xa = fireball.facing * 2;
+						e.ya = -5;
+						fireball.dead = true;
 					}
 				}
 			}
 		}
 		state.fireballsToCheck.clear();
 	}
-	
+
 	private boolean move(State state, float xa, float ya) {
 
 		while (xa > 8) {
@@ -335,7 +408,7 @@ public class CustomEngine {
 		 */
 	}
 
-	public void stomp(State state, final Enemy enemy) {	
+	public void stomp(State state, final Enemy enemy) {
 		float targetY = enemy.y - enemy.height / 2;
 		move(state, 0, targetY - state.y);
 		state.xJumpSpeed = 0;
@@ -347,6 +420,7 @@ public class CustomEngine {
 		state.sliding = false;
 		state.stomp = false;
 	}
+
 	public void stompShell(State state, final Shell shell) {
 		if (state.action[Mario.KEY_SPEED] && shell.facing == 0) {
 			state.carried = shell;
@@ -362,18 +436,20 @@ public class CustomEngine {
 			state.sliding = false;
 			state.invulnerable = 1;
 		}
-		
+
 	}
+
 	public void kick(State state, final Shell shell) {
 		if (state.action[Mario.KEY_SPEED]) {
 			state.carried = shell;
 			shell.carried = true;
-			
+
 		} else {
 			state.invulnerable = 1;
 		}
-		
+
 	}
+
 	public void printOnGoing(float x, float y) {
 		if (debug) {
 			int __x = (int) x / 16;
