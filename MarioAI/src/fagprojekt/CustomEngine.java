@@ -1,5 +1,9 @@
 package fagprojekt;
 
+import java.util.ArrayList;
+
+import org.hamcrest.core.IsInstanceOf;
+
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
 import ch.idsia.benchmark.mario.engine.LevelScene;
 import ch.idsia.benchmark.mario.engine.level.Level;
@@ -40,16 +44,40 @@ public class CustomEngine {
 	public static final int BIT_PICKUPABLE = 1 << 6;
 	public static final int BIT_ANIMATED = 1 << 7;
 
-	public void predictFuture(State state) {
-		
-		if(!GlobalOptions.areFrozenCreatures) {
-			for (int i = 0; i < state.enemyList.size(); i++) {
-				Enemy e = state.enemyList.get(i);
+	public ArrayList<Enemy> predictEnemies(ArrayList<Enemy> enemies) {
+		ArrayList<Enemy> predictedEnemies = copyEnemies(enemies);
+
+		if (!GlobalOptions.areFrozenCreatures) {
+			for (Enemy e : predictedEnemies) {
 				if (!e.dead) {
 					e.move(map);
 				}
 			}
 		}
+		return predictedEnemies;
+	}
+
+	public ArrayList<Enemy> copyEnemies(ArrayList<Enemy> enemies) {
+		ArrayList<Enemy> copy = new ArrayList<>();
+		for (Enemy e : enemies) {
+			if (e.kind == 98) {
+				copy.add(new BlueGoomba(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			} else if (e.kind == 84) {
+				copy.add(new Bullet(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			} else if (e.kind == 91) {
+				copy.add(new Flower(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			} else if (e.kind == 13) {
+				copy.add(new Shell(e.x, e.y, e.kind, 0, 0, e.dead));
+			} else if (e.kind == 82) {
+				copy.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead, e.onGround));
+			} else {
+				copy.add(new NormalEnemy(e.x, e.y, e.kind, e.ya, e.facing, e.dead));
+			}
+		}
+		return copy;
+	}
+
+	public void predictFuture(State state) {
 		if (state.invulnerable > 0)
 			state.invulnerable--;
 		state.wasOnGround = state.onGround;
@@ -74,7 +102,7 @@ public class CustomEngine {
 				state.onGround = false;
 				state.sliding = false;
 
-			}else if (state.sliding && state.mayJump) {
+			} else if (state.sliding && state.mayJump) {
 				state.xJumpSpeed = -state.facing * 6.0f;
 				state.yJumpSpeed = -2.0f;
 				state.jumpTime = -6;
@@ -84,7 +112,7 @@ public class CustomEngine {
 				state.sliding = false;
 				state.facing = -state.facing;
 			} else if (state.jumpTime > 0) {
-				state.xa+=state.xJumpSpeed;
+				state.xa += state.xJumpSpeed;
 				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.jumpTime--;
 
@@ -122,18 +150,19 @@ public class CustomEngine {
 
 		state.ableToShoot = !state.action[Mario.KEY_SPEED];
 		state.mayJump = (state.onGround || state.sliding) && !state.action[Mario.KEY_JUMP];
-		if(state.sliding) state.ya *=0.5f;
+		if (state.sliding)
+			state.ya *= 0.5f;
 		state.onGround = false;
 		move(state, state.xa, 0); // marioMove
 		move(state, 0, state.ya); // marioMove
 
-		if (state.y >= 15 * cellSize + cellSize){
+		if (state.y >= 15 * cellSize + cellSize) {
 			State current = state;
-			current.penalty(2000);
-			for(int i = 1; i < 6; i++){
-				if(current.parent != null){
+			current.penalty(Values.penaltyGap);
+			for (int i = 1; i < Values.parentToPunishGap; i++) {
+				if (current.parent != null) {
 					current = current.parent;
-					current.penalty( (int)Math.round(2000 / (Math.pow(i*2, 3))));
+					current.penalty(Values.getPPG(i));
 				}
 			}
 		}
@@ -152,15 +181,26 @@ public class CustomEngine {
 		if (!state.onGround) {
 			state.ya += 3;
 		}
+
 		for (int i = 0; i < state.enemyList.size(); i++) {
 			Enemy e = state.enemyList.get(i);
 			if (!e.dead) {
-				e.collideCheck(state);
-				if (state.stomp)
+				boolean stomp = e.collideCheck(state);
+				if (stomp) {
+					state.enemyList = copyEnemies(state.enemyList);
+					e = state.enemyList.get(i);
+					if (e.winged) {
+						e.winged = false;
+						e.ya = 0;
+					} else {
+						e.dead = true;
+						e.winged = false;
+					}
+					state.stomp = true;
 					stomp(state, e);
+				}
 			}
 		}
-		
 	}
 
 	private boolean move(State state, float xa, float ya) {
@@ -274,20 +314,23 @@ public class CustomEngine {
 	}
 
 	public void stomp(State state, final Enemy enemy) {
-		if (enemy.kind != 13  || !state.action[Mario.KEY_SPEED] || enemy.facing != 0) { // CASE FOR SHELLS
-		float targetY = enemy.y - enemy.height / 2;
-		move(state, 0, targetY - state.y);
-		state.xJumpSpeed = 0;
-		state.yJumpSpeed = -1.9f;
+		if (enemy.kind != 13 || !state.action[Mario.KEY_SPEED] || enemy.facing != 0) { // CASE
+																						// FOR
+																						// SHELLS
+			float targetY = enemy.y - enemy.height / 2;
+			move(state, 0, targetY - state.y);
+			state.xJumpSpeed = 0;
+			state.yJumpSpeed = -1.9f;
 
-		state.jumpTime = 8;
-		state.ya = state.jumpTime * state.yJumpSpeed;
-		state.invulnerable = 1;
-		state.onGround = false;
-		state.sliding = false;
+			state.jumpTime = 8;
+			state.ya = state.jumpTime * state.yJumpSpeed;
+			state.invulnerable = 1;
+			state.onGround = false;
+			state.sliding = false;
 		}
 		state.stomp = false;
 	}
+
 	public void printOnGoing(float x, float y) {
 		if (debug) {
 			int __x = (int) x / 16;

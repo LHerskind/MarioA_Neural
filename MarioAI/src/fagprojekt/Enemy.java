@@ -105,44 +105,37 @@ public abstract class Enemy {
 		noFireballDeath = (kind == KIND_SPIKY || kind == KIND_SPIKY_WINGED);
 	}
 
-	public void collideCheck(State state) {
+	public boolean collideCheck(State state) {
 		float xMarioD = state.x - this.x;
 		float yMarioD = state.y - this.y;
 		if (xMarioD > -width * 2 - 4 && xMarioD < width * 2 + 4) {
 			if (yMarioD > -height && yMarioD < state.height) {
 				if ((kind != KIND_SPIKY && kind != KIND_SPIKY_WINGED && kind != KIND_ENEMY_FLOWER) && state.ya > 0
 						&& yMarioD <= 0 && (!state.onGround || !state.wasOnGround)) {
-					state.stomp = true;
-
-					if (winged) {
-						winged = false;
-						ya = 0;
-					} else {
-						dead = true;
-						winged = false;
-					}
+					return true;
 				} else {
 					if (state.invulnerable <= 0) {
 						if (state.height != 12) {
 							state.invulnerable = 32;
-							state.penalty(500); // Can be changed
+							state.penalty(Values.penaltyLoseLife);
 							State current = state;
-							for (int i = 1; i < 3; i++) {
+							for (int i = 1; i < Values.parentToPunishLoseLife; i++) {
 								current = state.parent;
-								current.penalty((int) Math.round(100 / Math.pow(i+1, 3)));
+								current.penalty(Values.getPPLL(i));
 							}
 						} else {
-							state.penalty(2000); // Can be changed
+							state.penalty(Values.penaltyDie);
 							State current = state;
-							for (int i = 1; i < 3; i++) {
+							for (int i = 1; i < Values.parentToPunishDie; i++) {
 								current = state.parent;
-								current.penalty((int) Math.round(50 / Math.pow(i+1, 3)));
+								current.penalty(Values.getPPD(i));
 							}
 						}
 					}
 				}
 			}
 		}
+		return false;
 	}
 
 	public abstract void move(byte[][] map);
