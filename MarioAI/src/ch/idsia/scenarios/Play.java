@@ -75,7 +75,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			for (int i = 0; i < 16; i++) {
+			for (int i = 13; i < 16; i++) {
 				manyMaps(500, i);
 			}
 			System.exit(0);
@@ -134,15 +134,7 @@ public final class Play {
 					}
 				}
 			}
-			// if (i > 0 && i % 10 == 0) {
-			// System.out.print(lost + "-");
-			// if (i > 0 && i % 100 == 0) {
-			// System.out.print("!i!");
-			// }
-			// }
 		}
-		// System.out.println();
-		// System.out.println("Lost: " + lost);
 		lost = 0;
 		ArrayList<Integer> listOfLost2 = new ArrayList<>();
 		for (Integer i : listOfLost) {
@@ -171,8 +163,6 @@ public final class Play {
 				}
 			}
 		}
-		// System.out.println("Lost: " + lost);
-		// System.out.println();
 		lost = 0;
 		System.out.println("Difficulty: " + difficulty);
 		for (Integer i : listOfLost2) {

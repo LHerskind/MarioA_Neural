@@ -215,8 +215,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 
 		public long superHashCode() {
-			int x = (int) ((300 + this.x - marioFloatPos[0]));
-			int y = (int) ((300 + this.y - marioFloatPos[1]));
+			int x = (int) (500 + this.x - marioFloatPos[0]);
+			int y = (int) (500 + this.y - marioFloatPos[1]);
 			int z = 0;
 			if (parent != null) {
 				z = actionInt(this.action);

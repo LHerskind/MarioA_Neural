@@ -453,7 +453,7 @@ public final class Mario extends Sprite {
 																			 * .
 																			 * cellSize)
 																			 */
-		if (mapX >= levelScene.level.xExit && mapY <= levelScene.level.yExit) {
+		if (mapX >= levelScene.level.xExit){ // && mapY <= levelScene.level.yExit) {
 			x = (levelScene.level.xExit + 1) * LevelScene.cellSize;
 			win();
 		}
