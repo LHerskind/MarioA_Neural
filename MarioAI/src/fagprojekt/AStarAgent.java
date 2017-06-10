@@ -256,13 +256,46 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			while (superHashCode.length() < 10) {
 				superHashCode += 0;
 			}
-
 			return Long.parseLong(superHashCode);
+		}
+
+		public State copyState(State toCopy) {
+			State copy = new State();
+			copy.parent = toCopy.parent;
+			copy.marioMode = toCopy.marioMode;
+			copy.action = toCopy.action;
+			copy.height = toCopy.height;
+			copy.marioHeight = toCopy.marioHeight;
+			copy.ableToShoot = toCopy.ableToShoot;
+			copy.carried = toCopy.carried;
+			copy.enemyList = toCopy.enemyList;
+			copy.facing = toCopy.facing;
+			copy.fireballs = toCopy.fireballs;
+			copy.fireballsOnScreen = toCopy.fireballsOnScreen;
+			copy.fireballsToCheck = toCopy.fireballsToCheck;
+			copy.onGround = toCopy.onGround;
+			copy.mayJump = toCopy.mayJump;
+			copy.g = toCopy.g;
+			copy.penalty = toCopy.penalty;
+			copy.sliding = toCopy.sliding;
+			copy.heuristic = toCopy.heuristic;
+			copy.jumpTime = toCopy.jumpTime;
+			copy.shellsToCheck = toCopy.shellsToCheck;
+			copy.stomp = toCopy.stomp;
+			copy.wasOnGround = toCopy.wasOnGround;
+			copy.x = toCopy.x;
+			copy.xa = toCopy.xa;
+			copy.xJumpSpeed = toCopy.xJumpSpeed;
+			copy.y = toCopy.y;
+			copy.ya = toCopy.ya;
+			copy.yJumpSpeed = toCopy.yJumpSpeed;
+			return copy;
 		}
 
 		public State getNextState(State parent, boolean[] action, ArrayList<Enemy> enemies) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
+				// State nextState = new State();
 				nextState.parent = parent;
 
 				nextState.marioMode = parent.marioMode;
@@ -445,28 +478,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 	}
 
-	public void debug() {
-
-	}
-
-	public State solve() {
-		long startTime = System.currentTimeMillis();
-
-		if ((int) marioFloatPos[0] + maxRight > searchDepth) {
-			searchDepth = (int) marioFloatPos[0] + maxRight;
-		}
-
-		openSet.clear();
-		closed.clear();
-		indexStateArray = 1;
-
-		// Add initial state to queue.
-		State initial = new State(true);
-		stateArray[indexStateArray++] = initial;
-		openSet.add(initial);
-		closed.put(initial.superHashCode(), initial);
-
-		stateArray[0] = initial.duck();
+	public void debug(State state) {
 
 		// FOR DEBUGGING
 		if (GlobalOptions.enemyDebug) {
@@ -483,9 +495,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (GlobalOptions.fireballDebug) {
 			for (int i = 0; i < GlobalOptions.fireballPos.length; i++) {
 				for (int j = 0; j < 400; j++) {
-					if (initial.fireballs.size() > i) {
-						GlobalOptions.fireballPos[i][j][0] = (int) (initial.fireballs.get(i).x);
-						GlobalOptions.fireballPos[i][j][1] = (int) (initial.fireballs.get(i).y);
+					if (state.fireballs.size() > i) {
+						GlobalOptions.fireballPos[i][j][0] = (int) (state.fireballs.get(i).x);
+						GlobalOptions.fireballPos[i][j][1] = (int) (state.fireballs.get(i).y);
 					}
 				}
 			}
@@ -498,18 +510,96 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 		}
 		debugPos = 0;
+	}
+
+	private ArrayList<State> route = new ArrayList<State>();
+
+	public void addToRoute(State state) {
+		ArrayList<State> temp = new ArrayList<>();
+		if (state.parent != null) {
+			State current = state;
+			while (current.parent.parent != null) {
+				if (debugPos < 400) {
+					if (GlobalOptions.enemyDebug) {
+						if (!current.enemyList.isEmpty()) {
+							for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
+								if (current.enemyList.size() > i) {
+									GlobalOptions.enemyPos[i][debugPos][0] = (int) current.enemyList.get(i).x;
+									GlobalOptions.enemyPos[i][debugPos][1] = (int) current.enemyList.get(i).y;
+								}
+							}
+						}
+					}
+					if (GlobalOptions.fireballDebug) {
+						if (!current.fireballs.isEmpty()) {
+							for (int i = 0; i < GlobalOptions.fireballPos.length; i++) {
+								if (current.fireballs.size() > i) {
+									GlobalOptions.fireballPos[i][debugPos][0] = (int) current.fireballs.get(i).x;
+									GlobalOptions.fireballPos[i][debugPos][1] = (int) current.fireballs.get(i).y;
+								}
+							}
+						}
+					}
+					if (GlobalOptions.marioDebug) {
+						GlobalOptions.marioPos[debugPos][0] = (int) current.x;
+						GlobalOptions.marioPos[debugPos][1] = (int) current.y;
+					}
+					debugPos++;
+				}
+				current = current.parent;
+				temp.add(current.copyState(current));
+			}
+		}
+
+		while (!temp.isEmpty() && route.size() <= limit * 2) {
+			State toAdd = temp.remove(temp.size() - 1);
+			route.add(toAdd);
+		}
+	}
+
+	private State getNextInitial() {
+		return route.get(route.size() - 1);
+	}
+
+	public State getNextAction() {
+		return route.remove(0);
+	}
+
+	private int limit = 2;
+
+	public State solve() {
+		long startTime = System.currentTimeMillis();
+
+		if ((int) marioFloatPos[0] + maxRight > searchDepth) {
+			searchDepth = (int) marioFloatPos[0] + maxRight;
+		}
+
+		openSet.clear();
+		closed.clear();
+		indexStateArray = 1;
+		State initial = new State(true);
+		stateArray[indexStateArray++] = initial;
+		openSet.add(initial);
+		closed.put(initial.superHashCode(), initial);
+		stateArray[0] = initial.duck();
+
+		debug(initial);
 
 		while (!openSet.isEmpty()) {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
-
-				testState = state;
-				return getRootState(state);
+				// testState = state;
+				route.clear();
+				addToRoute(state);
+				return getNextAction();
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				// System.out.println("SHIT " + indexStateArray);
+				if (!route.isEmpty()) {
+					// System.out.println("Using old route");
+					return getNextAction();
+				}
 				return getRootState(state);
 			}
 
@@ -518,12 +608,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			addSuccessor(state.SmoveNE(enemiesNextState));
 			addSuccessor(state.SmoveNW(enemiesNextState));
 			addSuccessor(state.SmoveW(enemiesNextState));
-			if (state.fireballs.size() < 2 && state.marioMode == 2) {
+			// if (state.fireballs.size() < 2 && state.marioMode == 2 ||
+			// state.carried != null) {
+			if (state.carried != null
+					|| state.fireballs.size() < 2 && state.marioMode == 2 && GlobalOptions.areFrozenCreatures) {
 				addSuccessor(state.still(enemiesNextState));
-				addSuccessor(state.moveE(enemiesNextState));
-				addSuccessor(state.moveNE(enemiesNextState));
-//				addSuccessor(state.moveNW(enemiesNextState));
-//				addSuccessor(state.moveW(enemiesNextState));
 			}
 		}
 		// System.out.println("DISASTER: OPEN-SET IS EMPTY");

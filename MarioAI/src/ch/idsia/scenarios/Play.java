@@ -76,7 +76,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			for (int i = 0; i < 16; i++) {
+			for (int i = 10; i < 16; i++) {
 				manyMaps(amountOfMaps, i);
 			}
 			System.exit(0);
@@ -86,7 +86,7 @@ public final class Play {
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(4);
+			marioAIOptions.setLevelDifficulty(10);
 			if (!enemies) {
 				marioAIOptions.setEnemies("off");
 			}
@@ -94,7 +94,7 @@ public final class Play {
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 
-			marioAIOptions.setLevelRandSeed(231);
+			marioAIOptions.setLevelRandSeed(6);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
