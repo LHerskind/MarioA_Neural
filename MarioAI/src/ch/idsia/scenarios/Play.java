@@ -75,7 +75,7 @@ public final class Play {
 	public static void main(String[] args) {
 
 		if (all) {
-			for (int i = 13; i < 16; i++) {
+			for (int i = 10; i < 16; i++) {
 				manyMaps(500, i);
 			}
 			System.exit(0);

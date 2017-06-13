@@ -26,7 +26,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	private double speedPriority = 9;
 	private State testState;
 
-	private int numberOfStates = 20000;
+	private int numberOfStates = 15000;
 	private State[] stateArray = new State[numberOfStates];
 	private int indexStateArray = 0;
 
@@ -332,8 +332,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
-				if (successor.penalty < 2000) {
+				if (successor.penalty < Values.penaltyDie) {
 					openSet.add(successor);
+				} else {
+					indexStateArray--;
 				}
 				closed.put(successor.superHashCode(), successor);
 			} else {

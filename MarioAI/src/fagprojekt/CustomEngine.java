@@ -157,14 +157,7 @@ public class CustomEngine {
 		move(state, 0, state.ya); // marioMove
 
 		if (state.y >= 15 * cellSize + cellSize) {
-			State current = state;
-			current.penalty(Values.penaltyGap);
-			for (int i = 1; i < Values.parentToPunishGap; i++) {
-				if (current.parent != null) {
-					current = current.parent;
-					current.penalty(Values.getPPG(i));
-				}
-			}
+			state.penalty(Values.penaltyGap);
 		}
 
 		if (state.x < 0) {

@@ -118,18 +118,8 @@ public abstract class Enemy {
 						if (state.height != 12) {
 							state.invulnerable = 32;
 							state.penalty(Values.penaltyLoseLife);
-							State current = state;
-							for (int i = 1; i < Values.parentToPunishLoseLife; i++) {
-								current = state.parent;
-								current.penalty(Values.getPPLL(i));
-							}
 						} else {
 							state.penalty(Values.penaltyDie);
-							State current = state;
-							for (int i = 1; i < Values.parentToPunishDie; i++) {
-								current = state.parent;
-								current.penalty(Values.getPPD(i));
-							}
 						}
 					}
 				}
