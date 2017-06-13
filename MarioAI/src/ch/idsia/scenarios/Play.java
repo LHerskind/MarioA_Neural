@@ -68,7 +68,7 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = false;
+	static boolean all = true;
 	static boolean visualize = !all;
 	static boolean enemies = true;
 	static int amountOfMaps = 500;
