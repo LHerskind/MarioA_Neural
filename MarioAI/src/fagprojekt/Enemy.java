@@ -27,8 +27,6 @@
 
 package fagprojekt;
 
-import ch.idsia.benchmark.mario.engine.LevelScene;
-import ch.idsia.benchmark.mario.engine.level.Level;
 import fagprojekt.AStarAgent.State;
 
 public abstract class Enemy {
@@ -71,19 +69,7 @@ public abstract class Enemy {
 	public boolean noFireballDeath = false;
 	public boolean dead;
 
-	// CHEATER-COLLISION
-	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
-	public static final int BIT_BLOCK_UPPER = 1 << 0;
-	public static final int BIT_BLOCK_ALL = 1 << 1;
-	public static final int BIT_BLOCK_LOWER = 1 << 2;
-	public static final int BIT_SPECIAL = 1 << 3;
-	public static final int BIT_BUMPABLE = 1 << 4;
-	public static final int BIT_BREAKABLE = 1 << 5;
-	public static final int BIT_PICKUPABLE = 1 << 6;
-	public static final int BIT_ANIMATED = 1 << 7;
-
-	public Enemy(float x, float y, byte kind, float ya, int facing,
-			boolean dead /* ,boolean winged, int mapX, int mapY */) {
+	public Enemy(float x, float y, byte kind, float ya, int facing, boolean dead) {
 		this.dead = dead;
 		this.facing = facing;
 		this.kind = kind;
@@ -126,8 +112,9 @@ public abstract class Enemy {
 					if (state.invulnerable <= 0) {
 						if (state.height != 12) {
 							state.invulnerable = 32;
-							state.penalty(Values.penaltyLoseLife); // Can be changed
-							if(state.marioMode == 2){
+							state.penalty(Values.penaltyLoseLife); // Can be
+																	// changed
+							if (state.marioMode == 2) {
 								state.penalty(Values.penaltyLoseLife);
 							}
 							state.marioMode--;
@@ -196,13 +183,8 @@ public abstract class Enemy {
 			if (isBlocking(map, x + xa + width, y + ya, xa, ya))
 				collide = true;
 
-			// if (avoidCliffs && onGround
-			// && map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
-			// collide = true;
-
-			if (avoidCliffs && onGround
-					&& !LevelScene.level.isBlocking((int) ((x + xa + width) / 16), (int) ((y) / 16 + 1), xa, 1))
-				collide = true;
+			 if (avoidCliffs && onGround && !isBlocking(map, (x + xa + width), y + 16, xa, 1))
+				 collide = true;
 		}
 		if (xa < 0) {
 			if (isBlocking(map, x + xa - width, y + ya - height, xa, ya))
@@ -212,12 +194,8 @@ public abstract class Enemy {
 			if (isBlocking(map, x + xa - width, y + ya, xa, ya))
 				collide = true;
 
-			// if (avoidCliffs && onGround
-			// && map[(int) ((y) / 16 + 1)][(int) ((x + xa - width) / 16)] < 0)
-			// collide = true;
-			if (avoidCliffs && onGround
-					&& !LevelScene.level.isBlocking((int) ((x + xa - width) / 16), (int) ((y) / 16 + 1), xa, 1))
-				collide = true;
+			 if (avoidCliffs && onGround && !isBlocking(map, x+xa-width, y+16, xa, 1))
+				 collide = true;
 		}
 
 		if (collide) {
@@ -253,20 +231,19 @@ public abstract class Enemy {
 		if (x == (int) (this.x / 16) && y == (int) (this.y / 16)) {
 			return false;
 		}
-		// CHEATER COLLISION
 
-		byte block = LevelScene.level.getBlock(x, y);
-		boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
-		blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
-		return blocking;
+		if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) {
+			byte block = map[y][x];
+			if (ya <= 0) {
+				if (block == -62) {
+					return false;
+				}
+			}
+			return block < 0;
+		} else {
+			return false;
+		}
 
-		// CORRECT COLLISION!
-		/*
-		 * if (this.x >= 0 && this.x < 600 * 16 && y >= 0 && y < 16) { byte
-		 * block = map[y][x]; if (ya <= 0) { if (block == -62) { return false; }
-		 * } return block < 0; } else { return false; }
-		 */
 	}
 
 	public boolean shellCollideCheck(State state, Shell shell) {
@@ -277,7 +254,7 @@ public abstract class Enemy {
 
 		if (xD > -16 && xD < 16) {
 			if (yD > -height && yD < shell.height) {
-//				dead = true;
+				// dead = true;
 				return true;
 			}
 		}
@@ -295,7 +272,7 @@ public abstract class Enemy {
 			if (yD > -height && yD < fireball.height) {
 				if (noFireballDeath)
 					return 2;
-//				dead = true;
+				// dead = true;
 				return 1;
 			}
 		}
@@ -304,16 +281,4 @@ public abstract class Enemy {
 
 	public void release(State state) {
 	}
-
-	/*
-	 * TODO - BUMPCHECK?! public void bumpCheck(int xTile, int yTile) { if
-	 * (deadTime != 0) return;
-	 * 
-	 * if (x + width > xTile * 16 && x - width < xTile * 16 + 16 && yTile ==
-	 * (int) ((y - 1) / 16)) { xa = -levelScene.mario.facing * 2; ya = -5;
-	 * flyDeath = true; if (spriteTemplate != null) spriteTemplate.isDead =
-	 * true; deadTime = 100; winged = false; hPic = -hPic; yPicO = -yPicO + 16;
-	 * // System.out.println("bumpCheck: mostelikely shell killed other //
-	 * creature"); } }
-	 */
 }

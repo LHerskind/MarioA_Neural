@@ -3,12 +3,10 @@ package fagprojekt;
 import java.util.ArrayList;
 
 import ch.idsia.benchmark.mario.engine.GlobalOptions;
-import ch.idsia.benchmark.mario.engine.LevelScene;
-import ch.idsia.benchmark.mario.engine.level.Level;
+
 import fagprojekt.AStarAgent.State;
 import fagprojekt.Enemy;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
-import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 
 public class CustomEngine {
 
@@ -22,23 +20,11 @@ public class CustomEngine {
 	// General dimensions
 	public final int cellSize = 16;
 	// Map
-
 	private byte[][] map = new byte[19][600];
 	private int mapX = 0;
 	private float highestX = 0;
 	// UTILITIES
 	public boolean debug = true;
-
-	// CHEATER-COLLISION
-	public static byte[] TILE_BEHAVIORS = Level.TILE_BEHAVIORS;
-	public static final int BIT_BLOCK_UPPER = 1 << 0;
-	public static final int BIT_BLOCK_ALL = 1 << 1;
-	public static final int BIT_BLOCK_LOWER = 1 << 2;
-	public static final int BIT_SPECIAL = 1 << 3;
-	public static final int BIT_BUMPABLE = 1 << 4;
-	public static final int BIT_BREAKABLE = 1 << 5;
-	public static final int BIT_PICKUPABLE = 1 << 6;
-	public static final int BIT_ANIMATED = 1 << 7;
 
 	public ArrayList<Enemy> copyEnemies(ArrayList<Enemy> enemies) {
 		ArrayList<Enemy> copy = new ArrayList<>();
@@ -82,7 +68,10 @@ public class CustomEngine {
 		}
 		return predictedEnemies;
 	}
-
+/**
+ * The current state is sent into this method where a tick is simulated, changing the state's values as needed.
+ * The logic here closely resembles the logic in the original engine.
+ */
 	public void predictFuture(State state) {
 		state.fireballsOnScreen = state.fireballs.size();
 		// Remove dead fireballs
@@ -146,7 +135,7 @@ public class CustomEngine {
 				state.ya = state.jumpTime * state.yJumpSpeed;
 				state.jumpTime--;
 
-			} else if (state.jumpTime == 0) { // SELF-MADE
+			} else if (state.jumpTime == 0) {
 				state.action[Mario.KEY_JUMP] = false;
 			}
 		} else {
@@ -154,7 +143,7 @@ public class CustomEngine {
 
 		}
 
-		if (state.action[Mario.KEY_LEFT]/* && !ducking */) {
+		if (state.action[Mario.KEY_LEFT]) {
 			if (state.facing == 1)
 				state.sliding = false;
 			state.xa -= sideWaysSpeed;
@@ -162,7 +151,7 @@ public class CustomEngine {
 				state.facing = -1;
 		}
 
-		if (state.action[Mario.KEY_RIGHT] /* && !ducking */) {
+		if (state.action[Mario.KEY_RIGHT]) {
 			if (state.facing == -1)
 				state.sliding = false;
 			state.xa += sideWaysSpeed;
@@ -185,7 +174,7 @@ public class CustomEngine {
 		state.onGround = false;
 		move(state, state.xa, 0); // marioMove
 		move(state, 0, state.ya); // marioMove
-
+		// gap
 		if (state.y >= 15 * cellSize + cellSize) {
 			State current = state;
 			current.penalty(Values.penaltyDie);
@@ -205,6 +194,7 @@ public class CustomEngine {
 		if (!state.onGround) {
 			state.ya += 3;
 		}
+		// When mario is carrying a shell
 		if (state.carried != null) {
 			state.carried.x = state.x + state.facing * 8;
 			state.carried.y = state.y - 2;
@@ -213,6 +203,7 @@ public class CustomEngine {
 				state.carried = null;
 			}
 		}
+		// Enemy collision
 		for (int i = 0; i < state.enemyList.size(); i++) {
 			Enemy e = state.enemyList.get(i);
 			if (!e.dead) {
@@ -264,7 +255,6 @@ public class CustomEngine {
 						if (state.carried == shell && !shell.dead) {
 							state.carried = null;
 							shell.die();
-							// s.die();
 						}
 					}
 				}
@@ -297,7 +287,9 @@ public class CustomEngine {
 		}
 		state.fireballsToCheck.clear();
 	}
-
+	/**
+	 * main move-method for checking collision with map
+	 */
 	private boolean move(State state, float xa, float ya) {
 
 		while (xa > 8) {
@@ -390,22 +382,18 @@ public class CustomEngine {
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) {
 			return false;
 		}
-		// CHEATER COLLISION!
-
-		byte block = LevelScene.level.getBlock(x, y);
-		boolean blocking = ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_ALL) > 0;
-		blocking |= (ya > 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_UPPER) > 0;
-		blocking |= (ya < 0) && ((TILE_BEHAVIORS[block & 0xff]) & BIT_BLOCK_LOWER) > 0;
-		return blocking;
-
-		// CORRECT COLLISION
-		/*
-		 * if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) { byte
-		 * block = map[y][x]; boolean blocking = block < 0; if (ya <= 0) { if
-		 * (block == -62) { return false; } }
-		 * 
-		 * return blocking; } else { return false; }
-		 */
+		  if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
+			  byte block = map[y][x];
+			  boolean blocking = block < 0; if (ya <= 0) {
+				  if(block == -62) {
+					  return false;
+				  }
+			  }
+		  return blocking;
+		  } else {
+			  return false;
+			}
+		 
 	}
 
 	public void stomp(State state, final Enemy enemy) {
@@ -550,9 +538,6 @@ public class CustomEngine {
 	}
 
 	void print() {
-
-		// System.out.println(marioFloatPos[1]+" : "+marioFloatPos[0]);
-		// System.out.println(mapX);
 		for (int i = 0; i < 19; i++) {
 			for (int j = 0; j < mapX; j++) {
 

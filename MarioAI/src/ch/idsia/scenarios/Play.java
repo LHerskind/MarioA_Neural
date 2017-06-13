@@ -68,7 +68,7 @@ public final class Play {
 	 * @since MarioAI-0.1
 	 */
 
-	static boolean all = true;
+	static boolean all = false;
 	static boolean visualize = !all;
 	static boolean enemies = true;
 	static int amountOfMaps = 500;
@@ -82,11 +82,12 @@ public final class Play {
 			System.exit(0);
 		} else {
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-			marioAIOptions.setFPS(24);
+			marioAIOptions.setFPS(2);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
-			marioAIOptions.setLevelDifficulty(4);
+			marioAIOptions.setLevelDifficulty(2);
+			marioAIOptions.setEnemies("rk");
 			if (!enemies) {
 				marioAIOptions.setEnemies("off");
 			}
@@ -94,7 +95,7 @@ public final class Play {
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
 
-			marioAIOptions.setLevelRandSeed(231);
+			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);

@@ -1,3 +1,4 @@
+// Main class for all the source code. The agent returns an action that mario should do in the next step
 package fagprojekt;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public ArrayList<Float> prevEnemiesX;
 	// Same but for fireballs
 	public ArrayList<Fireball> prevFireballs;
-
+	// closed set and frontier/openSet, relevant for the A* algorithm
 	private HashMap<Long, State> closed = new HashMap<>();
 
 	private PriorityQueue<State> openSet = new PriorityQueue<State>(100, new Comparator<State>() {
@@ -66,10 +67,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		super("AStarAgent");
 		for (int i = 1; i < numberOfStates; i++) {
 			State state = new State();
-			/*
-			 * for(int j = 0; j < maxNumberOfEnemies; j++) { enemyArray[i][j] =
-			 * new Enemy(); } state.enemyList = enemyArray[i];
-			 */
 			stateArray[i] = state;
 		}
 		reset();
@@ -86,32 +83,31 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (input[Mario.KEY_JUMP]) {
 			z += 4;
 		}
-		// if (input[Mario.KEY_SPEED]) {
-		// z += 11;
-		// }
 		return z;
 	}
 
 	public class State {
+		// Movement
 		public float x;
 		public float y;
 		public float xa;
-		public int facing;
-		public int marioHeight;
-		public int marioMode;
-
 		public float ya;
 		public int jumpTime;
 		public float yJumpSpeed;
 		public float xJumpSpeed;
+		public int facing;
+		public boolean mayJump;
+		// Misc
+		public int marioHeight;
+		public int marioMode;
 		public int height;
 		public boolean onGround;
 		public boolean wasOnGround;
 		public boolean sliding;
-		public boolean mayJump;
 		public boolean ableToShoot;
 		public int invulnerable;
 
+		// A* relevant values
 		public int penalty;
 		public State parent;
 		public int heuristic;
@@ -122,16 +118,19 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public ArrayList<Enemy> enemyList;
 		public boolean stomp;
 		public Enemy carried = null;
+		public ArrayList<Shell> shellsToCheck;
 		// fireballs
 		public ArrayList<Fireball> fireballs;
 		public ArrayList<Fireball> fireballsToCheck;
-		public ArrayList<Shell> shellsToCheck;
 		public int fireballsOnScreen;
 
 		public State() {
 		}
-
-		public State(boolean lala) {
+		/**
+		 * Initial state
+		 * @param initial
+		 */
+		public State(boolean initial) {
 			initValues();
 			penalty = 0;
 			parent = null;
@@ -155,13 +154,13 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			this.facing = prevFacing;
 			this.xJumpSpeed = prevXJumpSpeed;
 			this.invulnerable = prevInvulnerable;
+			this.yJumpSpeed = prevYJumpSpeed;
+			this.height = marioMode > 0 ? 24 : 12;
 			this.carried = null;
 			this.shellsToCheck = new ArrayList<Shell>();
 			// For the first tick, ya value is 3.0f. Its a small detail
 			if (prevYa == 0)
 				this.ya = 3.0f;
-			this.yJumpSpeed = prevYJumpSpeed;
-			this.height = marioMode > 0 ? 24 : 12;
 
 			this.fireballs = new ArrayList<Fireball>();
 			if (prevFireballs != null) {
@@ -177,16 +176,8 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				byte kind = (byte) enemiesFloatPos[i];
 				boolean EnemyOnGround = false;
 				boolean EnemyCarried = false;
-				// Check facing & Ya
-				// 2.0 is the value all new enemies WITHOUT wings are assigned
-				// for first tick, else it is 0.6.
-				// The reason this is not set to 0, is because when enemies
-				// spawn in the engine, they are put through one single tick for
-				// themselves,
-				// giving them some custom values for xa, ya, etc, which
-				// (luckily) are the same for all enemies of same kind. Flowers
-				// are given 5 ticks
-				// upon spawning, because why the fuck not??
+				// When enemies spawn they tick once, giving them an initial value of ya, etc, unless
+				// they persisted from the previous tick, in which case they pertain their previous values.
 				float EnemyYa = 2.0f;
 				// Following values are for winged enemies
 				if (kind == 96 || kind == 97 || kind == 95 || kind == 99)
@@ -243,7 +234,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			}
 		}
-
+/**
+ * Is used to differentiate between states in the closed set
+ */
 		public long superHashCode() {
 			int x = (int) (500 + this.x - marioFloatPos[0]);
 			int y = (int) (500 + this.y - marioFloatPos[1]);
@@ -259,7 +252,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 			return Long.parseLong(superHashCode);
 		}
-
+		/**
+		 * This is where the future states are being predicted. Every value is being set to its parent value
+		 * and then run through the engine to get a future prediction based on its action
+		 */
 		public State getNextState(State parent, boolean[] action, ArrayList<Enemy> enemies) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
@@ -300,17 +296,22 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 				ce.predictFuture(nextState);
+				// the g-value is set panent + 9. The value 9 is obtained through trial and error and does not have any specific meaning
 				nextState.g = parent.g + (int) speedPriority;
+				// The heuristic is the distance to the end of the screen
 				nextState.heuristic = (int) (searchDepth - nextState.x);
 
 				return nextState;
 			}
 			return null;
 		}
-
+		/**
+		 * The priority for the A*, also called f-function. It is an addition of the heuristic,
+		 * g and penalty
+		 */
 		public int priority() {
-			int lala = this.onGround ? 0 : 15;
-			return heuristic + g + penalty + (int) y / 16 + lala;
+			int onGroundPrio = this.onGround ? 0 : 15;
+			return heuristic + g + penalty + (int) y / 16 + onGroundPrio;
 		}
 
 		public void penalty(int amount) {
@@ -320,50 +321,17 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public boolean isGoal() {
 			return x >= searchDepth;
 		}
-
-		State moveNE(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, true, true, false), enemies);
-		}
-
-		State SmoveNE(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, true, true, true), enemies);
-		}
-
-		State moveE(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, true, false, false), enemies);
-		}
-
-		State SmoveE(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, true, false, true), enemies);
-		}
-
-		State moveN(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, false, true, false), enemies);
-		}
-
-		State SmoveN(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, false, true, true), enemies);
-		}
-
-		State moveNW(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(true, false, true, false), enemies);
-		}
-
-		State SmoveNW(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(true, false, true, true), enemies);
-		}
-
-		State moveW(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(true, false, false, false), enemies);
-		}
-
-		State SmoveW(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(true, false, false, true), enemies);
-		}
-
-		State still(ArrayList<Enemy> enemies) {
-			return getNextState(this, createAction(false, false, false, false), enemies);
-		}
+		// Below is all the needed future states, defined by the future action
+		State moveNE(ArrayList<Enemy> enemies) {return getNextState(this, createAction(false, true, true, false), enemies);}
+		State SmoveNE(ArrayList<Enemy> enemies) {return getNextState(this, createAction(false, true, true, true), enemies);}
+		State moveE(ArrayList<Enemy> enemies) {return getNextState(this, createAction(false, true, false, false), enemies);}
+		State SmoveE(ArrayList<Enemy> enemies) {return getNextState(this, createAction(false, true, false, true), enemies);}
+		State moveN(ArrayList<Enemy> enemies) {return getNextState(this, createAction(false, false, true, false), enemies);}
+		State moveNW(ArrayList<Enemy> enemies) {return getNextState(this, createAction(true, false, true, false), enemies);}
+		State SmoveNW(ArrayList<Enemy> enemies) {return getNextState(this, createAction(true, false, true, true), enemies);}
+		State moveW(ArrayList<Enemy> enemies) {return getNextState(this, createAction(true, false, false, false), enemies);}
+		State SmoveW(ArrayList<Enemy> enemies) {return getNextState(this, createAction(true, false, false, true), enemies);}
+		State still(ArrayList<Enemy> enemies) {return getNextState(this, createAction(false, false, false, false), enemies);}
 
 		State duck() {
 			ArrayList<Enemy> enemies = new ArrayList<Enemy>();
@@ -373,8 +341,15 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			}
 			return togo;
 		}
+		private boolean[] duckAction() {
+			boolean[] action = new boolean[6];
+			action[Mario.KEY_DOWN] = true;
+			return action;
+		}
 	}
-
+/**
+ * This function adds the next state(successor) to the open set, unless it has been visited before.
+ */
 	public void addSuccessor(State successor) {
 		if (successor != null) {
 			if (!closed.containsKey(successor.superHashCode())) {
@@ -386,12 +361,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 				indexStateArray--;
 			}
 		}
-	}
-
-	private boolean[] duckAction() {
-		boolean[] action = new boolean[6];
-		action[Mario.KEY_DOWN] = true;
-		return action;
 	}
 
 	private boolean[] createAction(boolean left, boolean right, boolean jump, boolean speed) {
@@ -406,7 +375,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 	public State getTestState() {
 		return testState;
 	}
-
+/**
+ * When a route has been calculated, the function returns the first action in the chain to the goal.
+ * When tracing backwards, it saves all the coordinates on the path in a debug array which is drawn in the LevelRenderer-class.
+ */
 	public State getRootState(State state) {
 		if (state.parent == null) {
 			return null;
@@ -444,11 +416,40 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return state;
 		}
 	}
+	public void debug(State state) {
+		if (GlobalOptions.enemyDebug) {
+			for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
+				for (int j = 0; j < 400; j++) {
+					if (enemiesFloatPos.length / 3 > i) {
+						GlobalOptions.enemyPos[i][j][0] = (int) (state.enemyList.get(i).x);
+						GlobalOptions.enemyPos[i][j][1] = (int) (state.enemyList.get(i).y);
+					}
+				}
+			}
+		}
 
-	public void debug() {
+		if (GlobalOptions.fireballDebug) {
+			for (int i = 0; i < GlobalOptions.fireballPos.length; i++) {
+				for (int j = 0; j < 400; j++) {
+					if (state.fireballs.size() > i) {
+						GlobalOptions.fireballPos[i][j][0] = (int) (state.fireballs.get(i).x);
+						GlobalOptions.fireballPos[i][j][1] = (int) (state.fireballs.get(i).y);
+					}
+				}
+			}
+		}
 
+		if (GlobalOptions.marioDebug) {
+			for (int i = 0; i < 400; i++) {
+				GlobalOptions.marioPos[i][0] = (int) state.x;
+				GlobalOptions.marioPos[i][1] = (int) state.y;
+			}
+		}
 	}
-
+	/** 
+	 * The core of the A*-algorithm. Pulls the front state from the open set and checks whether its the goal. If not, add its successors to the openSet.
+	 * @return
+	 */
 	public State solve() {
 		long startTime = System.currentTimeMillis();
 
@@ -460,7 +461,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		closed.clear();
 		indexStateArray = 1;
 
-		// Add initial state to queue.
+		// Add initial state to queue. To differ it from the other constructor, we simply add a boolean as argument
 		State initial = new State(true);
 		stateArray[indexStateArray++] = initial;
 		openSet.add(initial);
@@ -468,35 +469,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 
 		stateArray[0] = initial.duck();
 
-		// FOR DEBUGGING
-		if (GlobalOptions.enemyDebug) {
-			for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
-				for (int j = 0; j < 400; j++) {
-					if (enemiesFloatPos.length / 3 > i) {
-						GlobalOptions.enemyPos[i][j][0] = (int) (enemiesFloatPos[i * 3 + 1] + marioFloatPos[0]);
-						GlobalOptions.enemyPos[i][j][1] = (int) (enemiesFloatPos[i * 3 + 2] + marioFloatPos[1]);
-					}
-				}
-			}
-		}
-
-		if (GlobalOptions.fireballDebug) {
-			for (int i = 0; i < GlobalOptions.fireballPos.length; i++) {
-				for (int j = 0; j < 400; j++) {
-					if (initial.fireballs.size() > i) {
-						GlobalOptions.fireballPos[i][j][0] = (int) (initial.fireballs.get(i).x);
-						GlobalOptions.fireballPos[i][j][1] = (int) (initial.fireballs.get(i).y);
-					}
-				}
-			}
-		}
-
-		if (GlobalOptions.marioDebug) {
-			for (int i = 0; i < 400; i++) {
-				GlobalOptions.marioPos[i][0] = (int) marioFloatPos[0];
-				GlobalOptions.marioPos[i][1] = (int) marioFloatPos[1];
-			}
-		}
+		debug(initial);
 		debugPos = 0;
 
 		while (!openSet.isEmpty()) {
@@ -516,17 +489,16 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			ArrayList<Enemy> enemiesNextState = ce.predictEnemies(state);
 			addSuccessor(state.SmoveE(enemiesNextState));
 			addSuccessor(state.SmoveNE(enemiesNextState));
-			addSuccessor(state.SmoveNW(enemiesNextState));
-			addSuccessor(state.SmoveW(enemiesNextState));
+			addSuccessor(state.moveNW(enemiesNextState));
+			addSuccessor(state.moveW(enemiesNextState));
 			if (state.fireballs.size() < 2 && state.marioMode == 2) {
-				addSuccessor(state.still(enemiesNextState));
-				addSuccessor(state.moveE(enemiesNextState));
-				addSuccessor(state.moveNE(enemiesNextState));
+//				addSuccessor(state.still(enemiesNextState));
+//				addSuccessor(state.moveE(enemiesNextState));
+//				addSuccessor(state.moveNE(enemiesNextState));
 //				addSuccessor(state.moveNW(enemiesNextState));
 //				addSuccessor(state.moveW(enemiesNextState));
 			}
 		}
-		// System.out.println("DISASTER: OPEN-SET IS EMPTY");
 		return stateArray[0];
 	}
 
@@ -543,11 +515,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		// System.out.println("NEW TICK");
 
 		// If mario position is 32, it means we have started a new map in
-		// GamePlayTrack, and firstScene should be set true
+		// GamePlayTrack, and we need a reset of values
 		if (marioFloatPos[0] == 32) {
 			reset();
 		}
-
+		
 		if (firstScene) {
 			if (cheatMap) {
 				ce.setCheatScene(levelScene);
@@ -570,6 +542,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		if (bestState == null) {
 			return createAction(false, false, false, false);
 		}
+		// The values for the best future state are saved and called in the next runthrough
 		prevJumpTime = bestState.jumpTime;
 		prevXa = bestState.xa;
 		prevYa = bestState.ya;
@@ -589,7 +562,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 		return bestState.action;
 	}
-
+/**
+ * Merges the previous enemy list with the input enemy list, to make sure the indexes of the enemies are the same
+ */
 	public void validatePrevArr() {
 		if (bestState != null) {
 			prevEnemyFacingArr = new int[enemiesFloatPos.length / 3];
