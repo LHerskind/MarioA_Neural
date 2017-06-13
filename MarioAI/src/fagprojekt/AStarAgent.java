@@ -249,16 +249,46 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			while (superHashCode.length() < 10) {
 				superHashCode += 0;
 			}
-
 			return Long.parseLong(superHashCode);
 		}
-		/**
-		 * This is where the future states are being predicted. Every value is being set to its parent value
-		 * and then run through the engine to get a future prediction based on its action
-		 */
+
+		public State copyState(State toCopy) {
+			State copy = new State();
+			copy.parent = toCopy.parent;
+			copy.marioMode = toCopy.marioMode;
+			copy.action = toCopy.action;
+			copy.height = toCopy.height;
+			copy.marioHeight = toCopy.marioHeight;
+			copy.ableToShoot = toCopy.ableToShoot;
+			copy.carried = toCopy.carried;
+			copy.enemyList = toCopy.enemyList;
+			copy.facing = toCopy.facing;
+			copy.fireballs = toCopy.fireballs;
+			copy.fireballsOnScreen = toCopy.fireballsOnScreen;
+			copy.fireballsToCheck = toCopy.fireballsToCheck;
+			copy.onGround = toCopy.onGround;
+			copy.mayJump = toCopy.mayJump;
+			copy.g = toCopy.g;
+			copy.penalty = toCopy.penalty;
+			copy.sliding = toCopy.sliding;
+			copy.heuristic = toCopy.heuristic;
+			copy.jumpTime = toCopy.jumpTime;
+			copy.shellsToCheck = toCopy.shellsToCheck;
+			copy.stomp = toCopy.stomp;
+			copy.wasOnGround = toCopy.wasOnGround;
+			copy.x = toCopy.x;
+			copy.xa = toCopy.xa;
+			copy.xJumpSpeed = toCopy.xJumpSpeed;
+			copy.y = toCopy.y;
+			copy.ya = toCopy.ya;
+			copy.yJumpSpeed = toCopy.yJumpSpeed;
+			return copy;
+		}
+
 		public State getNextState(State parent, boolean[] action, ArrayList<Enemy> enemies) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
+				// State nextState = new State();
 				nextState.parent = parent;
 
 				nextState.marioMode = parent.marioMode;
@@ -416,7 +446,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return state;
 		}
 	}
+
 	public void debug(State state) {
+
 		if (GlobalOptions.enemyDebug) {
 			for (int i = 0; i < GlobalOptions.enemyPos.length; i++) {
 				for (int j = 0; j < 400; j++) {
@@ -460,13 +492,10 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		openSet.clear();
 		closed.clear();
 		indexStateArray = 1;
-
-		// Add initial state to queue. To differ it from the other constructor, we simply add a boolean as argument
 		State initial = new State(true);
 		stateArray[indexStateArray++] = initial;
 		openSet.add(initial);
 		closed.put(initial.superHashCode(), initial);
-
 		stateArray[0] = initial.duck();
 
 		debug(initial);
@@ -476,27 +505,22 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			State state = openSet.poll();
 
 			if (state.isGoal()) {
-
-				testState = state;
+				// testState = state;
 				return getRootState(state);
 			}
 
 			if (System.currentTimeMillis() - startTime > 25 || indexStateArray >= numberOfStates) {
-				// System.out.println("SHIT " + indexStateArray);
 				return getRootState(state);
 			}
 
 			ArrayList<Enemy> enemiesNextState = ce.predictEnemies(state);
 			addSuccessor(state.SmoveE(enemiesNextState));
 			addSuccessor(state.SmoveNE(enemiesNextState));
-			addSuccessor(state.moveNW(enemiesNextState));
-			addSuccessor(state.moveW(enemiesNextState));
-			if (state.fireballs.size() < 2 && state.marioMode == 2) {
-//				addSuccessor(state.still(enemiesNextState));
-//				addSuccessor(state.moveE(enemiesNextState));
-//				addSuccessor(state.moveNE(enemiesNextState));
-//				addSuccessor(state.moveNW(enemiesNextState));
-//				addSuccessor(state.moveW(enemiesNextState));
+			addSuccessor(state.SmoveNW(enemiesNextState));
+			addSuccessor(state.SmoveW(enemiesNextState));
+			if (state.carried != null
+					|| state.fireballs.size() < 2 && state.marioMode == 2 && GlobalOptions.areFrozenCreatures) {
+				addSuccessor(state.still(enemiesNextState));
 			}
 		}
 		return stateArray[0];
