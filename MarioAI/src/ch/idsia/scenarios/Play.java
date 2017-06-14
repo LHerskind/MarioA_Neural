@@ -81,21 +81,20 @@ public final class Play {
 			}
 			System.exit(0);
 		} else {
+			// From here, a lot of options for the project can be set, such as difficulty, level seed, enemies, etc.
 			final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 			marioAIOptions.setFPS(24);
 			final BasicTask basicTask = new BasicTask(marioAIOptions);
 			GlobalOptions.changeScale2x();
 			marioAIOptions.setVisualization(true);
 
-			marioAIOptions.setLevelDifficulty(10);
+			marioAIOptions.setLevelDifficulty(5);
 			if (!enemies) {
 				marioAIOptions.setEnemies("off");
 			}
-
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-
-			marioAIOptions.setLevelRandSeed(6);
+			marioAIOptions.setLevelRandSeed(seed);
 
 			final MarioCustomSystemOfValues m = new MarioCustomSystemOfValues();
 			basicTask.doEpisodes(1, false, 1);
