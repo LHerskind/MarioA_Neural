@@ -26,6 +26,17 @@ public class CustomEngine {
 	// UTILITIES
 	public boolean debug = true;
 
+	private byte[][] levelScene;
+	private int currY;
+
+	/**
+	 * <h1>Copy enemies</h1> Takes a list of enemies and copies it, returning an
+	 * identical list
+	 * 
+	 * @param enemies
+	 * @return ArrayList<Enemy> copy
+	 */
+
 	public ArrayList<Enemy> copyEnemies(ArrayList<Enemy> enemies) {
 		ArrayList<Enemy> copy = new ArrayList<>();
 		for (Enemy e : enemies) {
@@ -45,6 +56,14 @@ public class CustomEngine {
 		}
 		return copy;
 	}
+
+	/**
+	 * <h1>Predict enemies in next state</h1> Takes a state, copies the enemies
+	 * into a new list, and predict the movement of the enemies in the new list
+	 * 
+	 * @param state
+	 * @return ArrayList<Enemy> predictedEnemies
+	 */
 
 	public ArrayList<Enemy> predictEnemies(State state) {
 		ArrayList<Enemy> predictedEnemies = copyEnemies(state.enemyList);
@@ -68,10 +87,12 @@ public class CustomEngine {
 		}
 		return predictedEnemies;
 	}
-/**
- * The current state is sent into this method where a tick is simulated, changing the state's values as needed.
- * The logic here closely resembles the logic in the original engine.
- */
+
+	/**
+	 * The current state is sent into this method where a tick is simulated,
+	 * changing the state's values as needed. The logic here closely resembles
+	 * the logic in the original engine.
+	 */
 	public void predictFuture(State state) {
 		state.fireballsOnScreen = state.fireballs.size();
 		// Remove dead fireballs
@@ -287,6 +308,7 @@ public class CustomEngine {
 		}
 		state.fireballsToCheck.clear();
 	}
+
 	/**
 	 * main move-method for checking collision with map
 	 */
@@ -375,25 +397,37 @@ public class CustomEngine {
 		}
 	}
 
+	/**
+	 * <h1>Is blocking</h1> Returning whether or not the movement would be
+	 * blocked.
+	 * 
+	 * @param state
+	 * @param _x
+	 * @param _y
+	 * @param xa
+	 * @param ya
+	 * @return boolean
+	 */
+
 	private boolean isBlocking(State state, final float _x, final float _y, final float xa, final float ya) {
-		int x = (int) (_x / 16); // TODO: Lidt gl her
+		int x = (int) (_x / 16);
 		int y = (int) (_y / 16);
 
 		if (x == (int) (state.x / 16) && y == (int) (state.y / 16)) {
 			return false;
 		}
-		  if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
-			  byte block = map[y][x];
-			  boolean blocking = block < 0; if (ya <= 0) {
-				  if(block == -62) {
-					  return false;
-				  }
-			  }
-		  return blocking;
-		  } else {
-			  return false;
+		if (state.x >= 0 && state.x < 600 * 16 && y >= 0 && y < 16) {
+			byte block = map[y][x];
+			boolean blocking = block < 0;
+			if (ya <= 0) {
+				if (block == -62) {
+					return false;
+				}
 			}
-		 
+			return blocking;
+		} else {
+			return false;
+		}
 	}
 
 	public void stomp(State state, final Enemy enemy) {
@@ -438,6 +472,12 @@ public class CustomEngine {
 
 	}
 
+	/**
+	 * <h1>Printing ongoing</h1> Printing the current grid
+	 * 
+	 * @param x
+	 * @param y
+	 */
 	public void printOnGoing(float x, float y) {
 		if (debug) {
 			int __x = (int) x / 16;
@@ -456,9 +496,6 @@ public class CustomEngine {
 			System.out.println();
 		}
 	}
-
-	private byte[][] levelScene;
-	private int currY;
 
 	public void setLevelScene(byte[][] levelScene) {
 		this.levelScene = levelScene;
@@ -512,6 +549,12 @@ public class CustomEngine {
 		}
 	}
 
+	/**
+	 * <h1>Set cheatlevelscene</h1> Setting the initial state of the map, adding
+	 * the first couple of rows
+	 * 
+	 * @param levelScene
+	 */
 	public void setCheatLevelScene(byte[][] levelScene) {
 		this.levelScene = levelScene;
 	}
@@ -524,6 +567,12 @@ public class CustomEngine {
 		}
 		mapX = 18;
 	}
+
+	/**
+	 * <h1>To cheatscene</h1> Adding the next column to our map
+	 * 
+	 * @param x
+	 */
 
 	public void toCheatScene(float x) {
 		if (x > highestX) {

@@ -119,6 +119,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		public boolean stomp;
 		public Enemy carried = null;
 		public ArrayList<Shell> shellsToCheck;
+
 		// fireballs
 		public ArrayList<Fireball> fireballs;
 		public ArrayList<Fireball> fireballsToCheck;
@@ -291,6 +292,18 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return copy;
 		}
 
+		/**
+		 * <h1>Get Next State</h1> Given a parent state, an action and the
+		 * prediction of the enemies, this method will return a child, which
+		 * contains the predicted movement of Mario, when he will use the action
+		 * in next tick
+		 * 
+		 * @param parent
+		 * @param action
+		 * @param enemies
+		 * @return State
+		 */
+
 		public State getNextState(State parent, boolean[] action, ArrayList<Enemy> enemies) {
 			if (indexStateArray < numberOfStates) {
 				State nextState = stateArray[indexStateArray++];
@@ -332,7 +345,7 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 					}
 				}
 				ce.predictFuture(nextState);
-				// the g-value is set panent + 9. The value 9 is obtained
+				// the g-value is set parent + 9. The value 9 is obtained
 				// through trial and error and does not have any specific
 				// meaning
 				nextState.g = parent.g + (int) speedPriority;
@@ -353,9 +366,20 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return heuristic + g + penalty + (int) y / 16 + onGroundPrio;
 		}
 
+		/**
+		 * <h1>Penalty</h1> Adds a given amount to the penalty of the state
+		 * 
+		 * @param amount
+		 */
 		public void penalty(int amount) {
 			penalty += amount;
 		}
+
+		/**
+		 * <h1>IsGoal</h1> Returns true when we have moved to at least the goal.
+		 * 
+		 * @return boolean
+		 */
 
 		public boolean isGoal() {
 			return x >= searchDepth;
@@ -491,6 +515,11 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return state;
 		}
 	}
+
+	/**
+	 * 
+	 * @param state
+	 */
 
 	public void debug(State state) {
 
@@ -668,15 +697,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		}
 	}
 
-	public int getBlock(int x, int y) {
-		return levelScene[y][x];
-	}
-
-	/*
-	 * private void print() { for (int i = 0; i < 19; i++) { for (int j = 0; j <
-	 * 19; j++) { System.out.print(levelScene[i][j] + "\t");
-	 * 
-	 * } System.out.println(); } System.out.println(); }
+	/**
+	 * We use this to change what input w are getting, this is seen inside the
+	 * if(cheatMap)
 	 */
 	@Override
 	public void integrateObservation(Environment environment) {
@@ -685,8 +708,9 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 		this.marioState = environment.getMarioState();
 
 		levelScene = environment.getLevelSceneObservationZ(1); // The normal
-		if (cheatMap)
+		if (cheatMap) {
 			levelScene = environment.getLevelSceneObservationZ(1, 2, (int) marioFloatPos[1] / 16);
+		}
 
 		enemies = environment.getEnemiesObservationZ(0);
 		mergedObservation = environment.getMergedObservationZZ(1, 0);
