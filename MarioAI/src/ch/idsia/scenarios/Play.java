@@ -71,12 +71,12 @@ public final class Play {
 	static boolean all = false;
 	static boolean visualize = !all;
 	static boolean enemies = true;
-	static int amountOfMaps = 500;
+	static int amountOfMaps = 5;
 
 	public static void main(String[] args) {
 
 		if (all) {
-			for (int i = 12; i < 16; i++) {
+			for (int i = 0; i < 16; i++) {
 				manyMaps(amountOfMaps, i);
 			}
 			System.exit(0);
@@ -94,7 +94,6 @@ public final class Play {
 
 			int seed = new Random().nextInt(400);
 			System.out.println(seed);
-
 
 			marioAIOptions.setLevelRandSeed(6);
 
