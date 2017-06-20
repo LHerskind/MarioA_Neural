@@ -259,39 +259,6 @@ public class AStarAgent extends BasicMarioAIAgent implements Agent {
 			return Long.parseLong(superHashCode);
 		}
 
-		public State copyState(State toCopy) {
-			State copy = new State();
-			copy.parent = toCopy.parent;
-			copy.marioMode = toCopy.marioMode;
-			copy.action = toCopy.action;
-			copy.height = toCopy.height;
-			copy.marioHeight = toCopy.marioHeight;
-			copy.ableToShoot = toCopy.ableToShoot;
-			copy.carried = toCopy.carried;
-			copy.enemyList = toCopy.enemyList;
-			copy.facing = toCopy.facing;
-			copy.fireballs = toCopy.fireballs;
-			copy.fireballsOnScreen = toCopy.fireballsOnScreen;
-			copy.fireballsToCheck = toCopy.fireballsToCheck;
-			copy.onGround = toCopy.onGround;
-			copy.mayJump = toCopy.mayJump;
-			copy.g = toCopy.g;
-			copy.penalty = toCopy.penalty;
-			copy.sliding = toCopy.sliding;
-			copy.heuristic = toCopy.heuristic;
-			copy.jumpTime = toCopy.jumpTime;
-			copy.shellsToCheck = toCopy.shellsToCheck;
-			copy.stomp = toCopy.stomp;
-			copy.wasOnGround = toCopy.wasOnGround;
-			copy.x = toCopy.x;
-			copy.xa = toCopy.xa;
-			copy.xJumpSpeed = toCopy.xJumpSpeed;
-			copy.y = toCopy.y;
-			copy.ya = toCopy.ya;
-			copy.yJumpSpeed = toCopy.yJumpSpeed;
-			return copy;
-		}
-
 		/**
 		 * <h1>Get Next State</h1> Given a parent state, an action and the
 		 * prediction of the enemies, this method will return a child, which
